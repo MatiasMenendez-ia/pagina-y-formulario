@@ -1,0 +1,68 @@
+body {
+    background-color: white;
+}
+
+.Parte_superior {
+    background-color: black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.Botones {
+    display: flex;
+    justify-content: right;
+}
+
+.logo {
+    height: 50px;
+}
+
+.login {
+    padding: 10px 20px;
+    background-color: rgb(178, 186, 96);
+    color: white;
+    border: 2px solid white;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+.productos {
+    border: 2px solid red;
+    background-color: black;
+    color: white;
+    width: 250px;
+}
+
+.Fotos {
+    height: 100px;
+}
+
+.contenedor_fotos {
+    display: flex;
+    justify-content: center;
+}
+
+.contenedor-productos {
+    display: flex;
+    padding: 20px;
+    border: 5px gray;
+    border-radius: 10px;
+}
+
+
+.boton {
+    display: flex;
+    justify-items: center;
+
+}
+
+
+.comprar {
+    padding: 3px;
+    background-color: purple;
+    color: black;
+    font-size: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    border: 3px;
+}
