@@ -1,374 +1,353 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --db-bg: #FFFFFF;
+    --db-bg2: #F5F4F0;
+    --db-bg3: #EEEDFE;
+    --db-surface: #FFFFFF;
+    --db-border: rgba(0,0,0,0.12);
+    --db-border2: rgba(0,0,0,0.08);
+    --db-text: #1A1A2E;
+    --db-text2: #555;
+    --db-text3: #999;
+    --db-purple: #3C3489;
+    --db-purple2: #7F77DD;
+    --db-purple3: #EEEDFE;
+    --db-purple4: #AFA9EC;
+    --db-purple-text: #26215C;
+    --db-danger: #A32D2D;
+    --db-verse-bg: #EEEDFE;
+    --db-verse-border: #7F77DD;
+    --db-verse-text: #26215C;
+    --db-meta-bg: #F5F4F0;
+    --db-input-bg: #FFFFFF;
+    --db-toast-bg: #26215C;
+  }
+
+  .dark-mode {
+    --db-bg: #12101E;
+    --db-bg2: #1C1930;
+    --db-bg3: #251F3D;
+    --db-surface: #1C1930;
+    --db-border: rgba(255,255,255,0.1);
+    --db-border2: rgba(255,255,255,0.06);
+    --db-text: #EAE9F8;
+    --db-text2: #AFA9EC;
+    --db-text3: #6B65A8;
+    --db-purple: #7F77DD;
+    --db-purple2: #AFA9EC;
+    --db-purple3: #251F3D;
+    --db-purple4: #3C3489;
+    --db-purple-text: #CECBF6;
+    --db-danger: #F09595;
+    --db-verse-bg: #1E1A32;
+    --db-verse-border: #534AB7;
+    --db-verse-text: #CECBF6;
+    --db-meta-bg: #1C1930;
+    --db-input-bg: #12101E;
+    --db-toast-bg: #534AB7;
+  }
 
   .app {
     font-family: 'Crimson Pro', Georgia, serif;
-    min-height: 600px;
-    background: var(--color-background-tertiary);
+    min-height: 580px;
+    background: var(--db-bg2);
     display: flex;
     flex-direction: column;
+    color: var(--db-text);
+    transition: background 0.25s, color 0.25s;
   }
 
   .topbar {
-    background: var(--color-background-primary);
-    border-bottom: 0.5px solid var(--color-border-tertiary);
-    padding: 14px 20px;
+    background: var(--db-bg);
+    border-bottom: 0.5px solid var(--db-border);
+    padding: 12px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    transition: background 0.25s;
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .logo { display: flex; align-items: center; gap: 10px; }
   .logo-icon {
-    width: 32px;
-    height: 32px;
-    background: #3C3489;
+    width: 30px; height: 30px;
+    background: var(--db-purple);
     border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: #EEEDFE;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #EEEDFE;
+    transition: background 0.25s;
   }
+  .logo-text { font-size: 17px; font-weight: 600; color: var(--db-text); letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--db-text3); font-family: 'DM Mono', monospace; }
 
-  .logo-text {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    letter-spacing: -0.3px;
-  }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
 
-  .logo-sub {
-    font-size: 12px;
-    color: var(--color-text-secondary);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.5px;
+  .btn-dark-toggle {
+    background: var(--db-bg2);
+    border: 0.5px solid var(--db-border);
+    border-radius: 6px;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s;
+    color: var(--db-text2);
   }
+  .btn-dark-toggle:hover { background: var(--db-bg3); color: var(--db-purple); }
 
   .btn-primary {
-    background: #3C3489;
+    background: var(--db-purple);
     color: #EEEDFE;
     border: none;
-    padding: 8px 16px;
+    padding: 7px 14px;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     font-family: 'DM Mono', monospace;
     cursor: pointer;
     transition: background 0.15s;
   }
+  .btn-primary:hover { opacity: 0.88; }
 
-  .btn-primary:hover { background: #26215C; }
-
-  .main {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    flex: 1;
-    min-height: 540px;
-  }
+  .main { display: grid; grid-template-columns: 220px 1fr; flex: 1; min-height: 520px; }
 
   .sidebar {
-    background: var(--color-background-primary);
-    border-right: 0.5px solid var(--color-border-tertiary);
-    padding: 16px 12px;
+    background: var(--db-bg);
+    border-right: 0.5px solid var(--db-border);
+    padding: 14px 10px;
     overflow-y: auto;
-  }
-
-  .sidebar-section {
-    margin-bottom: 20px;
+    transition: background 0.25s;
   }
 
   .sidebar-label {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
+    font-size: 9px; letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--color-text-tertiary);
-    margin-bottom: 8px;
-    padding: 0 8px;
+    color: var(--db-text3);
+    margin-bottom: 8px; padding: 0 8px;
   }
 
-  .tag-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 0 4px;
-  }
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 4px; }
 
   .tag {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 10px;
+    padding: 3px 7px;
     border-radius: 4px;
     cursor: pointer;
-    border: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-secondary);
-    color: var(--color-text-secondary);
+    border: 0.5px solid var(--db-border);
+    background: var(--db-bg2);
+    color: var(--db-text2);
     transition: all 0.15s;
   }
-
   .tag:hover, .tag.active {
-    background: #EEEDFE;
-    border-color: #AFA9EC;
-    color: #3C3489;
+    background: var(--db-purple3);
+    border-color: var(--db-purple4);
+    color: var(--db-purple-text);
   }
 
   .search-box {
     width: 100%;
-    padding: 7px 10px;
-    border: 0.5px solid var(--color-border-secondary);
+    padding: 6px 9px;
+    border: 0.5px solid var(--db-border);
     border-radius: 6px;
     font-size: 13px;
     font-family: 'Crimson Pro', serif;
-    background: var(--color-background-secondary);
-    color: var(--color-text-primary);
-    margin-bottom: 12px;
+    background: var(--db-input-bg);
+    color: var(--db-text);
+    margin-bottom: 10px;
+    transition: all 0.2s;
   }
+  .search-box:focus { outline: none; border-color: var(--db-purple2); }
 
-  .search-box:focus { outline: none; border-color: #7F77DD; }
-
-  .study-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+  .study-list { display: flex; flex-direction: column; gap: 3px; }
 
   .study-item {
-    padding: 8px 10px;
+    padding: 7px 9px;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.12s;
     border: 0.5px solid transparent;
   }
+  .study-item:hover { background: var(--db-bg2); }
+  .study-item.active { background: var(--db-purple3); border-color: var(--db-purple4); }
 
-  .study-item:hover { background: var(--color-background-secondary); }
-  .study-item.active {
-    background: #EEEDFE;
-    border-color: #AFA9EC;
-  }
+  .study-item-title { font-size: 13px; font-weight: 600; color: var(--db-text); line-height: 1.3; }
+  .study-item-ref { font-size: 11px; color: var(--db-purple); font-family: 'DM Mono', monospace; margin-top: 2px; transition: color 0.25s; }
+  .study-item-date { font-size: 10px; color: var(--db-text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
 
-  .study-item-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    line-height: 1.3;
-  }
-
-  .study-item-ref {
-    font-size: 12px;
-    color: #7F77DD;
-    font-family: 'DM Mono', monospace;
-    margin-top: 2px;
-  }
-
-  .study-item-date {
-    font-size: 11px;
-    color: var(--color-text-tertiary);
-    font-family: 'DM Mono', monospace;
-    margin-top: 3px;
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    background: var(--color-background-primary);
-  }
+  .content { display: flex; flex-direction: column; background: var(--db-bg); transition: background 0.25s; }
 
   .editor-header {
-    padding: 16px 24px 12px;
-    border-bottom: 0.5px solid var(--color-border-tertiary);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
+    padding: 14px 22px 10px;
+    border-bottom: 0.5px solid var(--db-border);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
   }
 
   .editor-title-input {
     font-family: 'Crimson Pro', serif;
-    font-size: 22px;
-    font-weight: 600;
-    border: none;
-    outline: none;
+    font-size: 21px; font-weight: 600;
+    border: none; outline: none;
     background: transparent;
-    color: var(--color-text-primary);
+    color: var(--db-text);
     width: 100%;
     letter-spacing: -0.3px;
   }
-
-  .editor-title-input::placeholder { color: var(--color-text-tertiary); }
+  .editor-title-input::placeholder { color: var(--db-text3); }
 
   .editor-meta {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 10px 24px;
-    border-bottom: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-secondary);
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 9px 22px;
+    border-bottom: 0.5px solid var(--db-border);
+    background: var(--db-meta-bg);
+    transition: background 0.25s;
   }
 
   .meta-input {
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 4px 8px;
-    border: 0.5px solid var(--color-border-tertiary);
+    font-size: 11px;
+    padding: 4px 7px;
+    border: 0.5px solid var(--db-border);
     border-radius: 4px;
-    background: var(--color-background-primary);
-    color: var(--color-text-primary);
+    background: var(--db-input-bg);
+    color: var(--db-text);
+    transition: all 0.2s;
   }
+  .meta-input:focus { outline: none; border-color: var(--db-purple2); }
 
-  .meta-input:focus { outline: none; border-color: #7F77DD; }
-
-  .editor-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 24px;
-    gap: 16px;
-  }
+  .editor-body { flex: 1; display: flex; flex-direction: column; padding: 18px 22px; gap: 14px; }
 
   .section-label {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1.5px;
+    font-size: 9px; letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--color-text-tertiary);
-    margin-bottom: 6px;
+    color: var(--db-text3);
+    margin-bottom: 5px;
   }
 
   .verse-box {
-    background: #EEEDFE;
-    border: 0.5px solid #AFA9EC;
+    background: var(--db-verse-bg);
+    border: 0.5px solid var(--db-purple4);
     border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-style: italic;
-    color: #26215C;
+    padding: 11px 14px;
+    font-size: 15px; font-style: italic;
+    color: var(--db-verse-text);
     line-height: 1.7;
-    min-height: 60px;
-    border-left: 3px solid #7F77DD;
+    min-height: 58px;
+    border-left: 3px solid var(--db-verse-border);
     font-family: 'Crimson Pro', serif;
     outline: none;
+    transition: all 0.25s;
   }
-
-  .verse-box:focus { border-color: #7F77DD; }
-  .verse-box[contenteditable]:empty:before {
-    content: attr(data-placeholder);
-    color: #AFA9EC;
-    font-style: italic;
-  }
+  .verse-box:focus { border-color: var(--db-purple2); }
+  .verse-box[contenteditable]:empty:before { content: attr(data-placeholder); color: var(--db-purple4); font-style: italic; }
 
   .notes-area {
     flex: 1;
-    border: 0.5px solid var(--color-border-tertiary);
+    border: 0.5px solid var(--db-border);
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 12px 14px;
     font-family: 'Crimson Pro', serif;
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--color-text-primary);
-    background: var(--color-background-primary);
+    font-size: 15px; line-height: 1.8;
+    color: var(--db-text);
+    background: var(--db-input-bg);
     resize: none;
-    min-height: 150px;
+    min-height: 140px;
+    transition: all 0.25s;
   }
-
-  .notes-area:focus { outline: none; border-color: #7F77DD; }
-  .notes-area::placeholder { color: var(--color-text-tertiary); font-style: italic; }
+  .notes-area:focus { outline: none; border-color: var(--db-purple2); }
+  .notes-area::placeholder { color: var(--db-text3); font-style: italic; }
 
   .toolbar {
-    display: flex;
-    gap: 6px;
-    padding: 8px 24px;
-    border-top: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-secondary);
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: flex; gap: 6px; padding: 8px 22px;
+    border-top: 0.5px solid var(--db-border);
+    background: var(--db-meta-bg);
+    align-items: center; flex-wrap: wrap; justify-content: space-between;
+    transition: background 0.25s;
   }
 
   .toolbar-left { display: flex; gap: 6px; }
 
   .btn-tag-add {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 4px 10px;
-    border: 0.5px solid var(--color-border-secondary);
+    font-size: 11px; padding: 4px 9px;
+    border: 0.5px solid var(--db-border);
     border-radius: 4px;
     background: transparent;
-    color: var(--color-text-secondary);
+    color: var(--db-text2);
     cursor: pointer;
     transition: all 0.12s;
   }
-
-  .btn-tag-add:hover { background: var(--color-background-primary); color: var(--color-text-primary); }
+  .btn-tag-add:hover { background: var(--db-bg); color: var(--db-text); }
 
   .btn-save {
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 6px 18px;
-    background: #3C3489;
+    font-size: 12px; padding: 6px 16px;
+    background: var(--db-purple);
     color: #EEEDFE;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s;
+    border: none; border-radius: 6px; cursor: pointer;
+    transition: opacity 0.15s;
   }
-
-  .btn-save:hover { background: #26215C; }
+  .btn-save:hover { opacity: 0.88; }
 
   .toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #26215C;
+    position: absolute;
+    bottom: 16px; right: 16px;
+    background: var(--db-toast-bg);
     color: #EEEDFE;
-    padding: 10px 18px;
+    padding: 9px 16px;
     border-radius: 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.25s;
-    pointer-events: none;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.25s; pointer-events: none;
   }
-
   .toast.show { opacity: 1; transform: translateY(0); }
 
   .empty-state {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-    color: var(--color-text-tertiary);
-    padding: 40px;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px; color: var(--db-text3); padding: 40px;
   }
-
   .empty-icon {
-    width: 48px;
-    height: 48px;
-    background: #EEEDFE;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #7F77DD;
+    width: 44px; height: 44px;
+    background: var(--db-purple3);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--db-purple2);
+  }
+  .empty-text { font-size: 14px; font-style: italic; color: var(--db-text2); }
+  .empty-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--db-text3); }
+
+  .sidebar-section { margin-bottom: 18px; }
+
+  .word-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--db-text3);
+    padding: 0 2px;
+    transition: color 0.25s;
   }
 
-  .empty-text { font-size: 15px; font-style: italic; }
-  .empty-sub { font-family: 'DM Mono', monospace; font-size: 11px; }
+  .progress-bar-wrap {
+    height: 2px;
+    background: var(--db-border2);
+    border-radius: 2px;
+    margin: 6px 0 14px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--db-purple);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .wrapper { position: relative; min-height: 580px; display: flex; flex-direction: column; }
 </style>
 
+<div class="wrapper" id="wrapper">
 <div class="app" id="app">
   <div class="topbar">
     <div class="logo">
@@ -378,7 +357,10 @@
         <div class="logo-sub">estudios & anotaciones</div>
       </div>
     </div>
-    <button class="btn-primary" onclick="newStudy()">+ Nuevo estudio</button>
+    <div class="topbar-right">
+      <button class="btn-dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Modo oscuro">🌙</button>
+      <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>
+    </div>
   </div>
 
   <div class="main">
@@ -387,10 +369,15 @@
         <input class="search-box" type="text" placeholder="Buscar..." id="search-input" oninput="filterStudies(this.value)">
         <div class="study-list" id="study-list"></div>
       </div>
-
       <div class="sidebar-section">
         <div class="sidebar-label">Temas</div>
         <div class="tag-grid" id="tag-filters"></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Estadísticas</div>
+        <div style="padding: 0 8px;">
+          <div id="stats-text" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--db-text3);line-height:1.8;"></div>
+        </div>
       </div>
     </div>
 
@@ -405,42 +392,41 @@
 
   <div class="toast" id="toast">Guardado ✓</div>
 </div>
+</div>
 
 <script>
-const STORAGE_KEY = 'diario_biblico_v1';
-
-let studies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+const STORAGE_KEY = 'diario_biblico_v2';
+let isDark = JSON.parse(localStorage.getItem('diario_dark') || 'false');
+let studies = [];
 let currentId = null;
 let activeTag = null;
 
+try { studies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { studies = []; }
+
 if (studies.length === 0) {
   studies = [
-    {
-      id: 1,
-      title: 'La fe como grano de mostaza',
-      reference: 'Mateo 17:20',
-      book: 'Mateo',
-      date: '2025-04-28',
-      tags: ['fe', 'parábolas'],
-      verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
-      notes: 'Reflexión: La fe no se mide en cantidad sino en calidad. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas...\n\nAplicación personal: ¿En qué áreas de mi vida necesito ejercitar más esta fe activa?'
-    },
-    {
-      id: 2,
-      title: 'El amor de Dios en Juan 3',
-      reference: 'Juan 3:16',
-      book: 'Juan',
-      date: '2025-05-01',
-      tags: ['amor', 'salvación'],
-      verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."',
-      notes: 'Este versículo es el corazón del evangelio. La palabra "de tal manera" (houtos) en el griego indica la forma del amor, no solo el grado.\n\nDios no amó al mundo a pesar de su pecado, sino que respondió al problema del pecado con amor en acción.'
-    }
+    { id: 1, title: 'La fe como grano de mostaza', reference: 'Mateo 17:20', book: 'Mateo', date: '2025-04-28', tags: ['fe', 'parábolas'], verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."', notes: 'Reflexión: La fe no se mide en cantidad sino en calidad. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas...\n\nAplicación personal: ¿En qué áreas de mi vida necesito ejercitar más esta fe activa?' },
+    { id: 2, title: 'El amor de Dios en Juan 3', reference: 'Juan 3:16', book: 'Juan', date: '2025-05-01', tags: ['amor', 'salvación'], verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."', notes: 'Este versículo es el corazón del evangelio. La palabra "de tal manera" (houtos) en el griego indica la forma del amor, no solo el grado.\n\nDios no amó al mundo a pesar de su pecado, sino que respondió al problema del pecado con amor en acción.' }
   ];
   saveAll();
 }
 
+function applyDarkMode() {
+  document.getElementById('app').classList.toggle('dark-mode', isDark);
+  document.getElementById('dark-toggle').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('dark-toggle').title = isDark ? 'Modo claro' : 'Modo oscuro';
+  localStorage.setItem('diario_dark', JSON.stringify(isDark));
+}
+
+function toggleDark() {
+  isDark = !isDark;
+  applyDarkMode();
+}
+
+applyDarkMode();
+
 function saveAll() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(studies));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(studies)); } catch(e) {}
 }
 
 function getAllTags() {
@@ -449,32 +435,41 @@ function getAllTags() {
   return [...set];
 }
 
+function countWords(text) {
+  return (text || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function renderStats() {
+  const el = document.getElementById('stats-text');
+  if (!el) return;
+  const total = studies.length;
+  const tags = getAllTags().length;
+  const words = studies.reduce((a, s) => a + countWords(s.notes), 0);
+  el.innerHTML = `${total} estudios<br>${tags} temas<br>${words} palabras escritas`;
+}
+
 function renderSidebar(filter = '') {
   const list = document.getElementById('study-list');
   let filtered = studies.filter(s => {
-    const matchText = !filter || s.title.toLowerCase().includes(filter.toLowerCase()) || s.reference.toLowerCase().includes(filter.toLowerCase());
+    const matchText = !filter || s.title.toLowerCase().includes(filter.toLowerCase()) || (s.reference||'').toLowerCase().includes(filter.toLowerCase());
     const matchTag = !activeTag || (s.tags || []).includes(activeTag);
     return matchText && matchTag;
   });
-
   list.innerHTML = filtered.map(s => `
     <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
-      <div class="study-item-title">${s.title}</div>
-      <div class="study-item-ref">${s.reference}</div>
+      <div class="study-item-title">${escHtml(s.title)}</div>
+      <div class="study-item-ref">${escHtml(s.reference)}</div>
       <div class="study-item-date">${s.date}</div>
     </div>
   `).join('');
-
   const tagEl = document.getElementById('tag-filters');
-  const tags = getAllTags();
-  tagEl.innerHTML = tags.map(t => `
-    <span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterByTag('${t}')">${t}</span>
+  tagEl.innerHTML = getAllTags().map(t => `
+    <span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterByTag('${escHtml(t)}')">${escHtml(t)}</span>
   `).join('');
+  renderStats();
 }
 
-function filterStudies(val) {
-  renderSidebar(val);
-}
+function filterStudies(val) { renderSidebar(val); }
 
 function filterByTag(tag) {
   activeTag = activeTag === tag ? null : tag;
@@ -486,19 +481,37 @@ function openStudy(id) {
   currentId = id;
   const s = studies.find(x => x.id === id);
   if (!s) return;
-  renderSidebar();
-
+  renderSidebar(document.getElementById('search-input').value);
   document.getElementById('content-area').innerHTML = editorHTML(s);
+  setupWordCount();
+}
+
+function setupWordCount() {
+  const notes = document.getElementById('ed-notes');
+  const wc = document.getElementById('wc');
+  if (!notes || !wc) return;
+  notes.addEventListener('input', () => {
+    const w = countWords(notes.value);
+    wc.textContent = w + ' palabras';
+    const pct = Math.min(100, w / 3);
+    const bar = document.getElementById('wc-bar');
+    if (bar) bar.style.width = pct + '%';
+  });
+  const w = countWords(notes.value);
+  wc.textContent = w + ' palabras';
+  const bar = document.getElementById('wc-bar');
+  if (bar) bar.style.width = Math.min(100, w/3) + '%';
 }
 
 function editorHTML(s) {
+  const wordCount = countWords(s.notes);
   return `
     <div class="editor-header">
       <input class="editor-title-input" id="ed-title" value="${escHtml(s.title)}" placeholder="Título del estudio..." />
     </div>
     <div class="editor-meta">
       <input class="meta-input" id="ed-reference" value="${escHtml(s.reference)}" placeholder="Referencia (ej: Juan 3:16)" />
-      <input class="meta-input" id="ed-book" value="${escHtml(s.book)}" placeholder="Libro" style="width:100px" />
+      <input class="meta-input" id="ed-book" value="${escHtml(s.book)}" placeholder="Libro" style="width:90px" />
       <input class="meta-input" id="ed-date" type="date" value="${s.date}" />
     </div>
     <div class="editor-body">
@@ -507,19 +520,24 @@ function editorHTML(s) {
         <div class="verse-box" id="ed-verse" contenteditable="true" data-placeholder="Pegá o escribí el versículo aquí...">${escHtml(s.verse)}</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;">
-        <div class="section-label">Notas & reflexiones</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <div class="section-label" style="margin-bottom:0;">Notas & reflexiones</div>
+          <span class="word-count" id="wc">${wordCount} palabras</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="wc-bar" style="width:${Math.min(100,wordCount/3)}%"></div></div>
         <textarea class="notes-area" id="ed-notes" placeholder="Escribí tus anotaciones, reflexiones e interpretaciones...">${escHtml(s.notes)}</textarea>
       </div>
     </div>
     <div class="toolbar">
       <div class="toolbar-left">
         <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;" id="ed-tags-display">
-          ${(s.tags||[]).map(t => `<span class="tag active" onclick="removeTag('${t}')">${t} ✕</span>`).join('')}
-          <input id="ed-tag-input" class="meta-input" placeholder="+ agregar tema" style="width:120px;" onkeydown="addTagOnEnter(event)" />
+          ${(s.tags||[]).map(t => `<span class="tag active" onclick="removeTag('${escHtml(t)}')">${escHtml(t)} ✕</span>`).join('')}
+          <input id="ed-tag-input" class="meta-input" placeholder="+ tema" style="width:100px;" onkeydown="addTagOnEnter(event)" />
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="btn-tag-add" onclick="deleteStudy(${s.id})" style="color:var(--color-text-danger,#A32D2D);">Eliminar</button>
+        <button class="btn-tag-add" onclick="duplicateStudy(${s.id})">Duplicar</button>
+        <button class="btn-tag-add" onclick="deleteStudy(${s.id})" style="color:var(--db-danger);">Eliminar</button>
         <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
       </div>
     </div>
@@ -534,13 +552,14 @@ function getCurrentStudyData() {
   if (!currentId) return null;
   const s = studies.find(x => x.id === currentId);
   if (!s) return null;
-  const title = document.getElementById('ed-title')?.value || s.title;
-  const reference = document.getElementById('ed-reference')?.value || s.reference;
-  const book = document.getElementById('ed-book')?.value || s.book;
-  const date = document.getElementById('ed-date')?.value || s.date;
-  const verse = document.getElementById('ed-verse')?.innerText || s.verse;
-  const notes = document.getElementById('ed-notes')?.value || s.notes;
-  return { title, reference, book, date, verse, notes };
+  return {
+    title: document.getElementById('ed-title')?.value || s.title,
+    reference: document.getElementById('ed-reference')?.value || s.reference,
+    book: document.getElementById('ed-book')?.value || s.book,
+    date: document.getElementById('ed-date')?.value || s.date,
+    verse: document.getElementById('ed-verse')?.innerText || s.verse,
+    notes: document.getElementById('ed-notes')?.value || s.notes
+  };
 }
 
 function saveCurrentStudy(showToast = false) {
@@ -561,6 +580,17 @@ function newStudy() {
   studies.unshift({ id, title: 'Nuevo estudio', reference: '', book: '', date: today, tags: [], verse: '', notes: '' });
   saveAll();
   openStudy(id);
+}
+
+function duplicateStudy(id) {
+  if (currentId) saveCurrentStudy();
+  const s = studies.find(x => x.id === id);
+  if (!s) return;
+  const newS = { ...s, id: Date.now(), title: s.title + ' (copia)', date: new Date().toISOString().split('T')[0], tags: [...(s.tags||[])] };
+  studies.unshift(newS);
+  saveAll();
+  openStudy(newS.id);
+  showToastMsg('Estudio duplicado ✓');
 }
 
 function deleteStudy(id) {
@@ -597,7 +627,7 @@ function showToastMsg(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 renderSidebar();
