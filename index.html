@@ -9,7 +9,6 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── TOKENS ── */
     :root {
       --bg:        #FFFFFF;
       --bg2:       #F5F4F0;
@@ -25,6 +24,7 @@
       --purple4:   #AFA9EC;
       --purpleT:   #26215C;
       --danger:    #A32D2D;
+      --star:      #C8962A;
       --verse-bg:  #EEEDFE;
       --verse-b:   #7F77DD;
       --verse-t:   #26215C;
@@ -48,6 +48,7 @@
       --purple4:   #3C3489;
       --purpleT:   #CECBF6;
       --danger:    #F09595;
+      --star:      #E6B84A;
       --verse-bg:  #1E1A32;
       --verse-b:   #534AB7;
       --verse-t:   #CECBF6;
@@ -56,7 +57,6 @@
       --toast-bg:  #534AB7;
     }
 
-    /* ── BASE ── */
     html, body { height: 100%; }
 
     body {
@@ -96,17 +96,8 @@
       flex-shrink: 0;
     }
 
-    .logo-text {
-      font-size: 18px; font-weight: 600;
-      color: var(--text); letter-spacing: -0.3px;
-      transition: color 0.25s;
-    }
-
-    .logo-sub {
-      font-size: 11px; color: var(--text3);
-      font-family: 'DM Mono', monospace;
-      transition: color 0.25s;
-    }
+    .logo-text { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; transition: color 0.25s; }
+    .logo-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; transition: color 0.25s; }
 
     .topbar-right { display: flex; gap: 8px; align-items: center; }
 
@@ -152,11 +143,10 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      transition: background 0.25s, border-color 0.25s;
+      transition: background 0.25s, border-color 0.25s, transform 0.25s;
     }
 
     .sidebar-inner { padding: 14px 12px; flex: 1; }
-
     .sidebar-section { margin-bottom: 22px; }
 
     .sidebar-label {
@@ -191,13 +181,30 @@
       cursor: pointer;
       border: 0.5px solid transparent;
       transition: background 0.12s, border-color 0.12s;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
     }
     .study-item:hover { background: var(--bg2); }
     .study-item.active { background: var(--bg3); border-color: var(--purple4); }
 
-    .si-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .si-body { flex: 1; min-width: 0; }
+    .si-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .si-ref { font-size: 11px; color: var(--purple); font-family: 'DM Mono', monospace; margin-top: 2px; transition: color 0.25s; }
     .si-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+    .fav-btn {
+      background: none; border: none;
+      font-size: 13px; cursor: pointer;
+      padding: 1px 2px;
+      line-height: 1;
+      color: var(--text3);
+      transition: transform 0.15s, color 0.15s;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .fav-btn:hover { transform: scale(1.2); }
+    .fav-btn.active { color: var(--star); }
 
     .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 2px; }
 
@@ -218,6 +225,24 @@
       color: var(--purpleT);
     }
 
+    .filter-btns {
+      display: flex; gap: 4px; margin-bottom: 8px;
+    }
+    .filter-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 0.5px solid var(--border);
+      background: var(--bg2);
+      color: var(--text3);
+      transition: all 0.15s;
+    }
+    .filter-btn.active {
+      background: var(--bg3); border-color: var(--purple4); color: var(--purpleT);
+    }
+
     .stats-box {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -226,6 +251,9 @@
       padding: 0 6px;
       transition: color 0.25s;
     }
+
+    .stat-row { display: flex; justify-content: space-between; }
+    .stat-val { color: var(--purple2); }
 
     /* ── CONTENT ── */
     .content {
@@ -259,6 +287,7 @@
       padding: 16px 24px 12px;
       border-bottom: 0.5px solid var(--border);
       transition: border-color 0.25s;
+      display: flex; align-items: center; gap: 10px;
     }
 
     .ed-title {
@@ -267,11 +296,24 @@
       border: none; outline: none;
       background: transparent;
       color: var(--text);
-      width: 100%;
+      flex: 1;
       letter-spacing: -0.3px;
       transition: color 0.25s;
     }
     .ed-title::placeholder { color: var(--text3); }
+
+    .ed-title[readonly] { cursor: default; }
+
+    .read-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--verse-bg);
+      color: var(--verse-b);
+      border: 0.5px solid var(--purple4);
+      white-space: nowrap;
+    }
 
     .editor-meta {
       display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
@@ -292,6 +334,7 @@
       transition: all 0.2s;
     }
     .meta-input:focus { outline: none; border-color: var(--purple2); }
+    .meta-input[readonly] { background: transparent; border-color: transparent; cursor: default; }
 
     .editor-body {
       flex: 1;
@@ -323,16 +366,27 @@
       outline: none;
       transition: all 0.25s;
     }
-    .verse-box:focus { border-color: var(--purple2); }
+    .verse-box[contenteditable="true"]:focus { border-color: var(--purple2); }
     .verse-box:empty::before {
       content: attr(data-placeholder);
       color: var(--purple4);
       font-style: italic;
     }
 
-    .notes-row {
-      flex: 1; display: flex; flex-direction: column;
+    /* Read mode verse */
+    .verse-read {
+      background: var(--verse-bg);
+      border: 0.5px solid var(--purple4);
+      border-left: 3px solid var(--verse-b);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 18px; font-style: italic;
+      color: var(--verse-t);
+      line-height: 1.8;
+      font-family: 'Crimson Pro', serif;
     }
+
+    .notes-row { flex: 1; display: flex; flex-direction: column; }
 
     .notes-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -345,18 +399,18 @@
       transition: color 0.25s;
     }
 
+    /* Progress bar */
     .prog-wrap {
-      height: 2px;
+      height: 3px;
       background: var(--border2);
-      border-radius: 2px;
+      border-radius: 3px;
       margin-bottom: 10px;
       overflow: hidden;
     }
     .prog-fill {
       height: 100%;
-      background: var(--purple);
-      border-radius: 2px;
-      transition: width 0.3s, background 0.25s;
+      border-radius: 3px;
+      transition: width 0.4s cubic-bezier(.4,0,.2,1), background 0.4s;
     }
 
     .notes-area {
@@ -374,6 +428,17 @@
     }
     .notes-area:focus { outline: none; border-color: var(--purple2); }
     .notes-area::placeholder { color: var(--text3); font-style: italic; }
+    .notes-area[readonly] { background: transparent; border-color: transparent; cursor: default; resize: none; }
+
+    /* Read mode notes */
+    .notes-read {
+      flex: 1;
+      padding: 4px 0;
+      font-family: 'Crimson Pro', serif;
+      font-size: 17px; line-height: 1.85;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
 
     /* ── TOOLBAR ── */
     .toolbar {
@@ -385,9 +450,7 @@
       transition: background 0.25s, border-color 0.25s;
     }
 
-    .tags-wrap {
-      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
-    }
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 
     .tag-del { cursor: pointer; margin-left: 3px; opacity: 0.6; }
     .tag-del:hover { opacity: 1; }
@@ -417,6 +480,16 @@
     }
     .btn-save:hover { opacity: 0.88; }
 
+    /* ── READ MODE TOOLBAR ── */
+    .read-toolbar {
+      display: flex; gap: 8px; align-items: center;
+      padding: 10px 24px;
+      border-top: 0.5px solid var(--border);
+      background: var(--meta-bg);
+      justify-content: flex-end;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
     /* ── TOAST ── */
     .toast {
       position: fixed;
@@ -432,24 +505,72 @@
     }
     .toast.show { opacity: 1; transform: translateY(0); }
 
+    /* ── MOBILE TOGGLE ── */
+    .menu-toggle {
+      display: none;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      width: 36px; height: 36px;
+      align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px;
+      transition: background 0.2s;
+    }
+    .menu-toggle:hover { background: var(--bg3); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 19;
+    }
+
     /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
-      .sidebar { width: 180px; min-width: 180px; }
+    @media (max-width: 700px) {
+      .menu-toggle { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 57px; left: 0; bottom: 0;
+        z-index: 20;
+        transform: translateX(-100%);
+        width: 260px; min-width: 0;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+
+      .main { height: calc(100vh - 57px); }
+
       .editor-body { padding: 14px 14px; }
       .editor-meta { padding: 8px 14px; }
       .editor-header { padding: 12px 14px 10px; }
       .toolbar { padding: 8px 14px; }
+      .read-toolbar { padding: 8px 14px; }
+
+      .ed-title { font-size: 18px; }
+      .notes-area { font-size: 15px; }
+      .notes-read { font-size: 16px; }
+
+      .toolbar-right { width: 100%; justify-content: flex-end; }
+    }
+
+    @media (max-width: 400px) {
+      .btn-sm span { display: none; }
     }
   </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="logo">
-    <div class="logo-icon">✦</div>
-    <div>
-      <div class="logo-text">Diario Bíblico</div>
-      <div class="logo-sub">estudios &amp; anotaciones</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="menu-toggle" onclick="toggleSidebar()" title="Menú">☰</button>
+    <div class="logo">
+      <div class="logo-icon">✦</div>
+      <div>
+        <div class="logo-text">Diario Bíblico</div>
+        <div class="logo-sub">estudios &amp; anotaciones</div>
+      </div>
     </div>
   </div>
   <div class="topbar-right">
@@ -458,22 +579,32 @@
   </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <div class="main">
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-inner">
+
       <div class="sidebar-section">
-        <input class="search-box" type="text" placeholder="Buscar..." id="search-input" oninput="filterStudies(this.value)" />
+        <div class="filter-btns">
+          <button class="filter-btn active" id="fb-all" onclick="setFavFilter('all')">Todos</button>
+          <button class="filter-btn" id="fb-fav" onclick="setFavFilter('fav')">⭐ Favoritos</button>
+        </div>
+        <input class="search-box" type="text" placeholder="Buscar título, referencia, notas..." id="search-input" oninput="filterStudies(this.value)" />
         <div class="study-list" id="study-list"></div>
       </div>
+
       <div class="sidebar-section">
         <div class="sidebar-label">Temas</div>
         <div class="tag-grid" id="tag-filters"></div>
       </div>
+
       <div class="sidebar-section">
         <div class="sidebar-label">Estadísticas</div>
         <div class="stats-box" id="stats"></div>
       </div>
+
     </div>
   </div>
 
@@ -490,37 +621,43 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const KEY = 'diario_biblico_v3';
+  /* ── KEYS ── */
+  const KEY      = 'diario_biblico_v3';
   const KEY_DARK = 'diario_dark_v3';
 
-  let studies = [];
+  let studies   = [];
   let currentId = null;
   let activeTag = null;
-  let isDark = false;
+  let favFilter = 'all';   // 'all' | 'fav'
+  let readMode  = false;
+  let isDark    = false;
 
   /* ── INIT ── */
   (function init() {
     try { studies = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { studies = []; }
     try { isDark = JSON.parse(localStorage.getItem(KEY_DARK) || 'false'); } catch(e) {}
 
+    // Migration: add missing fields
+    studies = studies.map(s => ({
+      fav: false,
+      ...s,
+      tags: s.tags || [],
+    }));
+
     if (studies.length === 0) {
       studies = [
         {
-          id: 1,
+          id: 1, fav: false,
           title: 'La fe como grano de mostaza',
-          reference: 'Mateo 17:20',
-          book: 'Mateo',
-          date: '2025-04-28',
+          reference: 'Mateo 17:20', book: 'Mateo', date: '2025-04-28',
           tags: ['fe', 'parábolas'],
           verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
           notes: 'Reflexión: La fe no se mide en cantidad sino en calidad. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas...\n\nAplicación personal: ¿En qué áreas de mi vida necesito ejercitar más esta fe activa?'
         },
         {
-          id: 2,
+          id: 2, fav: true,
           title: 'El amor de Dios en Juan 3',
-          reference: 'Juan 3:16',
-          book: 'Juan',
-          date: '2025-05-01',
+          reference: 'Juan 3:16', book: 'Juan', date: '2025-05-01',
           tags: ['amor', 'salvación'],
           verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."',
           notes: 'Este versículo es el corazón del evangelio. La palabra "de tal manera" (houtos) en el griego indica la forma del amor, no solo el grado.\n\nDios no amó al mundo a pesar de su pecado, sino que respondió al problema del pecado con amor en acción.'
@@ -540,10 +677,16 @@
     document.getElementById('dark-btn').title = isDark ? 'Modo claro' : 'Modo oscuro';
     localStorage.setItem(KEY_DARK, JSON.stringify(isDark));
   }
+  function toggleDark() { isDark = !isDark; applyDark(); }
 
-  function toggleDark() {
-    isDark = !isDark;
-    applyDark();
+  /* ── MOBILE SIDEBAR ── */
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
   }
 
   /* ── STORAGE ── */
@@ -566,34 +709,67 @@
     return [...set];
   }
 
+  /* Progress bar color based on % */
+  function progColor(pct) {
+    if (pct < 30) return '#AFA9EC';
+    if (pct < 65) return '#7F77DD';
+    return '#3C3489';
+  }
+
+  /* ── FAV FILTER ── */
+  function setFavFilter(v) {
+    favFilter = v;
+    document.getElementById('fb-all').classList.toggle('active', v === 'all');
+    document.getElementById('fb-fav').classList.toggle('active', v === 'fav');
+    renderSidebar();
+  }
+
   /* ── SIDEBAR ── */
   function renderSidebar(filter) {
-    filter = filter || document.getElementById('search-input').value || '';
+    filter = filter !== undefined ? filter : document.getElementById('search-input').value || '';
+
+    const q = filter.toLowerCase();
 
     const filtered = studies.filter(s => {
-      const q = filter.toLowerCase();
-      const matchText = !q || s.title.toLowerCase().includes(q) || (s.reference||'').toLowerCase().includes(q);
-      const matchTag = !activeTag || (s.tags||[]).includes(activeTag);
-      return matchText && matchTag;
+      const matchFav = favFilter === 'all' || s.fav;
+      const matchText = !q ||
+        s.title.toLowerCase().includes(q) ||
+        (s.reference || '').toLowerCase().includes(q) ||
+        (s.notes || '').toLowerCase().includes(q) ||
+        (s.verse || '').toLowerCase().includes(q);
+      const matchTag = !activeTag || (s.tags || []).includes(activeTag);
+      return matchFav && matchText && matchTag;
     });
 
-    document.getElementById('study-list').innerHTML = filtered.map(s => `
-      <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
-        <div class="si-title">${esc(s.title)}</div>
-        <div class="si-ref">${esc(s.reference)}</div>
-        <div class="si-date">${s.date}</div>
-      </div>
-    `).join('');
+    document.getElementById('study-list').innerHTML = filtered.length
+      ? filtered.map(s => `
+          <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
+            <div class="si-body">
+              <div class="si-title">${esc(s.title)}</div>
+              <div class="si-ref">${esc(s.reference)}</div>
+              <div class="si-date">${s.date}</div>
+            </div>
+            <button class="fav-btn ${s.fav ? 'active' : ''}"
+              onclick="event.stopPropagation();toggleFav(${s.id})"
+              title="${s.fav ? 'Quitar de favoritos' : 'Marcar como favorito'}"
+            >${s.fav ? '⭐' : '☆'}</button>
+          </div>
+        `).join('')
+      : `<div style="padding:10px 6px;font-size:13px;color:var(--text3);font-style:italic;">Sin resultados</div>`;
 
     document.getElementById('tag-filters').innerHTML = allTags().map(t => `
       <span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterTag('${esc(t)}')">${esc(t)}</span>
     `).join('');
 
     const totalWords = studies.reduce((a, s) => a + wordCount(s.notes), 0);
-    document.getElementById('stats').innerHTML =
-      `${studies.length} estudio${studies.length !== 1 ? 's' : ''}<br>` +
-      `${allTags().length} tema${allTags().length !== 1 ? 's' : ''}<br>` +
-      `${totalWords} palabras escritas`;
+    const favCount   = studies.filter(s => s.fav).length;
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-row"><span>Estudios</span><span class="stat-val">${studies.length}</span></div>
+      <div class="stat-row"><span>Favoritos</span><span class="stat-val">${favCount}</span></div>
+      <div class="stat-row"><span>Temas</span><span class="stat-val">${allTags().length}</span></div>
+      <div class="stat-row"><span>Palabras</span><span class="stat-val">${totalWords.toLocaleString('es')}</span></div>
+    `;
   }
 
   function filterStudies(val) { renderSidebar(val); }
@@ -603,23 +779,51 @@
     renderSidebar();
   }
 
+  /* ── FAV TOGGLE ── */
+  function toggleFav(id) {
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    s.fav = !s.fav;
+    save();
+    renderSidebar();
+    // update fav button in editor header if open
+    const favHeaderBtn = document.getElementById('ed-fav');
+    if (favHeaderBtn && currentId === id) {
+      favHeaderBtn.textContent = s.fav ? '⭐' : '☆';
+      favHeaderBtn.classList.toggle('active', s.fav);
+      favHeaderBtn.title = s.fav ? 'Quitar de favoritos' : 'Marcar como favorito';
+    }
+    showToast(s.fav ? '⭐ Agregado a favoritos' : '☆ Quitado de favoritos');
+  }
+
   /* ── EDITOR ── */
   function openStudy(id) {
-    if (currentId !== null) saveCurrentStudy();
+    if (currentId !== null && !readMode) saveCurrentStudy();
     currentId = id;
     const s = studies.find(x => x.id === id);
     if (!s) return;
     renderSidebar();
-    renderEditor(s);
+    if (readMode) {
+      renderReadMode(s);
+    } else {
+      renderEditor(s);
+    }
+    closeSidebar();
   }
 
+  /* ── RENDER EDITOR ── */
   function renderEditor(s) {
-    const wc = wordCount(s.notes);
+    const wc  = wordCount(s.notes);
     const pct = Math.min(100, wc / 3);
 
     document.getElementById('content').innerHTML = `
       <div class="editor-header">
         <input class="ed-title" id="ed-title" value="${esc(s.title)}" placeholder="Título del estudio..." />
+        <button class="fav-btn ${s.fav ? 'active' : ''}" id="ed-fav"
+          onclick="toggleFav(${s.id})"
+          title="${s.fav ? 'Quitar de favoritos' : 'Marcar como favorito'}"
+          style="font-size:18px;"
+        >${s.fav ? '⭐' : '☆'}</button>
       </div>
       <div class="editor-meta">
         <input class="meta-input" id="ed-ref" value="${esc(s.reference)}" placeholder="Referencia (ej: Juan 3:16)" style="flex:1;min-width:130px;" />
@@ -635,24 +839,27 @@
         <div class="notes-row">
           <div class="notes-header">
             <div class="section-label" style="margin-bottom:0;">Notas &amp; reflexiones</div>
-            <span class="wc-label" id="wc-label">${wc} palabras</span>
+            <span class="wc-label" id="wc-label">${wc} ${wc === 1 ? 'palabra' : 'palabras'}</span>
           </div>
-          <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:${pct}%"></div></div>
+          <div class="prog-wrap">
+            <div class="prog-fill" id="prog" style="width:${pct}%;background:${progColor(pct)}"></div>
+          </div>
           <textarea class="notes-area" id="ed-notes"
             placeholder="Escribí tus anotaciones, reflexiones e interpretaciones...">${esc(s.notes)}</textarea>
         </div>
       </div>
       <div class="toolbar">
         <div class="tags-wrap" id="tags-wrap">
-          ${(s.tags||[]).map(t => `
+          ${(s.tags || []).map(t => `
             <span class="tag active">${esc(t)}<span class="tag-del" onclick="removeTag('${esc(t)}')">✕</span></span>
           `).join('')}
-          <input id="tag-input" class="meta-input" placeholder="+ tema" style="width:100px;"
+          <input id="tag-input" class="meta-input" placeholder="+ tema" style="width:90px;"
             onkeydown="addTagEnter(event)" />
         </div>
         <div class="toolbar-right">
-          <button class="btn-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
-          <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})">Eliminar</button>
+          <button class="btn-sm" onclick="enterReadMode()" title="Modo lectura">👁 <span>Leer</span></button>
+          <button class="btn-sm" onclick="duplicateStudy(${s.id})"><span>Duplicar</span></button>
+          <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})"><span>Eliminar</span></button>
           <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
         </div>
       </div>
@@ -662,9 +869,61 @@
     const notesEl = document.getElementById('ed-notes');
     notesEl.addEventListener('input', () => {
       const w = wordCount(notesEl.value);
-      document.getElementById('wc-label').textContent = w + ' palabras';
-      document.getElementById('prog').style.width = Math.min(100, w / 3) + '%';
+      const p = Math.min(100, w / 3);
+      document.getElementById('wc-label').textContent = w + (w === 1 ? ' palabra' : ' palabras');
+      const fill = document.getElementById('prog');
+      fill.style.width = p + '%';
+      fill.style.background = progColor(p);
     });
+  }
+
+  /* ── READ MODE ── */
+  function enterReadMode() {
+    saveCurrentStudy();
+    readMode = true;
+    const s = studies.find(x => x.id === currentId);
+    if (s) renderReadMode(s);
+  }
+
+  function renderReadMode(s) {
+    document.getElementById('content').innerHTML = `
+      <div class="editor-header">
+        <div style="flex:1;">
+          <div style="font-family:'Crimson Pro',serif;font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">${esc(s.title)}</div>
+        </div>
+        <span class="read-badge">MODO LECTURA</span>
+        ${s.fav ? '<span style="font-size:18px;margin-left:4px;">⭐</span>' : ''}
+      </div>
+      <div class="editor-meta" style="pointer-events:none;opacity:0.75;">
+        <span class="meta-input" style="border:none;background:transparent;">${esc(s.reference)}</span>
+        <span class="meta-input" style="border:none;background:transparent;">${esc(s.book)}</span>
+        <span class="meta-input" style="border:none;background:transparent;">${s.date}</span>
+      </div>
+      <div class="editor-body">
+        ${s.verse ? `
+          <div>
+            <div class="section-label">Versículo o pasaje</div>
+            <div class="verse-read">${esc(s.verse)}</div>
+          </div>` : ''}
+        <div class="notes-row">
+          <div class="section-label">Notas &amp; reflexiones</div>
+          <div class="notes-read">${esc(s.notes) || '<span style="color:var(--text3);font-style:italic;">Sin notas aún.</span>'}</div>
+        </div>
+        ${(s.tags||[]).length ? `
+          <div style="display:flex;flex-wrap:wrap;gap:5px;padding-bottom:8px;">
+            ${s.tags.map(t => `<span class="tag active" style="pointer-events:none;">${esc(t)}</span>`).join('')}
+          </div>` : ''}
+      </div>
+      <div class="read-toolbar">
+        <button class="btn-save" onclick="exitReadMode()">✏️ Editar</button>
+      </div>
+    `;
+  }
+
+  function exitReadMode() {
+    readMode = false;
+    const s = studies.find(x => x.id === currentId);
+    if (s) renderEditor(s);
   }
 
   /* ── SAVE ── */
@@ -683,7 +942,7 @@
   }
 
   function saveCurrentStudy(toast = false) {
-    if (!currentId) return;
+    if (!currentId || readMode) return;
     const s = studies.find(x => x.id === currentId);
     if (!s) return;
     const data = getCurrentData();
@@ -695,10 +954,11 @@
 
   /* ── CRUD ── */
   function newStudy() {
-    if (currentId) saveCurrentStudy();
+    if (currentId && !readMode) saveCurrentStudy();
+    readMode = false;
     const id = Date.now();
     const today = new Date().toISOString().split('T')[0];
-    studies.unshift({ id, title: 'Nuevo estudio', reference: '', book: '', date: today, tags: [], verse: '', notes: '' });
+    studies.unshift({ id, fav: false, title: 'Nuevo estudio', reference: '', book: '', date: today, tags: [], verse: '', notes: '' });
     save();
     openStudy(id);
   }
@@ -707,7 +967,7 @@
     saveCurrentStudy();
     const s = studies.find(x => x.id === id);
     if (!s) return;
-    const n = { ...s, id: Date.now(), title: s.title + ' (copia)', date: new Date().toISOString().split('T')[0], tags: [...(s.tags||[])] };
+    const n = { ...s, id: Date.now(), fav: false, title: s.title + ' (copia)', date: new Date().toISOString().split('T')[0], tags: [...(s.tags||[])] };
     studies.unshift(n);
     save();
     openStudy(n.id);
@@ -718,6 +978,7 @@
     if (!confirm('¿Eliminar este estudio?')) return;
     studies = studies.filter(x => x.id !== id);
     currentId = null;
+    readMode = false;
     save();
     document.getElementById('content').innerHTML = `
       <div class="empty-state">
@@ -732,7 +993,7 @@
   function addTagEnter(e) {
     if (e.key !== 'Enter') return;
     const input = document.getElementById('tag-input');
-    const val = input.value.trim();
+    const val = input.value.trim().toLowerCase();
     if (!val) return;
     const s = studies.find(x => x.id === currentId);
     if (!s) return;
@@ -741,7 +1002,7 @@
     input.value = '';
     save();
     renderSidebar();
-    openStudy(currentId);
+    renderEditor(s);
   }
 
   function removeTag(tag) {
@@ -751,7 +1012,7 @@
     s.tags = s.tags.filter(t => t !== tag);
     save();
     renderSidebar();
-    openStudy(currentId);
+    renderEditor(s);
   }
 
   /* ── TOAST ── */
