@@ -1,372 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diario Bíblico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── TOKENS ── */
+    :root {
+      --bg:        #FFFFFF;
+      --bg2:       #F5F4F0;
+      --bg3:       #EEEDFE;
+      --border:    rgba(0,0,0,0.12);
+      --border2:   rgba(0,0,0,0.06);
+      --text:      #1A1A2E;
+      --text2:     #555466;
+      --text3:     #999899;
+      --purple:    #3C3489;
+      --purple2:   #7F77DD;
+      --purple3:   #EEEDFE;
+      --purple4:   #AFA9EC;
+      --purpleT:   #26215C;
+      --danger:    #A32D2D;
+      --verse-bg:  #EEEDFE;
+      --verse-b:   #7F77DD;
+      --verse-t:   #26215C;
+      --meta-bg:   #F5F4F0;
+      --input-bg:  #FFFFFF;
+      --toast-bg:  #26215C;
+    }
 
-  :root {
-    --db-bg: #FFFFFF;
-    --db-bg2: #F5F4F0;
-    --db-bg3: #EEEDFE;
-    --db-surface: #FFFFFF;
-    --db-border: rgba(0,0,0,0.12);
-    --db-border2: rgba(0,0,0,0.08);
-    --db-text: #1A1A2E;
-    --db-text2: #555;
-    --db-text3: #999;
-    --db-purple: #3C3489;
-    --db-purple2: #7F77DD;
-    --db-purple3: #EEEDFE;
-    --db-purple4: #AFA9EC;
-    --db-purple-text: #26215C;
-    --db-danger: #A32D2D;
-    --db-verse-bg: #EEEDFE;
-    --db-verse-border: #7F77DD;
-    --db-verse-text: #26215C;
-    --db-meta-bg: #F5F4F0;
-    --db-input-bg: #FFFFFF;
-    --db-toast-bg: #26215C;
-  }
+    body.dark {
+      --bg:        #12101E;
+      --bg2:       #1C1930;
+      --bg3:       #251F3D;
+      --border:    rgba(255,255,255,0.10);
+      --border2:   rgba(255,255,255,0.05);
+      --text:      #EAE9F8;
+      --text2:     #AFA9EC;
+      --text3:     #6B65A8;
+      --purple:    #7F77DD;
+      --purple2:   #AFA9EC;
+      --purple3:   #251F3D;
+      --purple4:   #3C3489;
+      --purpleT:   #CECBF6;
+      --danger:    #F09595;
+      --verse-bg:  #1E1A32;
+      --verse-b:   #534AB7;
+      --verse-t:   #CECBF6;
+      --meta-bg:   #1C1930;
+      --input-bg:  #12101E;
+      --toast-bg:  #534AB7;
+    }
 
-  .dark-mode {
-    --db-bg: #12101E;
-    --db-bg2: #1C1930;
-    --db-bg3: #251F3D;
-    --db-surface: #1C1930;
-    --db-border: rgba(255,255,255,0.1);
-    --db-border2: rgba(255,255,255,0.06);
-    --db-text: #EAE9F8;
-    --db-text2: #AFA9EC;
-    --db-text3: #6B65A8;
-    --db-purple: #7F77DD;
-    --db-purple2: #AFA9EC;
-    --db-purple3: #251F3D;
-    --db-purple4: #3C3489;
-    --db-purple-text: #CECBF6;
-    --db-danger: #F09595;
-    --db-verse-bg: #1E1A32;
-    --db-verse-border: #534AB7;
-    --db-verse-text: #CECBF6;
-    --db-meta-bg: #1C1930;
-    --db-input-bg: #12101E;
-    --db-toast-bg: #534AB7;
-  }
+    /* ── BASE ── */
+    html, body { height: 100%; }
 
-  .app {
-    font-family: 'Crimson Pro', Georgia, serif;
-    min-height: 580px;
-    background: var(--db-bg2);
-    display: flex;
-    flex-direction: column;
-    color: var(--db-text);
-    transition: background 0.25s, color 0.25s;
-  }
+    body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      background: var(--bg2);
+      color: var(--text);
+      transition: background 0.25s, color 0.25s;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-  .topbar {
-    background: var(--db-bg);
-    border-bottom: 0.5px solid var(--db-border);
-    padding: 12px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    transition: background 0.25s;
-  }
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      transition: background 0.25s, border-color 0.25s;
+    }
 
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon {
-    width: 30px; height: 30px;
-    background: var(--db-purple);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; color: #EEEDFE;
-    transition: background 0.25s;
-  }
-  .logo-text { font-size: 17px; font-weight: 600; color: var(--db-text); letter-spacing: -0.3px; }
-  .logo-sub { font-size: 11px; color: var(--db-text3); font-family: 'DM Mono', monospace; }
+    .logo { display: flex; align-items: center; gap: 10px; }
 
-  .topbar-right { display: flex; gap: 8px; align-items: center; }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--purple);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #EEEDFE;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
 
-  .btn-dark-toggle {
-    background: var(--db-bg2);
-    border: 0.5px solid var(--db-border);
-    border-radius: 6px;
-    width: 34px; height: 34px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 15px;
-    transition: all 0.2s;
-    color: var(--db-text2);
-  }
-  .btn-dark-toggle:hover { background: var(--db-bg3); color: var(--db-purple); }
+    .logo-text {
+      font-size: 18px; font-weight: 600;
+      color: var(--text); letter-spacing: -0.3px;
+      transition: color 0.25s;
+    }
 
-  .btn-primary {
-    background: var(--db-purple);
-    color: #EEEDFE;
-    border: none;
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: 'DM Mono', monospace;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover { opacity: 0.88; }
+    .logo-sub {
+      font-size: 11px; color: var(--text3);
+      font-family: 'DM Mono', monospace;
+      transition: color 0.25s;
+    }
 
-  .main { display: grid; grid-template-columns: 220px 1fr; flex: 1; min-height: 520px; }
+    .topbar-right { display: flex; gap: 8px; align-items: center; }
 
-  .sidebar {
-    background: var(--db-bg);
-    border-right: 0.5px solid var(--db-border);
-    padding: 14px 10px;
-    overflow-y: auto;
-    transition: background 0.25s;
-  }
+    .btn-dark {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-dark:hover { background: var(--bg3); }
 
-  .sidebar-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px; letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--db-text3);
-    margin-bottom: 8px; padding: 0 8px;
-  }
+    .btn-primary {
+      background: var(--purple);
+      color: #EEEDFE;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.88; }
 
-  .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 4px; }
+    /* ── LAYOUT ── */
+    .main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      height: calc(100vh - 57px);
+    }
 
-  .tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 3px 7px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 0.5px solid var(--db-border);
-    background: var(--db-bg2);
-    color: var(--db-text2);
-    transition: all 0.15s;
-  }
-  .tag:hover, .tag.active {
-    background: var(--db-purple3);
-    border-color: var(--db-purple4);
-    color: var(--db-purple-text);
-  }
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--bg);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: background 0.25s, border-color 0.25s;
+    }
 
-  .search-box {
-    width: 100%;
-    padding: 6px 9px;
-    border: 0.5px solid var(--db-border);
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: 'Crimson Pro', serif;
-    background: var(--db-input-bg);
-    color: var(--db-text);
-    margin-bottom: 10px;
-    transition: all 0.2s;
-  }
-  .search-box:focus { outline: none; border-color: var(--db-purple2); }
+    .sidebar-inner { padding: 14px 12px; flex: 1; }
 
-  .study-list { display: flex; flex-direction: column; gap: 3px; }
+    .sidebar-section { margin-bottom: 22px; }
 
-  .study-item {
-    padding: 7px 9px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.12s;
-    border: 0.5px solid transparent;
-  }
-  .study-item:hover { background: var(--db-bg2); }
-  .study-item.active { background: var(--db-purple3); border-color: var(--db-purple4); }
+    .sidebar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 8px; padding: 0 6px;
+      transition: color 0.25s;
+    }
 
-  .study-item-title { font-size: 13px; font-weight: 600; color: var(--db-text); line-height: 1.3; }
-  .study-item-ref { font-size: 11px; color: var(--db-purple); font-family: 'DM Mono', monospace; margin-top: 2px; transition: color 0.25s; }
-  .study-item-date { font-size: 10px; color: var(--db-text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+    .search-box {
+      width: 100%;
+      padding: 7px 10px;
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Crimson Pro', serif;
+      background: var(--input-bg);
+      color: var(--text);
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+    .search-box:focus { outline: none; border-color: var(--purple2); }
+    .search-box::placeholder { color: var(--text3); }
 
-  .content { display: flex; flex-direction: column; background: var(--db-bg); transition: background 0.25s; }
+    .study-list { display: flex; flex-direction: column; gap: 3px; }
 
-  .editor-header {
-    padding: 14px 22px 10px;
-    border-bottom: 0.5px solid var(--db-border);
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-  }
+    .study-item {
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 0.5px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .study-item:hover { background: var(--bg2); }
+    .study-item.active { background: var(--bg3); border-color: var(--purple4); }
 
-  .editor-title-input {
-    font-family: 'Crimson Pro', serif;
-    font-size: 21px; font-weight: 600;
-    border: none; outline: none;
-    background: transparent;
-    color: var(--db-text);
-    width: 100%;
-    letter-spacing: -0.3px;
-  }
-  .editor-title-input::placeholder { color: var(--db-text3); }
+    .si-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .si-ref { font-size: 11px; color: var(--purple); font-family: 'DM Mono', monospace; margin-top: 2px; transition: color 0.25s; }
+    .si-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
 
-  .editor-meta {
-    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-    padding: 9px 22px;
-    border-bottom: 0.5px solid var(--db-border);
-    background: var(--db-meta-bg);
-    transition: background 0.25s;
-  }
+    .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 2px; }
 
-  .meta-input {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 4px 7px;
-    border: 0.5px solid var(--db-border);
-    border-radius: 4px;
-    background: var(--db-input-bg);
-    color: var(--db-text);
-    transition: all 0.2s;
-  }
-  .meta-input:focus { outline: none; border-color: var(--db-purple2); }
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 0.5px solid var(--border);
+      background: var(--bg2);
+      color: var(--text2);
+      transition: all 0.15s;
+    }
+    .tag:hover, .tag.active {
+      background: var(--bg3);
+      border-color: var(--purple4);
+      color: var(--purpleT);
+    }
 
-  .editor-body { flex: 1; display: flex; flex-direction: column; padding: 18px 22px; gap: 14px; }
+    .stats-box {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      line-height: 2;
+      padding: 0 6px;
+      transition: color 0.25s;
+    }
 
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px; letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--db-text3);
-    margin-bottom: 5px;
-  }
+    /* ── CONTENT ── */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow-y: auto;
+      min-width: 0;
+      transition: background 0.25s;
+    }
 
-  .verse-box {
-    background: var(--db-verse-bg);
-    border: 0.5px solid var(--db-purple4);
-    border-radius: 8px;
-    padding: 11px 14px;
-    font-size: 15px; font-style: italic;
-    color: var(--db-verse-text);
-    line-height: 1.7;
-    min-height: 58px;
-    border-left: 3px solid var(--db-verse-border);
-    font-family: 'Crimson Pro', serif;
-    outline: none;
-    transition: all 0.25s;
-  }
-  .verse-box:focus { border-color: var(--db-purple2); }
-  .verse-box[contenteditable]:empty:before { content: attr(data-placeholder); color: var(--db-purple4); font-style: italic; }
+    .empty-state {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+      padding: 60px 40px;
+    }
+    .empty-icon {
+      width: 50px; height: 50px;
+      background: var(--bg3);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: var(--purple2);
+    }
+    .empty-text { font-size: 16px; font-style: italic; color: var(--text2); }
+    .empty-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
 
-  .notes-area {
-    flex: 1;
-    border: 0.5px solid var(--db-border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-family: 'Crimson Pro', serif;
-    font-size: 15px; line-height: 1.8;
-    color: var(--db-text);
-    background: var(--db-input-bg);
-    resize: none;
-    min-height: 140px;
-    transition: all 0.25s;
-  }
-  .notes-area:focus { outline: none; border-color: var(--db-purple2); }
-  .notes-area::placeholder { color: var(--db-text3); font-style: italic; }
+    /* ── EDITOR ── */
+    .editor-header {
+      padding: 16px 24px 12px;
+      border-bottom: 0.5px solid var(--border);
+      transition: border-color 0.25s;
+    }
 
-  .toolbar {
-    display: flex; gap: 6px; padding: 8px 22px;
-    border-top: 0.5px solid var(--db-border);
-    background: var(--db-meta-bg);
-    align-items: center; flex-wrap: wrap; justify-content: space-between;
-    transition: background 0.25s;
-  }
+    .ed-title {
+      font-family: 'Crimson Pro', serif;
+      font-size: 22px; font-weight: 600;
+      border: none; outline: none;
+      background: transparent;
+      color: var(--text);
+      width: 100%;
+      letter-spacing: -0.3px;
+      transition: color 0.25s;
+    }
+    .ed-title::placeholder { color: var(--text3); }
 
-  .toolbar-left { display: flex; gap: 6px; }
+    .editor-meta {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      padding: 10px 24px;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--meta-bg);
+      transition: background 0.25s, border-color 0.25s;
+    }
 
-  .btn-tag-add {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; padding: 4px 9px;
-    border: 0.5px solid var(--db-border);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--db-text2);
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-  .btn-tag-add:hover { background: var(--db-bg); color: var(--db-text); }
+    .meta-input {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 5px 8px;
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--input-bg);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .meta-input:focus { outline: none; border-color: var(--purple2); }
 
-  .btn-save {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px; padding: 6px 16px;
-    background: var(--db-purple);
-    color: #EEEDFE;
-    border: none; border-radius: 6px; cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .btn-save:hover { opacity: 0.88; }
+    .editor-body {
+      flex: 1;
+      display: flex; flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+    }
 
-  .toast {
-    position: absolute;
-    bottom: 16px; right: 16px;
-    background: var(--db-toast-bg);
-    color: #EEEDFE;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    opacity: 0; transform: translateY(8px);
-    transition: all 0.25s; pointer-events: none;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 6px;
+      transition: color 0.25s;
+    }
 
-  .empty-state {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 10px; color: var(--db-text3); padding: 40px;
-  }
-  .empty-icon {
-    width: 44px; height: 44px;
-    background: var(--db-purple3);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: var(--db-purple2);
-  }
-  .empty-text { font-size: 14px; font-style: italic; color: var(--db-text2); }
-  .empty-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--db-text3); }
+    .verse-box {
+      background: var(--verse-bg);
+      border: 0.5px solid var(--purple4);
+      border-left: 3px solid var(--verse-b);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px; font-style: italic;
+      color: var(--verse-t);
+      line-height: 1.7;
+      min-height: 64px;
+      font-family: 'Crimson Pro', serif;
+      outline: none;
+      transition: all 0.25s;
+    }
+    .verse-box:focus { border-color: var(--purple2); }
+    .verse-box:empty::before {
+      content: attr(data-placeholder);
+      color: var(--purple4);
+      font-style: italic;
+    }
 
-  .sidebar-section { margin-bottom: 18px; }
+    .notes-row {
+      flex: 1; display: flex; flex-direction: column;
+    }
 
-  .word-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--db-text3);
-    padding: 0 2px;
-    transition: color 0.25s;
-  }
+    .notes-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 5px;
+    }
 
-  .progress-bar-wrap {
-    height: 2px;
-    background: var(--db-border2);
-    border-radius: 2px;
-    margin: 6px 0 14px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: var(--db-purple);
-    border-radius: 2px;
-    transition: width 0.3s;
-  }
+    .wc-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; color: var(--text3);
+      transition: color 0.25s;
+    }
 
-  .wrapper { position: relative; min-height: 580px; display: flex; flex-direction: column; }
-</style>
+    .prog-wrap {
+      height: 2px;
+      background: var(--border2);
+      border-radius: 2px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: var(--purple);
+      border-radius: 2px;
+      transition: width 0.3s, background 0.25s;
+    }
 
-<div class="wrapper" id="wrapper">
-<div class="app" id="app">
-  <div class="topbar">
-    <div class="logo">
-      <div class="logo-icon">✦</div>
-      <div>
-        <div class="logo-text">Diario Bíblico</div>
-        <div class="logo-sub">estudios & anotaciones</div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <button class="btn-dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Modo oscuro">🌙</button>
-      <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>
+    .notes-area {
+      flex: 1;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px; line-height: 1.8;
+      color: var(--text);
+      background: var(--input-bg);
+      resize: none;
+      min-height: 160px;
+      transition: all 0.25s;
+    }
+    .notes-area:focus { outline: none; border-color: var(--purple2); }
+    .notes-area::placeholder { color: var(--text3); font-style: italic; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex; gap: 6px;
+      padding: 10px 24px;
+      border-top: 0.5px solid var(--border);
+      background: var(--meta-bg);
+      align-items: center; flex-wrap: wrap; justify-content: space-between;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .tags-wrap {
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    }
+
+    .tag-del { cursor: pointer; margin-left: 3px; opacity: 0.6; }
+    .tag-del:hover { opacity: 1; }
+
+    .toolbar-right { display: flex; gap: 8px; align-items: center; }
+
+    .btn-sm {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; padding: 5px 10px;
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .btn-sm:hover { background: var(--bg); color: var(--text); }
+    .btn-danger { color: var(--danger) !important; }
+
+    .btn-save {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px; padding: 7px 18px;
+      background: var(--purple);
+      color: #EEEDFE;
+      border: none; border-radius: 6px; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-save:hover { opacity: 0.88; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 22px; right: 22px;
+      background: var(--toast-bg);
+      color: #EEEDFE;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      opacity: 0; transform: translateY(10px);
+      transition: all 0.25s; pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .sidebar { width: 180px; min-width: 180px; }
+      .editor-body { padding: 14px 14px; }
+      .editor-meta { padding: 8px 14px; }
+      .editor-header { padding: 12px 14px 10px; }
+      .toolbar { padding: 8px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    <div>
+      <div class="logo-text">Diario Bíblico</div>
+      <div class="logo-sub">estudios &amp; anotaciones</div>
     </div>
   </div>
+  <div class="topbar-right">
+    <button class="btn-dark" id="dark-btn" onclick="toggleDark()" title="Modo oscuro">🌙</button>
+    <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>
+  </div>
+</div>
 
-  <div class="main">
-    <div class="sidebar">
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-inner">
       <div class="sidebar-section">
-        <input class="search-box" type="text" placeholder="Buscar..." id="search-input" oninput="filterStudies(this.value)">
+        <input class="search-box" type="text" placeholder="Buscar..." id="search-input" oninput="filterStudies(this.value)" />
         <div class="study-list" id="study-list"></div>
       </div>
       <div class="sidebar-section">
@@ -375,260 +472,295 @@
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Estadísticas</div>
-        <div style="padding: 0 8px;">
-          <div id="stats-text" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--db-text3);line-height:1.8;"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="content" id="content-area">
-      <div class="empty-state">
-        <div class="empty-icon">✦</div>
-        <div class="empty-text">Seleccioná un estudio o creá uno nuevo</div>
-        <div class="empty-sub">tus anotaciones te esperan</div>
+        <div class="stats-box" id="stats"></div>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast">Guardado ✓</div>
+  <!-- CONTENT -->
+  <div class="content" id="content">
+    <div class="empty-state">
+      <div class="empty-icon">✦</div>
+      <div class="empty-text">Seleccioná un estudio o creá uno nuevo</div>
+      <div class="empty-sub">tus anotaciones te esperan</div>
+    </div>
+  </div>
 </div>
-</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'diario_biblico_v2';
-let isDark = JSON.parse(localStorage.getItem('diario_dark') || 'false');
-let studies = [];
-let currentId = null;
-let activeTag = null;
+  const KEY = 'diario_biblico_v3';
+  const KEY_DARK = 'diario_dark_v3';
 
-try { studies = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { studies = []; }
+  let studies = [];
+  let currentId = null;
+  let activeTag = null;
+  let isDark = false;
 
-if (studies.length === 0) {
-  studies = [
-    { id: 1, title: 'La fe como grano de mostaza', reference: 'Mateo 17:20', book: 'Mateo', date: '2025-04-28', tags: ['fe', 'parábolas'], verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."', notes: 'Reflexión: La fe no se mide en cantidad sino en calidad. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas...\n\nAplicación personal: ¿En qué áreas de mi vida necesito ejercitar más esta fe activa?' },
-    { id: 2, title: 'El amor de Dios en Juan 3', reference: 'Juan 3:16', book: 'Juan', date: '2025-05-01', tags: ['amor', 'salvación'], verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."', notes: 'Este versículo es el corazón del evangelio. La palabra "de tal manera" (houtos) en el griego indica la forma del amor, no solo el grado.\n\nDios no amó al mundo a pesar de su pecado, sino que respondió al problema del pecado con amor en acción.' }
-  ];
-  saveAll();
-}
+  /* ── INIT ── */
+  (function init() {
+    try { studies = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { studies = []; }
+    try { isDark = JSON.parse(localStorage.getItem(KEY_DARK) || 'false'); } catch(e) {}
 
-function applyDarkMode() {
-  document.getElementById('app').classList.toggle('dark-mode', isDark);
-  document.getElementById('dark-toggle').textContent = isDark ? '☀️' : '🌙';
-  document.getElementById('dark-toggle').title = isDark ? 'Modo claro' : 'Modo oscuro';
-  localStorage.setItem('diario_dark', JSON.stringify(isDark));
-}
+    if (studies.length === 0) {
+      studies = [
+        {
+          id: 1,
+          title: 'La fe como grano de mostaza',
+          reference: 'Mateo 17:20',
+          book: 'Mateo',
+          date: '2025-04-28',
+          tags: ['fe', 'parábolas'],
+          verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
+          notes: 'Reflexión: La fe no se mide en cantidad sino en calidad. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas...\n\nAplicación personal: ¿En qué áreas de mi vida necesito ejercitar más esta fe activa?'
+        },
+        {
+          id: 2,
+          title: 'El amor de Dios en Juan 3',
+          reference: 'Juan 3:16',
+          book: 'Juan',
+          date: '2025-05-01',
+          tags: ['amor', 'salvación'],
+          verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."',
+          notes: 'Este versículo es el corazón del evangelio. La palabra "de tal manera" (houtos) en el griego indica la forma del amor, no solo el grado.\n\nDios no amó al mundo a pesar de su pecado, sino que respondió al problema del pecado con amor en acción.'
+        }
+      ];
+      save();
+    }
 
-function toggleDark() {
-  isDark = !isDark;
-  applyDarkMode();
-}
+    applyDark();
+    renderSidebar();
+  })();
 
-applyDarkMode();
+  /* ── DARK MODE ── */
+  function applyDark() {
+    document.body.classList.toggle('dark', isDark);
+    document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+    document.getElementById('dark-btn').title = isDark ? 'Modo claro' : 'Modo oscuro';
+    localStorage.setItem(KEY_DARK, JSON.stringify(isDark));
+  }
 
-function saveAll() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(studies)); } catch(e) {}
-}
+  function toggleDark() {
+    isDark = !isDark;
+    applyDark();
+  }
 
-function getAllTags() {
-  const set = new Set();
-  studies.forEach(s => (s.tags || []).forEach(t => set.add(t)));
-  return [...set];
-}
+  /* ── STORAGE ── */
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(studies)); } catch(e) {}
+  }
 
-function countWords(text) {
-  return (text || '').trim().split(/\s+/).filter(Boolean).length;
-}
+  /* ── HELPERS ── */
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
-function renderStats() {
-  const el = document.getElementById('stats-text');
-  if (!el) return;
-  const total = studies.length;
-  const tags = getAllTags().length;
-  const words = studies.reduce((a, s) => a + countWords(s.notes), 0);
-  el.innerHTML = `${total} estudios<br>${tags} temas<br>${words} palabras escritas`;
-}
+  function wordCount(text) {
+    return (text || '').trim().split(/\s+/).filter(Boolean).length;
+  }
 
-function renderSidebar(filter = '') {
-  const list = document.getElementById('study-list');
-  let filtered = studies.filter(s => {
-    const matchText = !filter || s.title.toLowerCase().includes(filter.toLowerCase()) || (s.reference||'').toLowerCase().includes(filter.toLowerCase());
-    const matchTag = !activeTag || (s.tags || []).includes(activeTag);
-    return matchText && matchTag;
-  });
-  list.innerHTML = filtered.map(s => `
-    <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
-      <div class="study-item-title">${escHtml(s.title)}</div>
-      <div class="study-item-ref">${escHtml(s.reference)}</div>
-      <div class="study-item-date">${s.date}</div>
-    </div>
-  `).join('');
-  const tagEl = document.getElementById('tag-filters');
-  tagEl.innerHTML = getAllTags().map(t => `
-    <span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterByTag('${escHtml(t)}')">${escHtml(t)}</span>
-  `).join('');
-  renderStats();
-}
+  function allTags() {
+    const set = new Set();
+    studies.forEach(s => (s.tags || []).forEach(t => set.add(t)));
+    return [...set];
+  }
 
-function filterStudies(val) { renderSidebar(val); }
+  /* ── SIDEBAR ── */
+  function renderSidebar(filter) {
+    filter = filter || document.getElementById('search-input').value || '';
 
-function filterByTag(tag) {
-  activeTag = activeTag === tag ? null : tag;
-  renderSidebar(document.getElementById('search-input').value);
-}
+    const filtered = studies.filter(s => {
+      const q = filter.toLowerCase();
+      const matchText = !q || s.title.toLowerCase().includes(q) || (s.reference||'').toLowerCase().includes(q);
+      const matchTag = !activeTag || (s.tags||[]).includes(activeTag);
+      return matchText && matchTag;
+    });
 
-function openStudy(id) {
-  if (currentId !== null) saveCurrentStudy();
-  currentId = id;
-  const s = studies.find(x => x.id === id);
-  if (!s) return;
-  renderSidebar(document.getElementById('search-input').value);
-  document.getElementById('content-area').innerHTML = editorHTML(s);
-  setupWordCount();
-}
-
-function setupWordCount() {
-  const notes = document.getElementById('ed-notes');
-  const wc = document.getElementById('wc');
-  if (!notes || !wc) return;
-  notes.addEventListener('input', () => {
-    const w = countWords(notes.value);
-    wc.textContent = w + ' palabras';
-    const pct = Math.min(100, w / 3);
-    const bar = document.getElementById('wc-bar');
-    if (bar) bar.style.width = pct + '%';
-  });
-  const w = countWords(notes.value);
-  wc.textContent = w + ' palabras';
-  const bar = document.getElementById('wc-bar');
-  if (bar) bar.style.width = Math.min(100, w/3) + '%';
-}
-
-function editorHTML(s) {
-  const wordCount = countWords(s.notes);
-  return `
-    <div class="editor-header">
-      <input class="editor-title-input" id="ed-title" value="${escHtml(s.title)}" placeholder="Título del estudio..." />
-    </div>
-    <div class="editor-meta">
-      <input class="meta-input" id="ed-reference" value="${escHtml(s.reference)}" placeholder="Referencia (ej: Juan 3:16)" />
-      <input class="meta-input" id="ed-book" value="${escHtml(s.book)}" placeholder="Libro" style="width:90px" />
-      <input class="meta-input" id="ed-date" type="date" value="${s.date}" />
-    </div>
-    <div class="editor-body">
-      <div>
-        <div class="section-label">Versículo o pasaje</div>
-        <div class="verse-box" id="ed-verse" contenteditable="true" data-placeholder="Pegá o escribí el versículo aquí...">${escHtml(s.verse)}</div>
+    document.getElementById('study-list').innerHTML = filtered.map(s => `
+      <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
+        <div class="si-title">${esc(s.title)}</div>
+        <div class="si-ref">${esc(s.reference)}</div>
+        <div class="si-date">${s.date}</div>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-          <div class="section-label" style="margin-bottom:0;">Notas & reflexiones</div>
-          <span class="word-count" id="wc">${wordCount} palabras</span>
+    `).join('');
+
+    document.getElementById('tag-filters').innerHTML = allTags().map(t => `
+      <span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterTag('${esc(t)}')">${esc(t)}</span>
+    `).join('');
+
+    const totalWords = studies.reduce((a, s) => a + wordCount(s.notes), 0);
+    document.getElementById('stats').innerHTML =
+      `${studies.length} estudio${studies.length !== 1 ? 's' : ''}<br>` +
+      `${allTags().length} tema${allTags().length !== 1 ? 's' : ''}<br>` +
+      `${totalWords} palabras escritas`;
+  }
+
+  function filterStudies(val) { renderSidebar(val); }
+
+  function filterTag(tag) {
+    activeTag = activeTag === tag ? null : tag;
+    renderSidebar();
+  }
+
+  /* ── EDITOR ── */
+  function openStudy(id) {
+    if (currentId !== null) saveCurrentStudy();
+    currentId = id;
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    renderSidebar();
+    renderEditor(s);
+  }
+
+  function renderEditor(s) {
+    const wc = wordCount(s.notes);
+    const pct = Math.min(100, wc / 3);
+
+    document.getElementById('content').innerHTML = `
+      <div class="editor-header">
+        <input class="ed-title" id="ed-title" value="${esc(s.title)}" placeholder="Título del estudio..." />
+      </div>
+      <div class="editor-meta">
+        <input class="meta-input" id="ed-ref" value="${esc(s.reference)}" placeholder="Referencia (ej: Juan 3:16)" style="flex:1;min-width:130px;" />
+        <input class="meta-input" id="ed-book" value="${esc(s.book)}" placeholder="Libro" style="width:90px;" />
+        <input class="meta-input" id="ed-date" type="date" value="${s.date}" />
+      </div>
+      <div class="editor-body">
+        <div>
+          <div class="section-label">Versículo o pasaje</div>
+          <div class="verse-box" id="ed-verse" contenteditable="true"
+               data-placeholder="Pegá o escribí el versículo aquí...">${esc(s.verse)}</div>
         </div>
-        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="wc-bar" style="width:${Math.min(100,wordCount/3)}%"></div></div>
-        <textarea class="notes-area" id="ed-notes" placeholder="Escribí tus anotaciones, reflexiones e interpretaciones...">${escHtml(s.notes)}</textarea>
-      </div>
-    </div>
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;" id="ed-tags-display">
-          ${(s.tags||[]).map(t => `<span class="tag active" onclick="removeTag('${escHtml(t)}')">${escHtml(t)} ✕</span>`).join('')}
-          <input id="ed-tag-input" class="meta-input" placeholder="+ tema" style="width:100px;" onkeydown="addTagOnEnter(event)" />
+        <div class="notes-row">
+          <div class="notes-header">
+            <div class="section-label" style="margin-bottom:0;">Notas &amp; reflexiones</div>
+            <span class="wc-label" id="wc-label">${wc} palabras</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:${pct}%"></div></div>
+          <textarea class="notes-area" id="ed-notes"
+            placeholder="Escribí tus anotaciones, reflexiones e interpretaciones...">${esc(s.notes)}</textarea>
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button class="btn-tag-add" onclick="duplicateStudy(${s.id})">Duplicar</button>
-        <button class="btn-tag-add" onclick="deleteStudy(${s.id})" style="color:var(--db-danger);">Eliminar</button>
-        <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
+      <div class="toolbar">
+        <div class="tags-wrap" id="tags-wrap">
+          ${(s.tags||[]).map(t => `
+            <span class="tag active">${esc(t)}<span class="tag-del" onclick="removeTag('${esc(t)}')">✕</span></span>
+          `).join('')}
+          <input id="tag-input" class="meta-input" placeholder="+ tema" style="width:100px;"
+            onkeydown="addTagEnter(event)" />
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
+          <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})">Eliminar</button>
+          <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
+        </div>
       </div>
-    </div>
-  `;
-}
+    `;
 
-function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    /* live word count */
+    const notesEl = document.getElementById('ed-notes');
+    notesEl.addEventListener('input', () => {
+      const w = wordCount(notesEl.value);
+      document.getElementById('wc-label').textContent = w + ' palabras';
+      document.getElementById('prog').style.width = Math.min(100, w / 3) + '%';
+    });
+  }
 
-function getCurrentStudyData() {
-  if (!currentId) return null;
-  const s = studies.find(x => x.id === currentId);
-  if (!s) return null;
-  return {
-    title: document.getElementById('ed-title')?.value || s.title,
-    reference: document.getElementById('ed-reference')?.value || s.reference,
-    book: document.getElementById('ed-book')?.value || s.book,
-    date: document.getElementById('ed-date')?.value || s.date,
-    verse: document.getElementById('ed-verse')?.innerText || s.verse,
-    notes: document.getElementById('ed-notes')?.value || s.notes
-  };
-}
+  /* ── SAVE ── */
+  function getCurrentData() {
+    if (!currentId) return null;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return null;
+    return {
+      title:     document.getElementById('ed-title')?.value     ?? s.title,
+      reference: document.getElementById('ed-ref')?.value       ?? s.reference,
+      book:      document.getElementById('ed-book')?.value      ?? s.book,
+      date:      document.getElementById('ed-date')?.value      ?? s.date,
+      verse:     document.getElementById('ed-verse')?.innerText ?? s.verse,
+      notes:     document.getElementById('ed-notes')?.value     ?? s.notes,
+    };
+  }
 
-function saveCurrentStudy(showToast = false) {
-  if (!currentId) return;
-  const s = studies.find(x => x.id === currentId);
-  if (!s) return;
-  const data = getCurrentStudyData();
-  if (data) Object.assign(s, data);
-  saveAll();
-  renderSidebar(document.getElementById('search-input').value);
-  if (showToast) showToastMsg('Guardado ✓');
-}
+  function saveCurrentStudy(toast = false) {
+    if (!currentId) return;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    const data = getCurrentData();
+    if (data) Object.assign(s, data);
+    save();
+    renderSidebar();
+    if (toast) showToast('Guardado ✓');
+  }
 
-function newStudy() {
-  if (currentId) saveCurrentStudy();
-  const id = Date.now();
-  const today = new Date().toISOString().split('T')[0];
-  studies.unshift({ id, title: 'Nuevo estudio', reference: '', book: '', date: today, tags: [], verse: '', notes: '' });
-  saveAll();
-  openStudy(id);
-}
+  /* ── CRUD ── */
+  function newStudy() {
+    if (currentId) saveCurrentStudy();
+    const id = Date.now();
+    const today = new Date().toISOString().split('T')[0];
+    studies.unshift({ id, title: 'Nuevo estudio', reference: '', book: '', date: today, tags: [], verse: '', notes: '' });
+    save();
+    openStudy(id);
+  }
 
-function duplicateStudy(id) {
-  if (currentId) saveCurrentStudy();
-  const s = studies.find(x => x.id === id);
-  if (!s) return;
-  const newS = { ...s, id: Date.now(), title: s.title + ' (copia)', date: new Date().toISOString().split('T')[0], tags: [...(s.tags||[])] };
-  studies.unshift(newS);
-  saveAll();
-  openStudy(newS.id);
-  showToastMsg('Estudio duplicado ✓');
-}
+  function duplicateStudy(id) {
+    saveCurrentStudy();
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    const n = { ...s, id: Date.now(), title: s.title + ' (copia)', date: new Date().toISOString().split('T')[0], tags: [...(s.tags||[])] };
+    studies.unshift(n);
+    save();
+    openStudy(n.id);
+    showToast('Estudio duplicado ✓');
+  }
 
-function deleteStudy(id) {
-  if (!confirm('¿Eliminar este estudio?')) return;
-  studies = studies.filter(x => x.id !== id);
-  currentId = null;
-  saveAll();
-  document.getElementById('content-area').innerHTML = `<div class="empty-state"><div class="empty-icon">✦</div><div class="empty-text">Seleccioná un estudio o creá uno nuevo</div></div>`;
-  renderSidebar();
-}
+  function deleteStudy(id) {
+    if (!confirm('¿Eliminar este estudio?')) return;
+    studies = studies.filter(x => x.id !== id);
+    currentId = null;
+    save();
+    document.getElementById('content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">✦</div>
+        <div class="empty-text">Seleccioná un estudio o creá uno nuevo</div>
+        <div class="empty-sub">tus anotaciones te esperan</div>
+      </div>`;
+    renderSidebar();
+  }
 
-function addTagOnEnter(e) {
-  if (e.key !== 'Enter') return;
-  const input = document.getElementById('ed-tag-input');
-  const val = input.value.trim();
-  if (!val) return;
-  const s = studies.find(x => x.id === currentId);
-  if (!s) return;
-  if (!s.tags.includes(val)) s.tags.push(val);
-  input.value = '';
-  saveAll();
-  openStudy(currentId);
-}
+  /* ── TAGS ── */
+  function addTagEnter(e) {
+    if (e.key !== 'Enter') return;
+    const input = document.getElementById('tag-input');
+    const val = input.value.trim();
+    if (!val) return;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    if (!s.tags.includes(val)) s.tags.push(val);
+    input.value = '';
+    save();
+    renderSidebar();
+    openStudy(currentId);
+  }
 
-function removeTag(tag) {
-  const s = studies.find(x => x.id === currentId);
-  if (!s) return;
-  s.tags = s.tags.filter(t => t !== tag);
-  saveAll();
-  openStudy(currentId);
-}
+  function removeTag(tag) {
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    s.tags = s.tags.filter(t => t !== tag);
+    save();
+    renderSidebar();
+    openStudy(currentId);
+  }
 
-function showToastMsg(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-
-renderSidebar();
+  /* ── TOAST ── */
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
 </script>
+</body>
+</html>
