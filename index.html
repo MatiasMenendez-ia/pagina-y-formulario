@@ -390,13 +390,6 @@
   .hl-btn.clear { background: var(--bg2); position: relative; }
   .hl-btn.clear::after { content: '×'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text3); }
   .verse-toolbar .vt-divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
-  .verse-toolbar .vt-mini-btn {
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    padding: 3px 8px; border-radius: 4px;
-    border: 0.5px solid var(--border); background: var(--bg2);
-    color: var(--text2); cursor: pointer;
-  }
-  .verse-toolbar .vt-mini-btn:hover { background: var(--bg3); border-color: var(--purple4); color: var(--purpleT); }
 
   /* SOAP / inductive sections */
   .soap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -759,7 +752,7 @@
   @media (max-width: 420px) {
     .topbar-right .btn-dark:nth-child(1),
     .topbar-right .btn-dark:nth-child(2),
-    .topbar-right .btn-dark:nth-child(3) { display: none; } /* fold into menu via sidebar */
+    .topbar-right .btn-dark:nth-child(3) { display: none; }
     .streak-pill { display: none; }
     .btn-primary { padding: 8px 12px; font-size: 12px; }
     .logo-text { font-size: 16px; }
@@ -1014,6 +1007,116 @@
     color: var(--text);
     line-height: 1.7;
   }
+
+  /* ── STUDY TOOLS PANEL ── */
+  .tools-panel {
+    margin-top: 8px;
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--input-bg);
+  }
+  .tools-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border-bottom: 0.5px solid var(--border2);
+    cursor: pointer;
+    user-select: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--purple);
+    letter-spacing: 0.5px;
+  }
+  .tools-header:hover { background: var(--bg3); }
+  .tools-header .tools-arrow {
+    transition: transform 0.2s;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+  .tools-panel.open .tools-arrow { transform: rotate(90deg); }
+  .tools-body {
+    display: none;
+    padding: 10px 14px;
+    gap: 10px;
+    flex-direction: column;
+  }
+  .tools-panel.open .tools-body { display: flex; }
+
+  .tools-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .tools-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 0.5px solid var(--border);
+    background: var(--bg2);
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tools-tab.active { background: var(--bg3); border-color: var(--purple4); color: var(--purpleT); }
+  .tools-tab:hover { border-color: var(--purple4); color: var(--text); }
+
+  .tools-search {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text);
+    width: 100%;
+  }
+  .tools-search:focus { outline: none; border-color: var(--purple2); }
+  .tools-results {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lex-result {
+    background: var(--bg2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .lex-word {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    color: var(--purple);
+    font-size: 14px;
+  }
+  .lex-strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-left: 6px;
+  }
+  .lex-def {
+    color: var(--text2);
+    font-style: italic;
+  }
+  .lex-refs {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+  .no-results {
+    color: var(--text3);
+    font-style: italic;
+    font-size: 13px;
+    padding: 4px 0;
+  }
 </style>
 </head>
 <body>
@@ -1181,8 +1284,8 @@
   /* ─────────────────────────────────────────────── STATE ── */
   let studies = [];
   let prayers = [];
-  let plan = null; // { id, name, total, completedDays:{n:dateISO} }
-  let habit = {}; // { 'YYYY-MM-DD': minutesLogged }
+  let plan = null;
+  let habit = {};
   let settings = { fontScale: 1, theme: 'light', autosave: true };
   let currentId = null;
   let activeTag = null;
@@ -1193,12 +1296,48 @@
   let saveTimer = null;
   let calMonth = new Date().getMonth();
   let calYear = new Date().getFullYear();
-  let state_editingPassage = null; // null | { passageIndex, passageData }
+  let state_editingPassage = null;
+  let toolsOpen = false;
+  let toolsTab = 'hebrew'; // 'hebrew' | 'greek' | 'context'
 
   /* ─────────────────────────────────────────────── BIBLE BOOKS ── */
   const BIBLE_OT = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías'];
   const BIBLE_NT = ['Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
   const BIBLE_ALL = [...BIBLE_OT, ...BIBLE_NT];
+
+  /* ─────────────────────────────────────────────── LEXICON ── */
+  const LEXICON = {
+    hebrew: [
+      { strong: 'H216', word: 'אוֹר', translit: '’ôr', def: 'luz, brillo, iluminación; metafóricamente verdad, vida, presencia de Dios.', refs: 'Gén 1:3; Sal 119:105; Is 9:2' },
+      { strong: 'H430', word: 'אֱלֹהִים', translit: '’ĕlōhîm', def: 'Dios, dioses; plural mayestático, designa al Dios verdadero.', refs: 'Gén 1:1; Deut 6:4; Sal 19:1' },
+      { strong: 'H3068', word: 'יהוה', translit: 'YHWH', def: 'Nombre propio de Dios, "Yo Soy", Señor.', refs: 'Éx 3:14; Sal 23:1' },
+      { strong: 'H2416', word: 'חַי', translit: 'ḥay', def: 'vivo, viviente; vida en sentido pleno.', refs: 'Gén 2:7; Deut 30:19' },
+      { strong: 'H3820', word: 'לֵב', translit: 'lēb', def: 'corazón, mente, interioridad; centro de la voluntad y el pensamiento.', refs: 'Prov 4:23; Jer 17:9' },
+      { strong: 'H7307', word: 'רוּחַ', translit: 'rûaḥ', def: 'espíritu, viento, aliento; Espíritu de Dios.', refs: 'Gén 1:2; Sal 51:11' },
+      { strong: 'H2617', word: 'חֶסֶד', translit: 'ḥesed', def: 'misericordia, amor leal, pacto; fidelidad de Dios.', refs: 'Sal 136:1; Os 6:6' },
+      { strong: 'H571', word: 'אֱמֶת', translit: '’ĕmet', def: 'verdad, fidelidad, firmeza; lo que es confiable.', refs: 'Sal 25:5; Prov 3:3' },
+      { strong: 'H8451', word: 'תּוֹרָה', translit: 'tôrâ', def: 'ley, instrucción, enseñanza; especialmente la Ley de Moisés.', refs: 'Sal 1:2; Jos 1:8' },
+      { strong: 'H5927', word: 'עָלָה', translit: '‘ālâ', def: 'subir, ascender; ofrecer sacrificio.', refs: 'Gén 22:2; Lev 1:3' }
+    ],
+    greek: [
+      { strong: 'G5457', word: 'φῶς', translit: 'phōs', def: 'luz, brillo; metafóricamente verdad, pureza, revelación divina.', refs: 'Mat 6:22; Juan 1:7; 1 Jn 1:7' },
+      { strong: 'G2316', word: 'θεός', translit: 'theos', def: 'Dios, divinidad; el único Dios verdadero.', refs: 'Mat 1:23; Juan 1:1' },
+      { strong: 'G2962', word: 'κύριος', translit: 'kyrios', def: 'Señor, dueño, amo; título de Jesús.', refs: 'Rom 10:9; Fil 2:11' },
+      { strong: 'G2424', word: 'Ἰησοῦς', translit: 'Iēsous', def: 'Jesús, "YHWH es salvación".', refs: 'Mat 1:21; Hech 4:12' },
+      { strong: 'G5547', word: 'Χριστός', translit: 'Christos', def: 'Ungido, Mesías; título de Jesús.', refs: 'Mat 16:16; Juan 20:31' },
+      { strong: 'G26', word: 'ἀγάπη', translit: 'agapē', def: 'amor (ágape), amor sacrificial y comprometido.', refs: '1 Cor 13; 1 Jn 4:8' },
+      { strong: 'G4102', word: 'πίστις', translit: 'pistis', def: 'fe, confianza, fidelidad; creer en Dios.', refs: 'Heb 11:1; Rom 1:17' },
+      { strong: 'G5485', word: 'χάρις', translit: 'charis', def: 'gracia, favor inmerecido; don de Dios.', refs: 'Ef 2:8; 2 Cor 12:9' },
+      { strong: 'G2222', word: 'ζωή', translit: 'zōē', def: 'vida, especialmente vida eterna y plena.', refs: 'Juan 3:16; Rom 6:23' },
+      { strong: 'G3056', word: 'λόγος', translit: 'logos', def: 'palabra, verbo, razón; Jesucristo como Palabra.', refs: 'Juan 1:1; Heb 4:12' }
+    ],
+    context: [
+      { term: 'lámpara (luz en mundo antiguo)', def: 'En el mundo bíblico, las lámparas de aceite eran la única fuente de luz artificial; simbolizaban vigilancia, revelación y guía. La metáfora de "lámpara a mis pies" (Sal 119:105) alude a la necesidad de iluminación divina en el camino oscuro.', refs: 'Sal 119:105; Mat 25:1-13' },
+      { term: 'ojos (buenos / malos)', def: 'En la cultura semítica, "ojo bueno" denotaba generosidad y corazón recto; "ojo malo", envidia y avaricia. Jesús usa la imagen para enseñar sobre la pureza interior y la percepción espiritual.', refs: 'Mat 6:22-23; Deut 15:9' },
+      { term: 'comunión (koinonía)', def: 'El término griego koinonía implicaba participación común, compartir vida y bienes. En el NT, se refiere a la comunión con Dios y entre los creyentes.', refs: 'Hech 2:42; 1 Jn 1:3' },
+      { term: 'Denario', def: 'Moneda romana de plata, el salario típico de un día de trabajo. Usada en parábolas para ilustrar el valor y la justicia del reino.', refs: 'Mat 20:2; Luc 10:35' }
+    ]
+  };
 
   /* ─────────────────────────────────────────────── VOTD ── */
   const VERSE_OF_DAY = [
@@ -1240,10 +1379,8 @@
       sub: '30 días · Mateo, Marcos, Lucas, Juan',
       gen: () => {
         const days = [];
-        const segs = [
-          ['Mateo', 28], ['Marcos', 16], ['Lucas', 24], ['Juan', 21]
-        ];
-        let total = segs.reduce((a, [_, n]) => a + n, 0); // 89
+        const segs = [['Mateo', 28], ['Marcos', 16], ['Lucas', 24], ['Juan', 21]];
+        let total = segs.reduce((a, [_, n]) => a + n, 0);
         let dia = 0;
         for (const [book, n] of segs) {
           const perDay = Math.ceil(n / (30 * n / total));
@@ -1300,7 +1437,7 @@
     return s.xrefs.map((x, i) => {
       const isEditing = state_editingPassage !== null && state_editingPassage.passageIndex === i;
       const hasStudy = studies.find(st => st.id !== s.id && st.reference === x.ref);
-      if (isEditing) return ''; // el form se muestra aparte
+      if (isEditing) return '';
       return `
         <div class="passage-card">
           <div class="passage-card-header">
@@ -1389,10 +1526,7 @@
     const text = document.getElementById('pe-text')?.value.trim() || '';
     const passageData = { ref, translation, text };
 
-    if (!ref) {
-      showToast('La referencia es obligatoria');
-      return;
-    }
+    if (!ref) { showToast('La referencia es obligatoria'); return; }
 
     if (state_editingPassage.passageIndex !== null) {
       s.xrefs[state_editingPassage.passageIndex] = passageData;
@@ -1404,6 +1538,71 @@
     saveStudies();
     renderEditor(s);
     showToast('Pasaje guardado ✓');
+  }
+
+  /* ─────────────────────────────────────────────── STUDY TOOLS ── */
+  function toggleTools() {
+    toolsOpen = !toolsOpen;
+    const panel = document.getElementById('tools-panel');
+    if (panel) panel.classList.toggle('open', toolsOpen);
+  }
+
+  function setToolsTab(tab) {
+    toolsTab = tab;
+    renderToolsBody();
+  }
+
+  function searchTools() {
+    renderToolsBody();
+  }
+
+  function renderTools() {
+    return `
+      <div class="tools-panel ${toolsOpen ? 'open' : ''}" id="tools-panel">
+        <div class="tools-header" onclick="toggleTools()">
+          <span class="tools-arrow">▶</span> 🛠 Herramientas de estudio
+        </div>
+        <div class="tools-body">
+          <div class="tools-tabs">
+            <button class="tools-tab ${toolsTab==='hebrew'?'active':''}" onclick="setToolsTab('hebrew')">Hebreo</button>
+            <button class="tools-tab ${toolsTab==='greek'?'active':''}" onclick="setToolsTab('greek')">Griego</button>
+            <button class="tools-tab ${toolsTab==='context'?'active':''}" onclick="setToolsTab('context')">Contexto</button>
+          </div>
+          <input class="tools-search" id="tools-search-input" type="text" placeholder="Buscar palabra o tema..." oninput="searchTools()" />
+          <div class="tools-results" id="tools-results"></div>
+        </div>
+      </div>`;
+  }
+
+  function renderToolsBody() {
+    const input = document.getElementById('tools-search-input');
+    const resultsEl = document.getElementById('tools-results');
+    if (!input || !resultsEl) return;
+    const q = input.value.toLowerCase().trim();
+    let data;
+    if (toolsTab === 'hebrew') data = LEXICON.hebrew;
+    else if (toolsTab === 'greek') data = LEXICON.greek;
+    else data = LEXICON.context;
+
+    let filtered;
+    if (toolsTab === 'context') {
+      filtered = data.filter(x => x.term.toLowerCase().includes(q) || x.def.toLowerCase().includes(q));
+      resultsEl.innerHTML = filtered.length ? filtered.map(x => `
+        <div class="lex-result">
+          <div style="font-weight:600;color:var(--purple);">${esc(x.term)}</div>
+          <div class="lex-def">${esc(x.def)}</div>
+          <div class="lex-refs">${esc(x.refs)}</div>
+        </div>`).join('') : '<div class="no-results">Sin resultados.</div>';
+    } else {
+      filtered = data.filter(x => x.word.includes(q) || x.translit.toLowerCase().includes(q) || x.def.toLowerCase().includes(q) || x.strong.includes(q));
+      resultsEl.innerHTML = filtered.length ? filtered.map(x => `
+        <div class="lex-result">
+          <span class="lex-word">${esc(x.word)}</span> <span class="lex-strong">${esc(x.strong)}</span>
+          <div style="font-size:12px;color:var(--text2);">${esc(x.translit)}</div>
+          <div class="lex-def">${esc(x.def)}</div>
+          <div class="lex-refs">${esc(x.refs)}</div>
+        </div>`).join('') : '<div class="no-results">Sin resultados.</div>';
+    }
   }
 
   /* ─────────────────────────────────────────────── INIT ── */
@@ -1418,10 +1617,7 @@
     studies = studies.map(s => ({
       fav: false, template: 'libre', series: '', xrefs: [], soap: {}, ...s,
       tags: s.tags || [],
-      // Migrar xrefs antiguos (strings) al nuevo formato
-      xrefs: (s.xrefs || []).map(x =>
-        typeof x === 'string' ? { ref: x, translation: 'NVI', text: '' } : x
-      )
+      xrefs: (s.xrefs || []).map(x => typeof x === 'string' ? { ref: x, translation: 'NVI', text: '' } : x)
     }));
 
     if (studies.length === 0) {
@@ -1681,7 +1877,7 @@
     const el = document.getElementById('heatmap');
     if (!el) return;
     const cells = [];
-    const days = 26 * 7; // 182 days
+    const days = 26 * 7;
     const start = new Date();
     start.setDate(start.getDate() - days + 1);
     const max = Math.max(1, ...Object.values(habit));
@@ -1788,6 +1984,7 @@
   function renderEditor(s) {
     const wc = totalLength(s);
     const pct = Math.min(100, wc / 3);
+    toolsOpen = false; // reset tools panel state per study, but keep closed by default
 
     document.getElementById('content').innerHTML = `
       <div class="editor-header">
@@ -1839,6 +2036,8 @@
             <div id="passage-form-container"></div>
           </div>
         </div>
+
+        ${renderTools()}
 
         ${renderTemplateBody(s)}
 
@@ -1985,7 +2184,7 @@
 
   function changeTemplate() {
     saveCurrentStudy();
-    state_editingPassage = null; // Resetear edición inline de pasajes
+    state_editingPassage = null;
     const sel = document.getElementById('ed-template');
     const s = studies.find(x => x.id === currentId);
     if (!s) return;
@@ -1998,18 +2197,13 @@
   function renderMarkdown(text) {
     if (!text) return '<span style="color:var(--text3);font-style:italic;">Sin notas aún.</span>';
     let html = esc(text);
-    // headers
     html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
     html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    // blockquote
     html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-    // bold/italic
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    // inline code
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-    // lists
     html = html.replace(/(^|\n)((?:- .+\n?)+)/g, (m, p, list) => {
       const items = list.trim().split('\n').map(li => '<li>' + li.replace(/^- /, '') + '</li>').join('');
       return p + '<ul>' + items + '</ul>';
@@ -2018,7 +2212,6 @@
       const items = list.trim().split('\n').map(li => '<li>' + li.replace(/^\d+\. /, '') + '</li>').join('');
       return p + '<ol>' + items + '</ol>';
     });
-    // paragraphs
     html = html.split(/\n{2,}/).map(block => {
       if (/^<(h\d|ul|ol|blockquote)/.test(block.trim())) return block;
       return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
@@ -2062,7 +2255,7 @@
     if (cls) {
       const mark = document.createElement('mark');
       mark.className = cls;
-      try { range.surroundContents(mark); } catch (e) { /* spans across nodes */ }
+      try { range.surroundContents(mark); } catch (e) {}
     } else {
       const verseBox = document.getElementById('ed-verse');
       if (verseBox && verseBox.contains(range.commonAncestorContainer)) {
@@ -2235,7 +2428,6 @@
     if (!s) return;
     const data = getCurrentData();
     if (data) Object.assign(s, data);
-    // Preservar xrefs que no vienen del form
     saveStudies();
     if (!isAutosave) recordHabit();
     renderSidebar();
