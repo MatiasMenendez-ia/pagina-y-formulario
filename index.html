@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Diario Bíblico</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#3C3489" />
+<meta name="application-name" content="Diario Bíblico" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Diario" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFFFF; --bg2: #F5F4F0; --bg3: #EEEDFE;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.06);
+    --text: #1A1A2E; --text2: #555466; --text3: #999899;
+    --purple: #3C3489; --purple2: #7F77DD; --purple3: #EEEDFE; --purple4: #AFA9EC; --purpleT: #26215C;
+    --danger: #A32D2D; --star: #C8962A; --green: #4F7A4F; --amber: #C8962A;
+    --verse-bg: #EEEDFE; --verse-b: #7F77DD; --verse-t: #26215C;
+    --meta-bg: #F5F4F0; --input-bg: #FFFFFF; --toast-bg: #26215C;
+    --heat-0: #ECEAFE; --heat-1: #C8C2F2; --heat-2: #9B92E2; --heat-3: #6F65C9; --heat-4: #3C3489;
+    --reading: 1;
+  }
+
+  body.dark {
+    --bg: #12101E; --bg2: #1C1930; --bg3: #251F3D;
+    --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.05);
+    --text: #EAE9F8; --text2: #AFA9EC; --text3: #6B65A8;
+    --purple: #7F77DD; --purple2: #AFA9EC; --purple3: #251F3D; --purple4: #3C3489; --purpleT: #CECBF6;
+    --danger: #F09595; --star: #E6B84A; --green: #8FB78F;
+    --verse-bg: #1E1A32; --verse-b: #534AB7; --verse-t: #CECBF6;
+    --meta-bg: #1C1930; --input-bg: #12101E; --toast-bg: #534AB7;
+    --heat-0: #1F1B33; --heat-1: #312A55; --heat-2: #4A4080; --heat-3: #7268C5; --heat-4: #AFA9EC;
+  }
+
+  body.sepia {
+    --bg: #F4ECD8; --bg2: #EBE0C5; --bg3: #DDCFB0;
+    --border: rgba(80,50,20,0.18); --border2: rgba(80,50,20,0.08);
+    --text: #2E2418; --text2: #5C4830; --text3: #8B7250;
+    --purple: #6B4A1F; --purple2: #9B7340; --purple3: #DDCFB0; --purple4: #B89668; --purpleT: #4A3414;
+    --danger: #8C3A1A; --star: #B8862A; --green: #5A6E3A;
+    --verse-bg: #E8D9B5; --verse-b: #9B7340; --verse-t: #4A3414;
+    --meta-bg: #EBE0C5; --input-bg: #F4ECD8; --toast-bg: #4A3414;
+    --heat-0: #E8D9B5; --heat-1: #C8AA78; --heat-2: #9B7340; --heat-3: #6B4A1F; --heat-4: #4A3414;
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg2); color: var(--text);
+    transition: background 0.25s, color 0.25s;
+    display: flex; flex-direction: column; min-height: 100vh;
+    padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, textarea, button, select { font-size: 16px; } /* prevent iOS zoom */
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--bg); border-bottom: 0.5px solid var(--border);
+    padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: sticky; top: 0; z-index: 10;
+    padding-top: calc(12px + env(safe-area-inset-top));
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 32px; height: 32px; background: var(--purple); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #EEEDFE; flex-shrink: 0;
+  }
+  .logo-text { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+  .streak-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    padding: 5px 10px; border-radius: 20px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--text2); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .streak-pill:hover { border-color: var(--purple4); color: var(--purpleT); }
+  .streak-pill.hot { color: var(--star); border-color: var(--star); }
+
+  .topbar-right { display: flex; gap: 6px; align-items: center; }
+  .btn-dark {
+    background: var(--bg2); border: 0.5px solid var(--border); border-radius: 6px;
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; color: var(--text2);
+    transition: all 0.15s;
+  }
+  .btn-dark:hover { background: var(--bg3); color: var(--text); }
+  .btn-primary {
+    background: var(--purple); color: #EEEDFE; border: none;
+    padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; font-family: 'DM Mono', monospace; cursor: pointer;
+    transition: opacity 0.15s; white-space: nowrap;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  /* ── LAYOUT ── */
+  .main { display: flex; flex: 1; min-height: 0; height: calc(100dvh - 57px - env(safe-area-inset-top)); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--bg); border-right: 0.5px solid var(--border);
+    display: flex; flex-direction: column; overflow-y: auto;
+    transition: background 0.25s, transform 0.25s;
+  }
+  .sidebar-inner { padding: 14px 12px; flex: 1; }
+  .sidebar-section { margin-bottom: 22px; }
+
+  .nav-tabs {
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--bg2); border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .nav-tab {
+    flex: 1; padding: 6px 4px; border: none; background: transparent;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.5px;
+    color: var(--text3); cursor: pointer; border-radius: 6px;
+    transition: all 0.15s; text-transform: uppercase;
+  }
+  .nav-tab:hover { color: var(--text2); }
+  .nav-tab.active { background: var(--bg); color: var(--purple); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  .sidebar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 8px; padding: 0 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sidebar-label .label-link {
+    color: var(--purple2); cursor: pointer; text-transform: none; letter-spacing: 0.3px;
+  }
+  .sidebar-label .label-link:hover { color: var(--purple); }
+
+  .search-box {
+    width: 100%; padding: 7px 10px;
+    border: 0.5px solid var(--border); border-radius: 6px;
+    font-size: 14px; font-family: 'Crimson Pro', serif;
+    background: var(--input-bg); color: var(--text);
+    margin-bottom: 10px; transition: all 0.2s;
+  }
+  .search-box:focus { outline: none; border-color: var(--purple2); }
+  .search-box::placeholder { color: var(--text3); }
+
+  .study-list { display: flex; flex-direction: column; gap: 3px; }
+
+  .study-item {
+    padding: 8px 10px; border-radius: 6px;
+    cursor: pointer; border: 0.5px solid transparent;
+    transition: background 0.12s, border-color 0.12s;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .study-item:hover { background: var(--bg2); }
+  .study-item.active { background: var(--bg3); border-color: var(--purple4); }
+
+  .si-body { flex: 1; min-width: 0; }
+  .si-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .si-ref { font-size: 11px; color: var(--purple); font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .si-meta { display: flex; gap: 6px; align-items: center; margin-top: 2px; }
+  .si-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .si-template { font-size: 9px; color: var(--purple2); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+  .si-series { font-size: 9px; color: var(--green); font-family: 'DM Mono', monospace; }
+
+  .fav-btn {
+    background: none; border: none; font-size: 13px; cursor: pointer;
+    padding: 1px 2px; line-height: 1; color: var(--text3);
+    transition: transform 0.15s, color 0.15s; flex-shrink: 0; margin-top: 1px;
+  }
+  .fav-btn:hover { transform: scale(1.2); }
+  .fav-btn.active { color: var(--star); }
+
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 2px; }
+  .tag {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    padding: 3px 8px; border-radius: 4px; cursor: pointer;
+    border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+    transition: all 0.15s;
+  }
+  .tag:hover, .tag.active { background: var(--bg3); border-color: var(--purple4); color: var(--purpleT); }
+
+  .filter-btns { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+  .filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.5px;
+    padding: 3px 8px; border-radius: 4px; cursor: pointer;
+    border: 0.5px solid var(--border); background: var(--bg2); color: var(--text3);
+    transition: all 0.15s;
+  }
+  .filter-btn.active { background: var(--bg3); border-color: var(--purple4); color: var(--purpleT); }
+
+  .sort-select {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    padding: 4px 6px; border-radius: 4px;
+    border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+    width: 100%; margin-bottom: 8px; cursor: pointer;
+  }
+  .sort-select:focus { outline: none; border-color: var(--purple2); }
+
+  .stats-box {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--text3); line-height: 2; padding: 0 6px;
+  }
+  .stat-row { display: flex; justify-content: space-between; }
+  .stat-val { color: var(--purple2); }
+
+  /* ── HEATMAP ── */
+  .heatmap-wrap { padding: 0 4px; }
+  .heatmap {
+    display: grid;
+    grid-template-columns: repeat(26, 1fr);
+    gap: 2px;
+    margin-bottom: 6px;
+  }
+  .heat-cell {
+    aspect-ratio: 1; border-radius: 2px; background: var(--heat-0);
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .heat-cell:hover { transform: scale(1.4); outline: 1px solid var(--purple); }
+  .heat-cell[data-level="1"] { background: var(--heat-1); }
+  .heat-cell[data-level="2"] { background: var(--heat-2); }
+  .heat-cell[data-level="3"] { background: var(--heat-3); }
+  .heat-cell[data-level="4"] { background: var(--heat-4); }
+  .heat-legend {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
+    padding: 0 2px;
+  }
+  .heat-legend .lg-cells { display: flex; gap: 2px; }
+  .heat-legend .lg-cells span {
+    width: 9px; height: 9px; border-radius: 2px; display: inline-block;
+  }
+
+  /* ── BOOK NAV ── */
+  .book-list {
+    display: flex; flex-direction: column; gap: 1px; max-height: 240px;
+    overflow-y: auto; padding: 0 2px;
+  }
+  .book-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 3px 6px; border-radius: 4px; cursor: pointer;
+    color: var(--text2); transition: all 0.1s;
+  }
+  .book-row:hover { background: var(--bg2); color: var(--text); }
+  .book-row.active { background: var(--bg3); color: var(--purpleT); }
+  .book-row.empty { color: var(--text3); opacity: 0.6; }
+  .book-row .bk-count {
+    font-size: 9px; color: var(--purple2);
+    background: var(--bg3); padding: 1px 5px; border-radius: 8px;
+  }
+  .book-row.empty .bk-count { display: none; }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1; display: flex; flex-direction: column;
+    background: var(--bg); overflow-y: auto; min-width: 0;
+    transition: background 0.25s;
+  }
+  .empty-state {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px; padding: 60px 40px; text-align: center;
+  }
+  .empty-icon {
+    width: 56px; height: 56px; background: var(--bg3); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--purple2);
+  }
+  .empty-text { font-size: 18px; font-style: italic; color: var(--text2); max-width: 480px; }
+  .empty-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+
+  /* Verse of the day card */
+  .votd-card {
+    background: var(--verse-bg); border: 0.5px solid var(--purple4); border-left: 3px solid var(--verse-b);
+    border-radius: 12px; padding: 22px 26px; max-width: 560px; margin-top: 8px;
+    text-align: left;
+  }
+  .votd-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--purple2); margin-bottom: 8px;
+  }
+  .votd-text {
+    font-size: 18px; font-style: italic; line-height: 1.7; color: var(--verse-t);
+    margin-bottom: 10px;
+  }
+  .votd-ref {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--purple); margin-bottom: 14px;
+  }
+  .votd-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .votd-actions button {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 6px 12px; border-radius: 6px; border: 0.5px solid var(--purple4);
+    background: var(--bg); color: var(--purple); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .votd-actions button:hover { background: var(--purple); color: #fff; }
+
+  /* ── EDITOR ── */
+  .editor-header {
+    padding: 16px 24px 12px; border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ed-title {
+    font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 600;
+    border: none; outline: none; background: transparent; color: var(--text);
+    flex: 1; letter-spacing: -0.3px;
+  }
+  .ed-title::placeholder { color: var(--text3); }
+
+  .read-badge, .save-badge {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 4px;
+    background: var(--verse-bg); color: var(--verse-b);
+    border: 0.5px solid var(--purple4); white-space: nowrap;
+  }
+  .save-badge { background: transparent; border-color: transparent; color: var(--text3); }
+  .save-badge.saving { color: var(--amber); }
+  .save-badge.saved { color: var(--green); }
+
+  .editor-meta {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 10px 24px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--meta-bg);
+  }
+  .meta-input {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 5px 8px; border: 0.5px solid var(--border); border-radius: 4px;
+    background: var(--input-bg); color: var(--text);
+    transition: all 0.2s;
+  }
+  .meta-input:focus { outline: none; border-color: var(--purple2); }
+  .meta-input.template-select { color: var(--purple); cursor: pointer; }
+
+  .editor-body { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; gap: 14px; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-label .sl-hint {
+    font-size: 9px; letter-spacing: 0.5px; text-transform: none;
+    color: var(--text3); font-style: italic;
+  }
+
+  .verse-box {
+    background: var(--verse-bg);
+    border: 0.5px solid var(--purple4); border-left: 3px solid var(--verse-b);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: calc(16px * var(--reading)); font-style: italic;
+    color: var(--verse-t); line-height: 1.7;
+    min-height: 64px; font-family: 'Crimson Pro', serif;
+    outline: none; transition: all 0.25s;
+  }
+  .verse-box[contenteditable="true"]:focus { border-color: var(--purple2); }
+  .verse-box:empty::before { content: attr(data-placeholder); color: var(--purple4); font-style: italic; }
+  .verse-box mark.hl-yellow { background: rgba(232,184,74,0.45); padding: 0 2px; border-radius: 3px; }
+  .verse-box mark.hl-pink   { background: rgba(216,128,159,0.45); padding: 0 2px; border-radius: 3px; }
+  .verse-box mark.hl-green  { background: rgba(127,177,127,0.45); padding: 0 2px; border-radius: 3px; }
+
+  .verse-toolbar {
+    display: flex; gap: 6px; margin-top: 6px; align-items: center; flex-wrap: wrap;
+  }
+  .hl-btn {
+    width: 22px; height: 22px; border-radius: 50%; border: 0.5px solid var(--border);
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .hl-btn:hover { transform: scale(1.15); }
+  .hl-btn.yellow { background: rgba(232,184,74,0.7); }
+  .hl-btn.pink { background: rgba(216,128,159,0.7); }
+  .hl-btn.green { background: rgba(127,177,127,0.7); }
+  .hl-btn.clear { background: var(--bg2); position: relative; }
+  .hl-btn.clear::after { content: '×'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text3); }
+  .verse-toolbar .vt-divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+  .verse-toolbar .vt-mini-btn {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    padding: 3px 8px; border-radius: 4px;
+    border: 0.5px solid var(--border); background: var(--bg2);
+    color: var(--text2); cursor: pointer;
+  }
+  .verse-toolbar .vt-mini-btn:hover { background: var(--bg3); border-color: var(--purple4); color: var(--purpleT); }
+
+  /* SOAP / inductive sections */
+  .soap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .soap-grid { grid-template-columns: 1fr; } }
+  .soap-block {
+    border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; background: var(--input-bg); display: flex; flex-direction: column;
+  }
+  .soap-block .soap-letter {
+    font-family: 'DM Mono', monospace; font-weight: 600; font-size: 11px;
+    color: var(--purple); letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .soap-block .soap-name {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.2px;
+    color: var(--text3); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .soap-textarea {
+    flex: 1; min-height: 90px; border: none; outline: none; resize: none;
+    background: transparent; color: var(--text);
+    font-family: 'Crimson Pro', serif; font-size: calc(15px * var(--reading));
+    line-height: 1.7;
+  }
+  .soap-textarea::placeholder { color: var(--text3); font-style: italic; }
+
+  /* notes */
+  .notes-row { flex: 1; display: flex; flex-direction: column; }
+  .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 8px; flex-wrap: wrap; }
+  .wc-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+
+  .md-toolbar {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .md-btn {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 4px;
+    border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+    cursor: pointer; transition: all 0.12s; min-width: 26px;
+  }
+  .md-btn:hover { background: var(--bg3); color: var(--purple); border-color: var(--purple4); }
+  .md-btn.italic { font-style: italic; }
+  .md-btn.bold { font-weight: 800; }
+
+  .prog-wrap { height: 3px; background: var(--border2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.4s cubic-bezier(.4,0,.2,1), background 0.4s; }
+
+  .notes-area {
+    flex: 1; border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(16px * var(--reading)); line-height: 1.8;
+    color: var(--text); background: var(--input-bg);
+    resize: none; min-height: 180px; transition: all 0.25s;
+  }
+  .notes-area:focus { outline: none; border-color: var(--purple2); }
+  .notes-area::placeholder { color: var(--text3); font-style: italic; }
+
+  /* Cross refs */
+  .xref-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+  .xref-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 3px 8px; border-radius: 4px;
+    background: var(--bg3); color: var(--purpleT); cursor: pointer;
+    border: 0.5px solid var(--purple4);
+    transition: all 0.12s;
+  }
+  .xref-chip:hover { background: var(--purple); color: #fff; }
+  .xref-chip .x-del { opacity: 0.6; cursor: pointer; }
+  .xref-chip .x-del:hover { opacity: 1; color: var(--danger); }
+
+  /* Read mode */
+  .verse-read {
+    background: var(--verse-bg); border: 0.5px solid var(--purple4); border-left: 3px solid var(--verse-b);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: calc(18px * var(--reading)); font-style: italic; color: var(--verse-t);
+    line-height: 1.8; font-family: 'Crimson Pro', serif;
+  }
+  .notes-read {
+    flex: 1; padding: 4px 0;
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(17px * var(--reading)); line-height: 1.85; color: var(--text);
+  }
+  .notes-read p { margin-bottom: 0.9em; }
+  .notes-read h1, .notes-read h2, .notes-read h3 { font-weight: 600; margin: 1em 0 0.4em; color: var(--purpleT); }
+  .notes-read h1 { font-size: 1.4em; }
+  .notes-read h2 { font-size: 1.2em; }
+  .notes-read h3 { font-size: 1.05em; }
+  .notes-read em { font-style: italic; }
+  .notes-read strong { font-weight: 700; }
+  .notes-read blockquote {
+    border-left: 3px solid var(--purple4); padding: 4px 0 4px 14px;
+    color: var(--text2); font-style: italic; margin: 0.5em 0;
+  }
+  .notes-read ul, .notes-read ol { padding-left: 1.4em; margin-bottom: 0.9em; }
+  .notes-read code {
+    font-family: 'DM Mono', monospace; font-size: 0.9em;
+    background: var(--bg2); padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    display: flex; gap: 6px; padding: 10px 24px;
+    border-top: 0.5px solid var(--border); background: var(--meta-bg);
+    align-items: center; flex-wrap: wrap; justify-content: space-between;
+  }
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .tag-del { cursor: pointer; margin-left: 3px; opacity: 0.6; }
+  .tag-del:hover { opacity: 1; }
+  .toolbar-right { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+  .btn-sm {
+    font-family: 'DM Mono', monospace; font-size: 11px; padding: 5px 10px;
+    border: 0.5px solid var(--border); border-radius: 4px;
+    background: transparent; color: var(--text2); cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn-sm:hover { background: var(--bg); color: var(--text); }
+  .btn-danger { color: var(--danger) !important; }
+  .btn-save {
+    font-family: 'DM Mono', monospace; font-size: 12px; padding: 7px 18px;
+    background: var(--purple); color: #EEEDFE;
+    border: none; border-radius: 6px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-save:hover { opacity: 0.88; }
+
+  .read-toolbar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 10px 24px;
+    border-top: 0.5px solid var(--border); background: var(--meta-bg);
+    justify-content: flex-end; flex-wrap: wrap;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 22px; right: 22px;
+    background: var(--toast-bg); color: #EEEDFE;
+    padding: 10px 18px; border-radius: 8px;
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.25s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── MODALS ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(20,18,40,0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: 12px; max-width: 640px; width: 100%;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+  }
+  .modal-head {
+    padding: 16px 22px; border-bottom: 0.5px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-head h2 { font-size: 18px; font-weight: 600; color: var(--text); }
+  .modal-head .close-x {
+    background: none; border: none; font-size: 22px; color: var(--text3);
+    cursor: pointer; line-height: 1;
+  }
+  .modal-head .close-x:hover { color: var(--text); }
+  .modal-body { padding: 18px 22px; }
+  .modal-foot {
+    padding: 14px 22px; border-top: 0.5px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+
+  /* Plan de lectura */
+  .plan-summary {
+    background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .plan-summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .plan-name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .plan-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .plan-pct { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; color: var(--purple); }
+  .plan-bar { height: 6px; background: var(--border2); border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .plan-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple4), var(--purple)); border-radius: 6px; transition: width 0.4s; }
+  .plan-list { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; }
+  .plan-day {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border: 0.5px solid var(--border); border-radius: 6px;
+    background: var(--input-bg); cursor: pointer; transition: all 0.12s;
+  }
+  .plan-day:hover { border-color: var(--purple4); }
+  .plan-day.done { background: var(--bg3); border-color: var(--purple4); }
+  .plan-day.today { border-color: var(--purple2); background: var(--verse-bg); }
+  .plan-check {
+    width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--purple4);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 11px; color: transparent;
+  }
+  .plan-day.done .plan-check { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .plan-day-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); width: 32px; flex-shrink: 0; }
+  .plan-day-ref { flex: 1; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); }
+  .plan-day.done .plan-day-ref { text-decoration: line-through; color: var(--text2); }
+  .plan-day-go { color: var(--purple2); font-size: 11px; opacity: 0; transition: opacity 0.15s; }
+  .plan-day:hover .plan-day-go { opacity: 1; }
+
+  .plan-picker { display: flex; flex-direction: column; gap: 8px; }
+  .plan-option {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; border: 0.5px solid var(--border); border-radius: 8px;
+    cursor: pointer; transition: all 0.12s;
+  }
+  .plan-option:hover { border-color: var(--purple4); background: var(--bg2); }
+  .plan-option-info { flex: 1; }
+  .plan-option-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .plan-option-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+  .plan-option-len { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--purple); }
+
+  /* Oraciones */
+  .prayer-item {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 12px 14px; border: 0.5px solid var(--border); border-radius: 8px;
+    background: var(--input-bg); margin-bottom: 8px;
+  }
+  .prayer-item.answered { background: var(--bg3); border-color: var(--purple4); }
+  .prayer-item.answered .prayer-text { text-decoration: line-through; color: var(--text2); }
+  .prayer-row1 { display: flex; gap: 8px; align-items: flex-start; }
+  .prayer-status-btn {
+    width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--purple4);
+    background: var(--bg); cursor: pointer; flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 12px;
+  }
+  .prayer-item.answered .prayer-status-btn {
+    background: var(--green); border-color: var(--green); color: #fff;
+  }
+  .prayer-text {
+    flex: 1; font-size: 15px; color: var(--text); line-height: 1.5;
+    border: none; outline: none; background: transparent;
+    font-family: 'Crimson Pro', serif; resize: none; min-height: 22px;
+  }
+  .prayer-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3);
+    padding-left: 30px;
+  }
+  .prayer-cat {
+    padding: 1px 6px; border-radius: 4px; background: var(--bg2);
+    border: 0.5px solid var(--border); cursor: pointer;
+  }
+  .prayer-del { color: var(--danger); cursor: pointer; opacity: 0.6; }
+  .prayer-del:hover { opacity: 1; }
+  .prayer-add {
+    display: flex; gap: 6px; padding: 8px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 8px;
+  }
+  .prayer-add input {
+    flex: 1; padding: 7px 10px; border: 0.5px solid var(--border);
+    border-radius: 4px; background: var(--input-bg); color: var(--text);
+    font-family: 'Crimson Pro', serif; font-size: 14px;
+  }
+  .prayer-add input:focus { outline: none; border-color: var(--purple2); }
+
+  /* Calendar view */
+  .calendar-wrap {
+    padding: 20px 24px; max-width: 980px; margin: 0 auto; width: 100%;
+  }
+  .cal-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+  }
+  .cal-title { font-size: 20px; font-weight: 600; color: var(--text); }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav-btn {
+    width: 30px; height: 30px; border: 0.5px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--text2); cursor: pointer;
+    font-family: 'DM Mono', monospace;
+  }
+  .cal-nav-btn:hover { border-color: var(--purple4); color: var(--purple); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text3); text-align: center; padding: 4px 0;
+  }
+  .cal-cell {
+    aspect-ratio: 1; padding: 6px; border-radius: 6px;
+    border: 0.5px solid var(--border); background: var(--bg);
+    display: flex; flex-direction: column; gap: 3px; cursor: pointer;
+    transition: all 0.12s; min-height: 70px;
+  }
+  .cal-cell:hover { border-color: var(--purple4); background: var(--bg2); }
+  .cal-cell.empty { opacity: 0.3; cursor: default; }
+  .cal-cell.empty:hover { border-color: var(--border); background: var(--bg); }
+  .cal-cell.today { border-color: var(--purple); background: var(--verse-bg); }
+  .cal-cell.has-study { background: var(--bg3); }
+  .cal-cell-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); }
+  .cal-cell.today .cal-cell-num { color: var(--purple); font-weight: 600; }
+  .cal-cell-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--purple);
+    margin-top: 2px;
+  }
+  .cal-cell-list { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+  .cal-cell-item {
+    font-size: 10px; color: var(--purpleT); line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* shortcuts modal */
+  .kbd-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .kbd-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+  .kbd-label { font-size: 14px; color: var(--text2); }
+  .kbd-keys { display: flex; gap: 3px; }
+  .kbd {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 2px 6px; border-radius: 4px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    color: var(--text);
+  }
+
+  /* Mobile */
+  .menu-toggle {
+    display: none;
+    background: var(--bg2); border: 0.5px solid var(--border); border-radius: 6px;
+    width: 36px; height: 36px;
+    align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; color: var(--text2);
+  }
+  .menu-toggle:hover { background: var(--bg3); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 19;
+  }
+
+  @media (max-width: 760px) {
+    .menu-toggle { display: flex; }
+    .sidebar {
+      position: fixed; top: calc(57px + env(safe-area-inset-top)); left: 0; bottom: 0; z-index: 20;
+      transform: translateX(-100%); width: min(86vw, 320px); min-width: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .editor-body { padding: 14px 14px; gap: 12px; }
+    .editor-meta { padding: 8px 14px; gap: 6px; }
+    .editor-header { padding: 12px 14px 10px; }
+    .toolbar, .read-toolbar { padding: 8px 14px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+    .ed-title { font-size: 18px; }
+    .toolbar-right { width: 100%; justify-content: flex-end; }
+    .topbar { padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top)); }
+    .logo-sub { display: none; }
+    .streak-pill { padding: 4px 8px; font-size: 10px; }
+    .modal { max-height: 92vh; border-radius: 14px 14px 0 0; align-self: flex-end; margin-bottom: 0; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .soap-grid, .soap-grid[style] { grid-template-columns: 1fr !important; }
+    .heatmap { grid-template-columns: repeat(20, 1fr); }
+    .cal-cell { min-height: 52px; padding: 4px; }
+    .cal-cell-item { font-size: 9px; }
+    .votd-card { padding: 18px 20px; }
+    .votd-text { font-size: 16px; }
+    .kbd-list { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 420px) {
+    .topbar-right .btn-dark:nth-child(1),
+    .topbar-right .btn-dark:nth-child(2),
+    .topbar-right .btn-dark:nth-child(3) { display: none; } /* fold into menu via sidebar */
+    .streak-pill { display: none; }
+    .btn-primary { padding: 8px 12px; font-size: 12px; }
+    .logo-text { font-size: 16px; }
+    .editor-meta { flex-direction: column; align-items: stretch; }
+    .editor-meta .meta-input { width: 100% !important; flex: none !important; }
+    .meta-input.template-select { width: 100% !important; }
+    .toolbar-right { gap: 4px; }
+    .btn-sm { padding: 5px 8px; font-size: 10px; }
+    .heatmap { grid-template-columns: repeat(14, 1fr); }
+  }
+
+  /* Install banner */
+  .install-banner {
+    position: fixed; bottom: 16px; left: 16px; right: 16px;
+    background: var(--purple); color: #EEEDFE;
+    border-radius: 12px; padding: 14px 16px;
+    display: none; align-items: center; gap: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    z-index: 50; max-width: 420px; margin: 0 auto;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .install-banner.show { display: flex; animation: slideUp 0.3s ease-out; }
+  @keyframes slideUp { from { transform: translateY(120%); } to { transform: translateY(0); } }
+  .install-banner .ib-icon {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .install-banner .ib-text { flex: 1; }
+  .install-banner .ib-title { font-size: 14px; font-weight: 600; line-height: 1.2; }
+  .install-banner .ib-sub { font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.8; margin-top: 2px; }
+  .install-banner .ib-actions { display: flex; gap: 6px; }
+  .install-banner button {
+    border: none; background: rgba(255,255,255,0.18); color: #EEEDFE;
+    padding: 7px 12px; border-radius: 6px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .install-banner button.primary { background: #EEEDFE; color: var(--purple); font-weight: 600; }
+  .install-banner button:hover { background: rgba(255,255,255,0.28); }
+  .install-banner button.primary:hover { background: #fff; }
+
+  @media print {
+    .topbar, .sidebar, .sidebar-overlay, .toolbar, .read-toolbar, .editor-meta, .menu-toggle { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .content { overflow: visible !important; height: auto !important; }
+    .main { height: auto !important; display: block !important; }
+    .editor-body { padding: 0 !important; }
+    .verse-read, .verse-box { page-break-inside: avoid; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--purple4); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="menu-toggle" onclick="toggleSidebar()" title="Menú">☰</button>
+    <div class="logo">
+      <div class="logo-icon">✦</div>
+      <div>
+        <div class="logo-text">Diario Bíblico</div>
+        <div class="logo-sub">estudios &amp; anotaciones</div>
+      </div>
+    </div>
+    <div class="streak-pill" id="streak-pill" onclick="openModal('cal')" title="Racha de días">
+      <span id="streak-icon">🔥</span>
+      <span id="streak-text">0 días</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-dark" onclick="openModal('plan')" title="Plan de lectura">📖</button>
+    <button class="btn-dark" onclick="openModal('prayer')" title="Oraciones">🙏</button>
+    <button class="btn-dark" onclick="openModal('cal')" title="Calendario">🗓</button>
+    <button class="btn-dark" onclick="openModal('settings')" title="Ajustes">⚙</button>
+    <button class="btn-dark" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
+    <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-studies" onclick="setSidebarTab('studies')">Estudios</button>
+        <button class="nav-tab" id="tab-books" onclick="setSidebarTab('books')">Libros</button>
+        <button class="nav-tab" id="tab-stats" onclick="setSidebarTab('stats')">Hábito</button>
+      </div>
+
+      <!-- STUDIES TAB -->
+      <div id="pane-studies">
+        <div class="sidebar-section">
+          <div class="filter-btns">
+            <button class="filter-btn active" id="fb-all" onclick="setFavFilter('all')">Todos</button>
+            <button class="filter-btn" id="fb-fav" onclick="setFavFilter('fav')">⭐ Favoritos</button>
+          </div>
+          <input class="search-box" type="text" placeholder="Buscar título, ref, notas..." id="search-input" oninput="renderSidebar()" />
+          <select class="sort-select" id="sort-select" onchange="renderSidebar()">
+            <option value="recent">↓ Más recientes</option>
+            <option value="oldest">↑ Más antiguos</option>
+            <option value="title">A → Z</option>
+            <option value="bible">Orden bíblico</option>
+            <option value="length">Más largos</option>
+          </select>
+          <div class="study-list" id="study-list"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Series</div>
+          <div class="tag-grid" id="series-filters"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Temas</div>
+          <div class="tag-grid" id="tag-filters"></div>
+        </div>
+      </div>
+
+      <!-- BOOKS TAB -->
+      <div id="pane-books" style="display:none;">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Antiguo Testamento</div>
+          <div class="book-list" id="book-list-at"></div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Nuevo Testamento</div>
+          <div class="book-list" id="book-list-nt"></div>
+        </div>
+      </div>
+
+      <!-- STATS TAB -->
+      <div id="pane-stats" style="display:none;">
+        <div class="sidebar-section">
+          <div class="sidebar-label">
+            <span>Constancia · 26 sem</span>
+            <span class="label-link" onclick="openModal('cal')">Ver mes →</span>
+          </div>
+          <div class="heatmap-wrap">
+            <div class="heatmap" id="heatmap"></div>
+            <div class="heat-legend">
+              <span>−</span>
+              <span class="lg-cells">
+                <span style="background:var(--heat-0)"></span>
+                <span style="background:var(--heat-1)"></span>
+                <span style="background:var(--heat-2)"></span>
+                <span style="background:var(--heat-3)"></span>
+                <span style="background:var(--heat-4)"></span>
+              </span>
+              <span>+</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Estadísticas</div>
+          <div class="stats-box" id="stats"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Datos</div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:0 4px;">
+            <button class="btn-sm" onclick="exportJSON()" style="text-align:left;">↓ Exportar JSON</button>
+            <button class="btn-sm" onclick="document.getElementById('import-file').click()" style="text-align:left;">↑ Importar JSON</button>
+            <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importJSON(event)" />
+            <button class="btn-sm" onclick="exportAllPDF()" style="text-align:left;">⎙ Imprimir todo</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+    <div class="empty-state" id="welcome">
+      <div class="empty-icon">✦</div>
+      <div class="empty-text" id="welcome-greeting">Bienvenido. Seleccioná un estudio o creá uno nuevo.</div>
+      <div class="votd-card" id="votd"></div>
+      <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar · <span class="kbd" style="font-size:10px;">?</span> ayuda</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="install-banner" id="install-banner">
+  <div class="ib-icon">✦</div>
+  <div class="ib-text">
+    <div class="ib-title">Instalar Diario Bíblico</div>
+    <div class="ib-sub" id="ib-sub">Acceso rápido desde tu pantalla de inicio</div>
+  </div>
+  <div class="ib-actions">
+    <button onclick="dismissInstall()">Después</button>
+    <button class="primary" id="install-btn" onclick="doInstall()">Instalar</button>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+  /* ─────────────────────────────────────────────── KEYS ── */
+  const KEY = 'diario_v4';
+  const KEY_THEME = 'diario_theme_v4';
+  const KEY_PLAN = 'diario_plan_v4';
+  const KEY_PRAYER = 'diario_prayer_v4';
+  const KEY_HABIT = 'diario_habit_v4';
+  const KEY_SETTINGS = 'diario_settings_v4';
+
+  /* ─────────────────────────────────────────────── STATE ── */
+  let studies = [];
+  let prayers = [];
+  let plan = null; // { id, name, total, completedDays:{n:dateISO} }
+  let habit = {}; // { 'YYYY-MM-DD': minutesLogged }
+  let settings = { fontScale: 1, theme: 'light', autosave: true };
+  let currentId = null;
+  let activeTag = null;
+  let activeSeries = null;
+  let activeBook = null;
+  let favFilter = 'all';
+  let readMode = false;
+  let saveTimer = null;
+  let calMonth = new Date().getMonth();
+  let calYear = new Date().getFullYear();
+
+  /* ─────────────────────────────────────────────── BIBLE BOOKS ── */
+  const BIBLE_OT = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías'];
+  const BIBLE_NT = ['Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
+  const BIBLE_ALL = [...BIBLE_OT, ...BIBLE_NT];
+
+  /* ─────────────────────────────────────────────── VOTD ── */
+  const VERSE_OF_DAY = [
+    { ref: 'Salmos 23:1', text: 'Jehová es mi pastor; nada me faltará.' },
+    { ref: 'Filipenses 4:13', text: 'Todo lo puedo en Cristo que me fortalece.' },
+    { ref: 'Jeremías 29:11', text: 'Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.' },
+    { ref: 'Romanos 8:28', text: 'Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien.' },
+    { ref: 'Isaías 41:10', text: 'No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo.' },
+    { ref: 'Mateo 11:28', text: 'Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.' },
+    { ref: 'Proverbios 3:5-6', text: 'Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.' },
+    { ref: '2 Timoteo 1:7', text: 'Porque no nos ha dado Dios espíritu de cobardía, sino de poder, de amor y de dominio propio.' },
+    { ref: 'Salmos 46:1', text: 'Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.' },
+    { ref: 'Josué 1:9', text: 'Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.' },
+    { ref: 'Juan 14:27', text: 'La paz os dejo, mi paz os doy; yo no os la doy como el mundo la da.' },
+    { ref: 'Salmos 119:105', text: 'Lámpara es a mis pies tu palabra, y lumbrera a mi camino.' },
+    { ref: '1 Corintios 13:13', text: 'Y ahora permanecen la fe, la esperanza y el amor, estos tres; pero el mayor de ellos es el amor.' },
+    { ref: 'Gálatas 5:22-23', text: 'Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza.' },
+    { ref: 'Mateo 6:33', text: 'Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.' },
+  ];
+
+  /* ─────────────────────────────────────────────── PLANS ── */
+  const PLANS = {
+    'biblia-ano': {
+      name: 'La Biblia en un año',
+      sub: '365 días · Pasajes diarios mezclando AT y NT',
+      gen: () => {
+        const days = [];
+        for (let i = 1; i <= 365; i++) {
+          const otBook = BIBLE_OT[(i - 1) % BIBLE_OT.length];
+          const ntBook = BIBLE_NT[(i - 1) % BIBLE_NT.length];
+          const ch = ((i - 1) % 25) + 1;
+          days.push({ ref: otBook + ' ' + ch + ' · ' + ntBook + ' ' + (((i-1)%5)+1) });
+        }
+        return days;
+      }
+    },
+    'evangelios-30': {
+      name: 'Evangelios en 30 días',
+      sub: '30 días · Mateo, Marcos, Lucas, Juan',
+      gen: () => {
+        const days = [];
+        const segs = [
+          ['Mateo', 28], ['Marcos', 16], ['Lucas', 24], ['Juan', 21]
+        ];
+        let total = segs.reduce((a, [_, n]) => a + n, 0); // 89
+        let dia = 0;
+        for (const [book, n] of segs) {
+          const perDay = Math.ceil(n / (30 * n / total));
+          for (let c = 1; c <= n; c += perDay) {
+            const end = Math.min(c + perDay - 1, n);
+            days.push({ ref: book + ' ' + c + (end > c ? '–' + end : '') });
+            dia++; if (dia >= 30) break;
+          }
+          if (dia >= 30) break;
+        }
+        while (days.length < 30) days.push({ ref: 'Juan ' + (days.length - 26) });
+        return days.slice(0, 30);
+      }
+    },
+    'proverbios-31': {
+      name: 'Proverbios en 31 días',
+      sub: '31 días · Un capítulo por día',
+      gen: () => Array.from({length: 31}, (_, i) => ({ ref: 'Proverbios ' + (i + 1) }))
+    },
+    'salmos-30': {
+      name: 'Salmos selectos',
+      sub: '30 días · Salmos de oración y alabanza',
+      gen: () => {
+        const sel = [1,8,16,19,23,27,32,34,37,42,46,51,62,63,73,84,90,91,100,103,107,116,119,121,127,130,138,139,145,150];
+        return sel.map(n => ({ ref: 'Salmos ' + n }));
+      }
+    },
+    'sermon-monte': {
+      name: 'Sermón del Monte',
+      sub: '14 días · Mateo 5–7 en pasajes cortos',
+      gen: () => [
+        'Mateo 5:1-12','Mateo 5:13-20','Mateo 5:21-32','Mateo 5:33-48',
+        'Mateo 6:1-8','Mateo 6:9-15','Mateo 6:16-24','Mateo 6:25-34',
+        'Mateo 7:1-6','Mateo 7:7-12','Mateo 7:13-20','Mateo 7:21-29',
+        'Repaso: Mateo 5','Repaso: Mateo 6-7'
+      ].map(r => ({ ref: r }))
+    }
+  };
+
+  /* ─────────────────────────────────────────────── TEMPLATES ── */
+  const TEMPLATES = {
+    libre: { name: 'Libre', desc: 'Notas libres' },
+    soap:  { name: 'SOAP', desc: 'Escritura · Observación · Aplicación · Oración' },
+    inductivo: { name: 'Inductivo', desc: '¿Qué dice? · ¿Qué significa? · ¿Cómo aplico?' },
+    devocional: { name: 'Devocional', desc: 'Reflexión · Aplicación · Oración' },
+    exegetico: { name: 'Exegético', desc: 'Contexto · Texto · Significado · Aplicación' }
+  };
+
+  /* ─────────────────────────────────────────────── INIT ── */
+  (function init() {
+    try { studies = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { studies = []; }
+    try { plan = JSON.parse(localStorage.getItem(KEY_PLAN) || 'null'); } catch(e) {}
+    try { prayers = JSON.parse(localStorage.getItem(KEY_PRAYER) || '[]'); } catch(e) { prayers = []; }
+    try { habit = JSON.parse(localStorage.getItem(KEY_HABIT) || '{}'); } catch(e) { habit = {}; }
+    try { settings = { ...settings, ...JSON.parse(localStorage.getItem(KEY_SETTINGS) || '{}') }; } catch(e) {}
+
+    // Migration
+    studies = studies.map(s => ({
+      fav: false, template: 'libre', series: '', xrefs: [], soap: {}, ...s,
+      tags: s.tags || [],
+    }));
+
+    if (studies.length === 0) {
+      studies = [
+        {
+          id: 1, fav: false, template: 'libre', series: '',
+          title: 'La fe como grano de mostaza',
+          reference: 'Mateo 17:20', book: 'Mateo', date: '2026-04-28',
+          tags: ['fe', 'parábolas'], xrefs: ['Lucas 17:6', 'Hebreos 11:1'],
+          verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
+          notes: '## Reflexión\n\nLa fe no se mide en cantidad sino en **calidad**. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas.\n\n## Aplicación\n\n¿En qué áreas de mi vida necesito ejercitar más esta fe activa?\n\n- Trabajo\n- Relaciones\n- Decisiones difíciles',
+          soap: {}
+        },
+        {
+          id: 2, fav: true, template: 'soap', series: 'Evangelio de Juan',
+          title: 'El amor de Dios en Juan 3',
+          reference: 'Juan 3:16', book: 'Juan', date: '2026-05-01',
+          tags: ['amor', 'salvación'], xrefs: ['1 Juan 4:9', 'Romanos 5:8'],
+          verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna."',
+          notes: '',
+          soap: {
+            s: 'Juan 3:16 — "Porque de tal manera amó Dios al mundo..."',
+            o: 'La palabra "de tal manera" (houtos) en griego indica la *forma* del amor, no solo el grado. Dios no amó al mundo a pesar de su pecado, sino que respondió al pecado con amor en acción.',
+            a: 'Mi entendimiento del amor de Dios debe transformar cómo amo a otros — no por sentimiento sino como respuesta activa al quebranto.',
+            p: 'Padre, gracias por tu amor que se hizo carne. Enseñame a amar como tú amás.'
+          }
+        }
+      ];
+      saveStudies();
+    }
+
+    if (prayers.length === 0) {
+      prayers = [
+        { id: Date.now()-1000, text: 'Sabiduría para decisiones de la semana', cat: 'personal', status: 'active', dateAdded: today() },
+        { id: Date.now()-500, text: 'Salud de mi familia', cat: 'familia', status: 'active', dateAdded: today() }
+      ];
+      savePrayers();
+    }
+
+    applyTheme();
+    applyFontScale();
+    renderSidebar();
+    renderHeatmap();
+    renderBooks();
+    renderWelcome();
+    bindShortcuts();
+  })();
+
+  /* ─────────────────────────────────────────────── HELPERS ── */
+  function today() { return new Date().toISOString().split('T')[0]; }
+  function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function wordCount(text) { return (text || '').trim().split(/\s+/).filter(Boolean).length; }
+  function progColor(pct) {
+    if (pct < 30) return 'var(--purple4)';
+    if (pct < 65) return 'var(--purple2)';
+    return 'var(--purple)';
+  }
+  function bookIndex(book) {
+    const i = BIBLE_ALL.indexOf((book || '').trim());
+    return i === -1 ? 999 : i;
+  }
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ─────────────────────────────────────────────── STORAGE ── */
+  function saveStudies() { try { localStorage.setItem(KEY, JSON.stringify(studies)); } catch(e) {} }
+  function savePlan() { try { localStorage.setItem(KEY_PLAN, JSON.stringify(plan)); } catch(e) {} }
+  function savePrayers() { try { localStorage.setItem(KEY_PRAYER, JSON.stringify(prayers)); } catch(e) {} }
+  function saveHabit() { try { localStorage.setItem(KEY_HABIT, JSON.stringify(habit)); } catch(e) {} }
+  function saveSettings() { try { localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)); } catch(e) {} }
+
+  function recordHabit() {
+    const t = today();
+    habit[t] = (habit[t] || 0) + 1;
+    saveHabit();
+    renderHeatmap();
+    renderStreak();
+  }
+
+  /* ─────────────────────────────────────────────── THEME ── */
+  function applyTheme() {
+    document.body.classList.remove('dark', 'sepia');
+    if (settings.theme === 'dark') document.body.classList.add('dark');
+    else if (settings.theme === 'sepia') document.body.classList.add('sepia');
+    const btn = document.getElementById('dark-btn');
+    btn.textContent = settings.theme === 'dark' ? '☀️' : settings.theme === 'sepia' ? '📜' : '🌙';
+    btn.title = 'Tema: ' + settings.theme;
+  }
+  function cycleTheme() {
+    const order = ['light','dark','sepia'];
+    settings.theme = order[(order.indexOf(settings.theme) + 1) % order.length];
+    saveSettings(); applyTheme();
+  }
+  function applyFontScale() {
+    document.documentElement.style.setProperty('--reading', settings.fontScale);
+  }
+
+  /* ─────────────────────────────────────────────── MOBILE ── */
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+
+  /* ─────────────────────────────────────────────── SIDEBAR TABS ── */
+  function setSidebarTab(tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('pane-studies').style.display = tab === 'studies' ? '' : 'none';
+    document.getElementById('pane-books').style.display = tab === 'books' ? '' : 'none';
+    document.getElementById('pane-stats').style.display = tab === 'stats' ? '' : 'none';
+    if (tab === 'stats') { renderHeatmap(); renderStats(); }
+    if (tab === 'books') renderBooks();
+  }
+
+  /* ─────────────────────────────────────────────── SIDEBAR RENDER ── */
+  function setFavFilter(v) {
+    favFilter = v;
+    document.getElementById('fb-all').classList.toggle('active', v === 'all');
+    document.getElementById('fb-fav').classList.toggle('active', v === 'fav');
+    renderSidebar();
+  }
+
+  function allTags() {
+    const set = new Set();
+    studies.forEach(s => (s.tags || []).forEach(t => set.add(t)));
+    return [...set].sort();
+  }
+  function allSeries() {
+    const set = new Set();
+    studies.forEach(s => { if (s.series) set.add(s.series); });
+    return [...set].sort();
+  }
+
+  function renderSidebar() {
+    const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+    const sort = document.getElementById('sort-select')?.value || 'recent';
+
+    let filtered = studies.filter(s => {
+      const matchFav = favFilter === 'all' || s.fav;
+      const matchText = !q ||
+        s.title.toLowerCase().includes(q) ||
+        (s.reference || '').toLowerCase().includes(q) ||
+        (s.notes || '').toLowerCase().includes(q) ||
+        (s.verse || '').toLowerCase().includes(q) ||
+        Object.values(s.soap || {}).some(v => (v||'').toLowerCase().includes(q));
+      const matchTag = !activeTag || (s.tags || []).includes(activeTag);
+      const matchSeries = !activeSeries || s.series === activeSeries;
+      const matchBook = !activeBook || s.book === activeBook;
+      return matchFav && matchText && matchTag && matchSeries && matchBook;
+    });
+
+    if (sort === 'recent') filtered.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    else if (sort === 'oldest') filtered.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    else if (sort === 'title') filtered.sort((a,b) => a.title.localeCompare(b.title));
+    else if (sort === 'bible') filtered.sort((a,b) => bookIndex(a.book) - bookIndex(b.book) || a.title.localeCompare(b.title));
+    else if (sort === 'length') filtered.sort((a,b) => totalLength(b) - totalLength(a));
+
+    document.getElementById('study-list').innerHTML = filtered.length
+      ? filtered.map(s => `
+          <div class="study-item ${s.id === currentId ? 'active' : ''}" onclick="openStudy(${s.id})">
+            <div class="si-body">
+              <div class="si-title">${esc(s.title)}</div>
+              <div class="si-ref">${esc(s.reference)}</div>
+              <div class="si-meta">
+                <span class="si-date">${s.date}</span>
+                ${s.template && s.template !== 'libre' ? `<span class="si-template">${esc(TEMPLATES[s.template]?.name || s.template)}</span>` : ''}
+                ${s.series ? `<span class="si-series">· ${esc(s.series)}</span>` : ''}
+              </div>
+            </div>
+            <button class="fav-btn ${s.fav ? 'active' : ''}"
+              onclick="event.stopPropagation();toggleFav(${s.id})"
+              title="${s.fav ? 'Quitar de favoritos' : 'Marcar como favorito'}"
+            >${s.fav ? '⭐' : '☆'}</button>
+          </div>
+        `).join('')
+      : `<div style="padding:10px 6px;font-size:13px;color:var(--text3);font-style:italic;">Sin resultados</div>`;
+
+    const seriesList = allSeries();
+    const seriesEl = document.getElementById('series-filters');
+    if (seriesList.length) {
+      seriesEl.innerHTML = seriesList.map(s => `
+        <span class="tag ${s === activeSeries ? 'active' : ''}" onclick="filterSeries('${esc(s)}')">${esc(s)}</span>
+      `).join('');
+    } else {
+      seriesEl.innerHTML = '<div style="font-size:11px;color:var(--text3);font-style:italic;padding:0 4px;">Sin series. Agregá una desde el editor.</div>';
+    }
+
+    const tags = allTags();
+    document.getElementById('tag-filters').innerHTML = tags.length
+      ? tags.map(t => `<span class="tag ${t === activeTag ? 'active' : ''}" onclick="filterTag('${esc(t)}')">${esc(t)}</span>`).join('')
+      : '<div style="font-size:11px;color:var(--text3);font-style:italic;padding:0 4px;">Sin temas aún.</div>';
+
+    renderStreak();
+  }
+
+  function totalLength(s) {
+    return wordCount(s.notes) + Object.values(s.soap || {}).reduce((a, v) => a + wordCount(v), 0);
+  }
+
+  function filterTag(tag) { activeTag = activeTag === tag ? null : tag; renderSidebar(); }
+  function filterSeries(s) { activeSeries = activeSeries === s ? null : s; renderSidebar(); }
+  function filterBook(b) { activeBook = activeBook === b ? null : b; renderSidebar(); renderBooks(); }
+
+  /* ─────────────────────────────────────────────── BOOKS LIST ── */
+  function renderBooks() {
+    const counts = {};
+    studies.forEach(s => { if (s.book) counts[s.book] = (counts[s.book] || 0) + 1; });
+    const renderList = (books) => books.map(b => {
+      const n = counts[b] || 0;
+      return `<div class="book-row ${activeBook === b ? 'active' : ''} ${n === 0 ? 'empty' : ''}" onclick="filterBook('${esc(b)}')">
+        <span>${b}</span>${n > 0 ? `<span class="bk-count">${n}</span>` : ''}
+      </div>`;
+    }).join('');
+    const at = document.getElementById('book-list-at');
+    const nt = document.getElementById('book-list-nt');
+    if (at) at.innerHTML = renderList(BIBLE_OT);
+    if (nt) nt.innerHTML = renderList(BIBLE_NT);
+  }
+
+  /* ─────────────────────────────────────────────── STREAK / HEATMAP ── */
+  function calcStreak() {
+    let streak = 0;
+    const d = new Date();
+    while (true) {
+      const k = d.toISOString().split('T')[0];
+      if (habit[k]) { streak++; d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    return streak;
+  }
+
+  function renderStreak() {
+    const s = calcStreak();
+    const txt = document.getElementById('streak-text');
+    const pill = document.getElementById('streak-pill');
+    txt.textContent = s + (s === 1 ? ' día' : ' días');
+    pill.classList.toggle('hot', s >= 3);
+  }
+
+  function renderHeatmap() {
+    const el = document.getElementById('heatmap');
+    if (!el) return;
+    const cells = [];
+    const days = 26 * 7; // 182 days
+    const start = new Date();
+    start.setDate(start.getDate() - days + 1);
+    const max = Math.max(1, ...Object.values(habit));
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const k = d.toISOString().split('T')[0];
+      const v = habit[k] || 0;
+      let lvl = 0;
+      if (v > 0) lvl = Math.min(4, Math.ceil((v / max) * 4));
+      cells.push(`<div class="heat-cell" data-level="${lvl}" title="${k}: ${v} actividad${v===1?'':'es'}"></div>`);
+    }
+    el.innerHTML = cells.join('');
+  }
+
+  function renderStats() {
+    const totalWords = studies.reduce((a, s) => a + totalLength(s), 0);
+    const favCount = studies.filter(s => s.fav).length;
+    const days = Object.keys(habit).length;
+    const totalActions = Object.values(habit).reduce((a,b) => a+b, 0);
+    const avgPerStudy = studies.length ? Math.round(totalWords / studies.length) : 0;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-row"><span>Estudios</span><span class="stat-val">${studies.length}</span></div>
+      <div class="stat-row"><span>Favoritos</span><span class="stat-val">${favCount}</span></div>
+      <div class="stat-row"><span>Series</span><span class="stat-val">${allSeries().length}</span></div>
+      <div class="stat-row"><span>Temas</span><span class="stat-val">${allTags().length}</span></div>
+      <div class="stat-row"><span>Palabras</span><span class="stat-val">${totalWords.toLocaleString('es')}</span></div>
+      <div class="stat-row"><span>Prom/estudio</span><span class="stat-val">${avgPerStudy}</span></div>
+      <div class="stat-row"><span>Días activos</span><span class="stat-val">${days}</span></div>
+      <div class="stat-row"><span>Racha actual</span><span class="stat-val">${calcStreak()}</span></div>
+    `;
+  }
+
+  /* ─────────────────────────────────────────────── WELCOME ── */
+  function renderWelcome() {
+    // Pick a verse based on day-of-year
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const v = VERSE_OF_DAY[day % VERSE_OF_DAY.length];
+
+    const hour = now.getHours();
+    const greet = hour < 12 ? 'Buen día' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+    document.getElementById('welcome-greeting').textContent = `${greet}. Seleccioná un estudio o creá uno nuevo.`;
+
+    document.getElementById('votd').innerHTML = `
+      <div class="votd-label">Versículo del día</div>
+      <div class="votd-text">"${esc(v.text)}"</div>
+      <div class="votd-ref">— ${esc(v.ref)}</div>
+      <div class="votd-actions">
+        <button onclick="studyVerse('${esc(v.ref)}', '${esc(v.text).replace(/'/g, "\\'")}')">✦ Estudiar este versículo</button>
+        <button onclick="copyVerse('${esc(v.ref)}', '${esc(v.text).replace(/'/g, "\\'")}')">⧉ Copiar</button>
+      </div>
+    `;
+  }
+
+  function studyVerse(ref, text) {
+    const id = Date.now();
+    const book = ref.split(/\s\d/)[0];
+    studies.unshift({
+      id, fav: false, template: 'soap', series: '',
+      title: 'Estudio sobre ' + ref,
+      reference: ref, book, date: today(),
+      tags: [], xrefs: [],
+      verse: '"' + text + '"',
+      notes: '',
+      soap: { s: ref + ' — "' + text + '"', o: '', a: '', p: '' }
+    });
+    saveStudies();
+    recordHabit();
+    openStudy(id);
+  }
+
+  function copyVerse(ref, text) {
+    navigator.clipboard?.writeText(`"${text}" — ${ref}`).then(() => showToast('Copiado ✓'));
+  }
+
+  /* ─────────────────────────────────────────────── FAV ── */
+  function toggleFav(id) {
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    s.fav = !s.fav;
+    saveStudies();
+    renderSidebar();
+    const favHeaderBtn = document.getElementById('ed-fav');
+    if (favHeaderBtn && currentId === id) {
+      favHeaderBtn.textContent = s.fav ? '⭐' : '☆';
+      favHeaderBtn.classList.toggle('active', s.fav);
+    }
+    showToast(s.fav ? '⭐ Agregado a favoritos' : '☆ Quitado de favoritos');
+  }
+
+  /* ─────────────────────────────────────────────── EDITOR ── */
+  function openStudy(id) {
+    if (currentId !== null && !readMode) saveCurrentStudy();
+    currentId = id;
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    renderSidebar();
+    if (readMode) renderReadMode(s); else renderEditor(s);
+    closeSidebar();
+  }
+
+  function renderEditor(s) {
+    const wc = totalLength(s);
+    const pct = Math.min(100, wc / 3);
+
+    document.getElementById('content').innerHTML = `
+      <div class="editor-header">
+        <input class="ed-title" id="ed-title" value="${esc(s.title)}" placeholder="Título del estudio..." oninput="markDirty()" />
+        <span class="save-badge" id="save-badge">Guardado ✓</span>
+        <button class="fav-btn ${s.fav ? 'active' : ''}" id="ed-fav"
+          onclick="toggleFav(${s.id})"
+          title="${s.fav ? 'Quitar de favoritos' : 'Marcar como favorito'}"
+          style="font-size:18px;"
+        >${s.fav ? '⭐' : '☆'}</button>
+      </div>
+      <div class="editor-meta">
+        <input class="meta-input" id="ed-ref" value="${esc(s.reference)}" placeholder="Referencia (ej: Juan 3:16)" style="flex:1.4;min-width:130px;" oninput="markDirty()" list="bible-books-dl" />
+        <input class="meta-input" id="ed-book" value="${esc(s.book)}" placeholder="Libro" style="width:120px;" oninput="markDirty()" list="bible-books-dl" />
+        <input class="meta-input" id="ed-series" value="${esc(s.series||'')}" placeholder="Serie (opcional)" style="flex:1;min-width:120px;" oninput="markDirty()" list="series-dl" />
+        <select class="meta-input template-select" id="ed-template" onchange="changeTemplate()">
+          ${Object.entries(TEMPLATES).map(([k,v]) => `<option value="${k}" ${s.template===k?'selected':''}>${v.name}</option>`).join('')}
+        </select>
+        <input class="meta-input" id="ed-date" type="date" value="${s.date}" oninput="markDirty()" />
+      </div>
+      <datalist id="bible-books-dl">
+        ${BIBLE_ALL.map(b => `<option value="${esc(b)}">`).join('')}
+      </datalist>
+      <datalist id="series-dl">
+        ${allSeries().map(b => `<option value="${esc(b)}">`).join('')}
+      </datalist>
+
+      <div class="editor-body">
+        <div>
+          <div class="section-label">
+            <span>Versículo o pasaje</span>
+            <span class="sl-hint">seleccioná texto y elegí color para resaltar</span>
+          </div>
+          <div class="verse-box" id="ed-verse" contenteditable="true"
+               oninput="markDirty()"
+               data-placeholder="Pegá o escribí el versículo aquí...">${s.verse || ''}</div>
+          <div class="verse-toolbar">
+            <button class="hl-btn yellow" onclick="highlight('hl-yellow')" title="Resaltar amarillo"></button>
+            <button class="hl-btn pink" onclick="highlight('hl-pink')" title="Resaltar rosa"></button>
+            <button class="hl-btn green" onclick="highlight('hl-green')" title="Resaltar verde"></button>
+            <button class="hl-btn clear" onclick="highlight(null)" title="Quitar resaltado"></button>
+            <span class="vt-divider"></span>
+            <button class="vt-mini-btn" onclick="addXref()">+ Referencia cruzada</button>
+          </div>
+          <div class="xref-row" id="xref-row">
+            ${(s.xrefs || []).map(x => `<span class="xref-chip" onclick="findStudyByRef('${esc(x)}')">${esc(x)}<span class="x-del" onclick="event.stopPropagation();removeXref('${esc(x)}')">×</span></span>`).join('')}
+          </div>
+        </div>
+
+        ${renderTemplateBody(s)}
+
+        <div class="notes-row">
+          <div class="notes-header">
+            <div class="section-label" style="margin-bottom:0;">
+              <span>${s.template === 'libre' ? 'Notas &amp; reflexiones' : 'Notas adicionales'}</span>
+            </div>
+            <div class="md-toolbar">
+              <button class="md-btn bold" onclick="mdWrap('**')" title="Negrita">B</button>
+              <button class="md-btn italic" onclick="mdWrap('*')" title="Cursiva">I</button>
+              <button class="md-btn" onclick="mdLine('## ')" title="Encabezado">H</button>
+              <button class="md-btn" onclick="mdLine('- ')" title="Lista">•</button>
+              <button class="md-btn" onclick="mdLine('> ')" title="Cita">"</button>
+            </div>
+            <span class="wc-label" id="wc-label">${wc} ${wc === 1 ? 'palabra' : 'palabras'}</span>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-fill" id="prog" style="width:${pct}%;background:${progColor(pct)}"></div>
+          </div>
+          <textarea class="notes-area" id="ed-notes"
+            placeholder="Escribí tus reflexiones... Markdown soportado: **negrita**, *cursiva*, ## títulos, - listas, > citas"
+            oninput="markDirty();updateWC();">${esc(s.notes)}</textarea>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tags-wrap" id="tags-wrap">
+          ${(s.tags || []).map(t => `
+            <span class="tag active">${esc(t)}<span class="tag-del" onclick="removeTag('${esc(t)}')">✕</span></span>
+          `).join('')}
+          <input id="tag-input" class="meta-input" placeholder="+ tema" style="width:100px;"
+            onkeydown="addTagEnter(event)" />
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-sm" onclick="enterReadMode()" title="Modo lectura (Ctrl+/)">👁 Leer</button>
+          <button class="btn-sm" onclick="printStudy()" title="Imprimir / PDF">⎙ PDF</button>
+          <button class="btn-sm" onclick="shareStudy()" title="Compartir como imagen">⇪ Compartir</button>
+          <button class="btn-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
+          <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})">Eliminar</button>
+          <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTemplateBody(s) {
+    if (s.template === 'soap') {
+      const so = s.soap || {};
+      return `
+        <div class="soap-grid">
+          <div class="soap-block">
+            <div class="soap-letter">S</div><div class="soap-name">Escritura</div>
+            <textarea class="soap-textarea" id="soap-s" placeholder="Escribí el pasaje que más te llamó..."
+              oninput="markDirty();updateWC();">${esc(so.s||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">O</div><div class="soap-name">Observación</div>
+            <textarea class="soap-textarea" id="soap-o" placeholder="¿Qué dice? ¿Qué observás?"
+              oninput="markDirty();updateWC();">${esc(so.o||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">A</div><div class="soap-name">Aplicación</div>
+            <textarea class="soap-textarea" id="soap-a" placeholder="¿Cómo aplico esto a mi vida?"
+              oninput="markDirty();updateWC();">${esc(so.a||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">P</div><div class="soap-name">Oración</div>
+            <textarea class="soap-textarea" id="soap-p" placeholder="Convertí lo aprendido en oración..."
+              oninput="markDirty();updateWC();">${esc(so.p||'')}</textarea>
+          </div>
+        </div>`;
+    }
+    if (s.template === 'inductivo') {
+      const so = s.soap || {};
+      return `
+        <div class="soap-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="soap-block">
+            <div class="soap-letter">1</div><div class="soap-name">¿Qué dice?</div>
+            <textarea class="soap-textarea" id="soap-s" placeholder="Observación literal del texto..."
+              oninput="markDirty();updateWC();">${esc(so.s||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">2</div><div class="soap-name">¿Qué significa?</div>
+            <textarea class="soap-textarea" id="soap-o" placeholder="Interpretación en su contexto..."
+              oninput="markDirty();updateWC();">${esc(so.o||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">3</div><div class="soap-name">¿Cómo aplico?</div>
+            <textarea class="soap-textarea" id="soap-a" placeholder="Aplicación a tu vida hoy..."
+              oninput="markDirty();updateWC();">${esc(so.a||'')}</textarea>
+          </div>
+        </div>`;
+    }
+    if (s.template === 'devocional') {
+      const so = s.soap || {};
+      return `
+        <div class="soap-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="soap-block">
+            <div class="soap-letter">✿</div><div class="soap-name">Reflexión</div>
+            <textarea class="soap-textarea" id="soap-s" placeholder="¿Qué te tocó del pasaje?"
+              oninput="markDirty();updateWC();">${esc(so.s||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">→</div><div class="soap-name">Aplicación</div>
+            <textarea class="soap-textarea" id="soap-a" placeholder="Un paso concreto hoy..."
+              oninput="markDirty();updateWC();">${esc(so.a||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">🙏</div><div class="soap-name">Oración</div>
+            <textarea class="soap-textarea" id="soap-p" placeholder="Tu oración..."
+              oninput="markDirty();updateWC();">${esc(so.p||'')}</textarea>
+          </div>
+        </div>`;
+    }
+    if (s.template === 'exegetico') {
+      const so = s.soap || {};
+      return `
+        <div class="soap-grid">
+          <div class="soap-block">
+            <div class="soap-letter">①</div><div class="soap-name">Contexto histórico</div>
+            <textarea class="soap-textarea" id="soap-s" placeholder="Autor, audiencia, situación..."
+              oninput="markDirty();updateWC();">${esc(so.s||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">②</div><div class="soap-name">Análisis del texto</div>
+            <textarea class="soap-textarea" id="soap-o" placeholder="Palabras clave, estructura, géneros..."
+              oninput="markDirty();updateWC();">${esc(so.o||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">③</div><div class="soap-name">Significado original</div>
+            <textarea class="soap-textarea" id="soap-a" placeholder="¿Qué significaba para los primeros oyentes?"
+              oninput="markDirty();updateWC();">${esc(so.a||'')}</textarea>
+          </div>
+          <div class="soap-block">
+            <div class="soap-letter">④</div><div class="soap-name">Aplicación contemporánea</div>
+            <textarea class="soap-textarea" id="soap-p" placeholder="Puente al hoy..."
+              oninput="markDirty();updateWC();">${esc(so.p||'')}</textarea>
+          </div>
+        </div>`;
+    }
+    return '';
+  }
+
+  function changeTemplate() {
+    saveCurrentStudy();
+    const sel = document.getElementById('ed-template');
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    s.template = sel.value;
+    saveStudies();
+    renderEditor(s);
+  }
+
+  /* ── Markdown rendering ── */
+  function renderMarkdown(text) {
+    if (!text) return '<span style="color:var(--text3);font-style:italic;">Sin notas aún.</span>';
+    let html = esc(text);
+    // headers
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // blockquote
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    // bold/italic
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    // inline code
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // lists
+    html = html.replace(/(^|\n)((?:- .+\n?)+)/g, (m, p, list) => {
+      const items = list.trim().split('\n').map(li => '<li>' + li.replace(/^- /, '') + '</li>').join('');
+      return p + '<ul>' + items + '</ul>';
+    });
+    html = html.replace(/(^|\n)((?:\d+\. .+\n?)+)/g, (m, p, list) => {
+      const items = list.trim().split('\n').map(li => '<li>' + li.replace(/^\d+\. /, '') + '</li>').join('');
+      return p + '<ol>' + items + '</ol>';
+    });
+    // paragraphs
+    html = html.split(/\n{2,}/).map(block => {
+      if (/^<(h\d|ul|ol|blockquote)/.test(block.trim())) return block;
+      return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
+    return html;
+  }
+
+  /* ── Markdown toolbar actions ── */
+  function mdWrap(wrap) {
+    const ta = document.getElementById('ed-notes');
+    if (!ta) return;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const sel = ta.value.slice(start, end) || 'texto';
+    const before = ta.value.slice(0, start);
+    const after = ta.value.slice(end);
+    ta.value = before + wrap + sel + wrap + after;
+    ta.focus();
+    ta.selectionStart = start + wrap.length;
+    ta.selectionEnd = start + wrap.length + sel.length;
+    markDirty(); updateWC();
+  }
+  function mdLine(prefix) {
+    const ta = document.getElementById('ed-notes');
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const before = ta.value.slice(0, start);
+    const after = ta.value.slice(start);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    ta.value = before.slice(0, lineStart) + prefix + before.slice(lineStart) + after;
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = start + prefix.length;
+    markDirty(); updateWC();
+  }
+
+  /* ── Highlight ── */
+  function highlight(cls) {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (range.collapsed) return;
+    if (cls) {
+      const mark = document.createElement('mark');
+      mark.className = cls;
+      try { range.surroundContents(mark); } catch (e) { /* spans across nodes */ }
+    } else {
+      const verseBox = document.getElementById('ed-verse');
+      if (verseBox && verseBox.contains(range.commonAncestorContainer)) {
+        verseBox.querySelectorAll('mark').forEach(m => {
+          if (range.intersectsNode(m)) {
+            const parent = m.parentNode;
+            while (m.firstChild) parent.insertBefore(m.firstChild, m);
+            parent.removeChild(m);
+          }
+        });
+      }
+    }
+    markDirty();
+  }
+
+  /* ── Cross refs ── */
+  function addXref() {
+    const ref = prompt('Referencia cruzada (ej: Romanos 8:28):');
+    if (!ref || !ref.trim()) return;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    s.xrefs = s.xrefs || [];
+    if (!s.xrefs.includes(ref.trim())) s.xrefs.push(ref.trim());
+    saveStudies();
+    renderEditor(s);
+  }
+  function removeXref(ref) {
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    s.xrefs = (s.xrefs || []).filter(x => x !== ref);
+    saveStudies();
+    renderEditor(s);
+  }
+  function findStudyByRef(ref) {
+    const found = studies.find(s => s.reference === ref);
+    if (found) openStudy(found.id);
+    else if (confirm(`No existe estudio con referencia "${ref}". ¿Crear uno?`)) {
+      const id = Date.now();
+      studies.unshift({
+        id, fav: false, template: 'libre', series: '', title: 'Estudio sobre ' + ref,
+        reference: ref, book: ref.split(/\s\d/)[0], date: today(),
+        tags: [], xrefs: [], verse: '', notes: '', soap: {}
+      });
+      saveStudies(); recordHabit(); openStudy(id);
+    }
+  }
+
+  /* ── Read mode ── */
+  function enterReadMode() {
+    saveCurrentStudy();
+    readMode = true;
+    const s = studies.find(x => x.id === currentId);
+    if (s) renderReadMode(s);
+  }
+  function exitReadMode() {
+    readMode = false;
+    const s = studies.find(x => x.id === currentId);
+    if (s) renderEditor(s);
+  }
+
+  function renderReadMode(s) {
+    let templateBody = '';
+    if (s.template === 'soap' || s.template === 'inductivo' || s.template === 'devocional' || s.template === 'exegetico') {
+      const labels = {
+        soap: ['Escritura', 'Observación', 'Aplicación', 'Oración'],
+        inductivo: ['¿Qué dice?', '¿Qué significa?', '¿Cómo aplico?'],
+        devocional: ['Reflexión', 'Aplicación', 'Oración'],
+        exegetico: ['Contexto', 'Análisis', 'Significado', 'Aplicación']
+      }[s.template];
+      const keys = s.template === 'inductivo' ? ['s','o','a'] : s.template === 'devocional' ? ['s','a','p'] : ['s','o','a','p'];
+      templateBody = labels.map((lbl, i) => {
+        const v = (s.soap || {})[keys[i]];
+        if (!v) return '';
+        return `<div style="margin-top:10px;">
+          <div class="section-label">${lbl}</div>
+          <div class="notes-read">${renderMarkdown(v)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('content').innerHTML = `
+      <div class="editor-header">
+        <div style="flex:1;">
+          <div style="font-family:'Crimson Pro',serif;font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">${esc(s.title)}</div>
+        </div>
+        <span class="read-badge">MODO LECTURA</span>
+        ${s.fav ? '<span style="font-size:18px;margin-left:4px;">⭐</span>' : ''}
+      </div>
+      <div class="editor-meta" style="opacity:0.85;">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--purple);">${esc(s.reference)}</span>
+        ${s.book ? `<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);">· ${esc(s.book)}</span>` : ''}
+        ${s.series ? `<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);">· ${esc(s.series)}</span>` : ''}
+        ${s.template !== 'libre' ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--purple2);text-transform:uppercase;letter-spacing:1px;">· ${TEMPLATES[s.template]?.name}</span>` : ''}
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-left:auto;">${s.date}</span>
+      </div>
+      <div class="editor-body">
+        ${s.verse ? `
+          <div>
+            <div class="section-label">Versículo o pasaje</div>
+            <div class="verse-read">${s.verse || ''}</div>
+          </div>` : ''}
+        ${(s.xrefs||[]).length ? `
+          <div class="xref-row">
+            ${s.xrefs.map(x => `<span class="xref-chip" onclick="findStudyByRef('${esc(x)}')">${esc(x)}</span>`).join('')}
+          </div>` : ''}
+        ${templateBody}
+        ${s.notes ? `
+          <div class="notes-row">
+            <div class="section-label">${s.template === 'libre' ? 'Notas &amp; reflexiones' : 'Notas adicionales'}</div>
+            <div class="notes-read">${renderMarkdown(s.notes)}</div>
+          </div>` : ''}
+        ${(s.tags||[]).length ? `
+          <div style="display:flex;flex-wrap:wrap;gap:5px;padding-bottom:8px;">
+            ${s.tags.map(t => `<span class="tag active" style="cursor:default;">${esc(t)}</span>`).join('')}
+          </div>` : ''}
+      </div>
+      <div class="read-toolbar">
+        <button class="btn-sm" onclick="printStudy()">⎙ PDF</button>
+        <button class="btn-sm" onclick="shareStudy()">⇪ Compartir</button>
+        <button class="btn-save" onclick="exitReadMode()">✏️ Editar</button>
+      </div>
+    `;
+  }
+
+  /* ── Save / autosave ── */
+  function getCurrentData() {
+    if (!currentId) return null;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return null;
+    const titleEl = document.getElementById('ed-title');
+    if (!titleEl) return null;
+    return {
+      title: titleEl.value ?? s.title,
+      reference: document.getElementById('ed-ref')?.value ?? s.reference,
+      book: document.getElementById('ed-book')?.value ?? s.book,
+      series: document.getElementById('ed-series')?.value ?? s.series,
+      template: document.getElementById('ed-template')?.value ?? s.template,
+      date: document.getElementById('ed-date')?.value ?? s.date,
+      verse: document.getElementById('ed-verse')?.innerHTML ?? s.verse,
+      notes: document.getElementById('ed-notes')?.value ?? s.notes,
+      soap: {
+        s: document.getElementById('soap-s')?.value ?? (s.soap?.s || ''),
+        o: document.getElementById('soap-o')?.value ?? (s.soap?.o || ''),
+        a: document.getElementById('soap-a')?.value ?? (s.soap?.a || ''),
+        p: document.getElementById('soap-p')?.value ?? (s.soap?.p || '')
+      }
+    };
+  }
+
+  function markDirty() {
+    const badge = document.getElementById('save-badge');
+    if (badge) {
+      badge.textContent = 'Escribiendo…';
+      badge.className = 'save-badge saving';
+    }
+    if (saveTimer) clearTimeout(saveTimer);
+    if (settings.autosave) {
+      saveTimer = setTimeout(() => saveCurrentStudy(false, true), 800);
+    }
+  }
+
+  function updateWC() {
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    const data = getCurrentData();
+    if (!data) return;
+    let total = wordCount(data.notes);
+    if (data.soap) total += Object.values(data.soap).reduce((a, v) => a + wordCount(v), 0);
+    const lbl = document.getElementById('wc-label');
+    if (lbl) lbl.textContent = total + (total === 1 ? ' palabra' : ' palabras');
+    const fill = document.getElementById('prog');
+    if (fill) {
+      const p = Math.min(100, total / 3);
+      fill.style.width = p + '%';
+      fill.style.background = progColor(p);
+    }
+  }
+
+  function saveCurrentStudy(toast = false, isAutosave = false) {
+    if (!currentId || readMode) return;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    const data = getCurrentData();
+    if (data) Object.assign(s, data);
+    saveStudies();
+    if (!isAutosave) recordHabit();
+    renderSidebar();
+    const badge = document.getElementById('save-badge');
+    if (badge) {
+      badge.textContent = isAutosave ? 'Guardado ✓' : 'Guardado ✓';
+      badge.className = 'save-badge saved';
+    }
+    if (toast) showToast('Guardado ✓');
+  }
+
+  /* ── CRUD ── */
+  function newStudy() {
+    if (currentId && !readMode) saveCurrentStudy();
+    readMode = false;
+    const id = Date.now();
+    studies.unshift({
+      id, fav: false, template: 'libre', series: '',
+      title: 'Nuevo estudio', reference: '', book: '',
+      date: today(), tags: [], xrefs: [],
+      verse: '', notes: '', soap: {}
+    });
+    saveStudies();
+    recordHabit();
+    openStudy(id);
+    setTimeout(() => document.getElementById('ed-title')?.select(), 100);
+  }
+
+  function duplicateStudy(id) {
+    saveCurrentStudy();
+    const s = studies.find(x => x.id === id);
+    if (!s) return;
+    const n = { ...s, id: Date.now(), fav: false, title: s.title + ' (copia)', date: today(), tags: [...(s.tags||[])], xrefs: [...(s.xrefs||[])], soap: {...(s.soap||{})} };
+    studies.unshift(n);
+    saveStudies();
+    openStudy(n.id);
+    showToast('Estudio duplicado ✓');
+  }
+
+  function deleteStudy(id) {
+    if (!confirm('¿Eliminar este estudio?')) return;
+    studies = studies.filter(x => x.id !== id);
+    currentId = null; readMode = false;
+    saveStudies();
+    document.getElementById('content').innerHTML = `
+      <div class="empty-state" id="welcome">
+        <div class="empty-icon">✦</div>
+        <div class="empty-text" id="welcome-greeting"></div>
+        <div class="votd-card" id="votd"></div>
+        <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar</div>
+      </div>`;
+    renderWelcome();
+    renderSidebar();
+  }
+
+  /* ── Tags ── */
+  function addTagEnter(e) {
+    if (e.key !== 'Enter') return;
+    const input = document.getElementById('tag-input');
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    if (!s.tags.includes(val)) s.tags.push(val);
+    input.value = '';
+    saveStudies();
+    renderSidebar();
+    renderEditor(s);
+  }
+  function removeTag(tag) {
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    saveCurrentStudy();
+    s.tags = s.tags.filter(t => t !== tag);
+    saveStudies();
+    renderSidebar();
+    renderEditor(s);
+  }
+
+  /* ── Print / Share ── */
+  function printStudy() {
+    saveCurrentStudy();
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    const wasRead = readMode;
+    readMode = true;
+    renderReadMode(s);
+    setTimeout(() => {
+      window.print();
+      readMode = wasRead;
+      if (!wasRead) renderEditor(s);
+    }, 300);
+  }
+
+  function exportAllPDF() {
+    if (studies.length === 0) return showToast('No hay estudios');
+    const html = studies.map(s => {
+      const verseSafe = (s.verse || '').replace(/<\/?(?!mark|\/mark)[^>]+>/g, '');
+      let tplHtml = '';
+      if (s.soap && Object.values(s.soap).some(v => v)) {
+        const labels = {
+          soap: ['Escritura', 'Observación', 'Aplicación', 'Oración'],
+          inductivo: ['¿Qué dice?', '¿Qué significa?', '¿Cómo aplico?'],
+          devocional: ['Reflexión', 'Aplicación', 'Oración'],
+          exegetico: ['Contexto', 'Análisis', 'Significado', 'Aplicación']
+        }[s.template];
+        if (labels) {
+          const keys = s.template === 'inductivo' ? ['s','o','a'] : s.template === 'devocional' ? ['s','a','p'] : ['s','o','a','p'];
+          tplHtml = labels.map((lbl, i) => {
+            const v = s.soap[keys[i]]; if (!v) return '';
+            return `<h3>${lbl}</h3><div>${renderMarkdown(v)}</div>`;
+          }).join('');
+        }
+      }
+      return `
+        <article style="page-break-after:always;padding:30px 50px;">
+          <h1 style="font-family:'Crimson Pro',serif;color:#3C3489;">${esc(s.title)}</h1>
+          <p style="font-family:'DM Mono',monospace;color:#7F77DD;margin-bottom:20px;">${esc(s.reference)} · ${s.date}</p>
+          ${verseSafe ? `<div style="background:#EEEDFE;border-left:3px solid #7F77DD;padding:15px;margin-bottom:20px;font-style:italic;">${verseSafe}</div>` : ''}
+          ${tplHtml}
+          ${s.notes ? `<div>${renderMarkdown(s.notes)}</div>` : ''}
+          ${(s.tags||[]).length ? `<p style="margin-top:20px;color:#7F77DD;">Temas: ${s.tags.join(', ')}</p>` : ''}
+        </article>`;
+    }).join('');
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Diario Bíblico</title>
+      <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Mono&display=swap" rel="stylesheet">
+      <style>body{font-family:'Crimson Pro',serif;line-height:1.6;color:#1A1A2E;}h1{color:#3C3489;}h3{color:#26215C;margin-top:14px;font-size:14px;text-transform:uppercase;letter-spacing:1px;font-family:'DM Mono',monospace;}</style>
+      </head><body>${html}</body></html>`);
+    w.document.close();
+    setTimeout(() => w.print(), 500);
+  }
+
+  function shareStudy() {
+    saveCurrentStudy();
+    const s = studies.find(x => x.id === currentId);
+    if (!s) return;
+    const shareText = `${s.title}\n${s.reference}\n\n${(s.verse || '').replace(/<[^>]+>/g, '')}\n\n— Diario Bíblico`;
+    if (navigator.share) {
+      navigator.share({ title: s.title, text: shareText }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText);
+      showToast('Copiado al portapapeles ✓');
+    }
+  }
+
+  /* ── Export / Import ── */
+  function exportJSON() {
+    const data = { version: 4, exportedAt: new Date().toISOString(), studies, plan, prayers, habit, settings };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `diario-biblico-${today()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup descargado ✓');
+  }
+
+  function importJSON(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!confirm(`¿Importar ${data.studies?.length || 0} estudios? Se fusionarán con los actuales.`)) return;
+        if (data.studies) {
+          const existing = new Set(studies.map(s => s.id));
+          data.studies.forEach(s => { if (!existing.has(s.id)) studies.push(s); });
+          saveStudies();
+        }
+        if (data.prayers) { prayers = [...prayers, ...data.prayers]; savePrayers(); }
+        if (data.habit) { habit = { ...habit, ...data.habit }; saveHabit(); }
+        if (data.plan && !plan) { plan = data.plan; savePlan(); }
+        renderSidebar();
+        renderHeatmap();
+        showToast('Importado ✓');
+      } catch (err) {
+        alert('Error al importar: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  /* ─────────────────────────────────────────────── MODALS ── */
+  function openModal(kind) {
+    const overlay = document.getElementById('modal');
+    const content = document.getElementById('modal-content');
+    if (kind === 'plan') content.innerHTML = renderPlanModal();
+    else if (kind === 'prayer') content.innerHTML = renderPrayerModal();
+    else if (kind === 'cal') content.innerHTML = renderCalModal();
+    else if (kind === 'settings') content.innerHTML = renderSettingsModal();
+    else if (kind === 'shortcuts') content.innerHTML = renderShortcutsModal();
+    overlay.classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  /* Plan modal */
+  function renderPlanModal() {
+    if (!plan) {
+      return `
+        <div class="modal-head">
+          <h2>📖 Plan de lectura</h2>
+          <button class="close-x" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="color:var(--text2);margin-bottom:14px;">Elegí un plan para empezar. Vas a poder marcar cada día y crear estudios desde el plan.</p>
+          <div class="plan-picker">
+            ${Object.entries(PLANS).map(([k,v]) => `
+              <div class="plan-option" onclick="startPlan('${k}')">
+                <div class="plan-option-info">
+                  <div class="plan-option-name">${v.name}</div>
+                  <div class="plan-option-sub">${v.sub}</div>
+                </div>
+                <div class="plan-option-len">→</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+    const days = PLANS[plan.id].gen();
+    const completedCount = Object.keys(plan.completed || {}).length;
+    const pct = Math.round((completedCount / days.length) * 100);
+    const todayKey = today();
+    // Find today's expected day (next undone)
+    let todayDay = -1;
+    for (let i = 0; i < days.length; i++) {
+      if (!plan.completed?.[i]) { todayDay = i; break; }
+    }
+    return `
+      <div class="modal-head">
+        <h2>📖 ${plan.name}</h2>
+        <button class="close-x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="plan-summary">
+          <div class="plan-summary-row">
+            <div>
+              <div class="plan-name">${esc(plan.name)}</div>
+              <div class="plan-sub">${completedCount} / ${days.length} días completados</div>
+            </div>
+            <div class="plan-pct">${pct}%</div>
+          </div>
+          <div class="plan-bar"><div class="plan-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="plan-list">
+          ${days.map((d, i) => {
+            const done = plan.completed?.[i];
+            const isToday = i === todayDay;
+            return `<div class="plan-day ${done ? 'done' : ''} ${isToday ? 'today' : ''}">
+              <div class="plan-check" onclick="togglePlanDay(${i})">${done ? '✓' : ''}</div>
+              <div class="plan-day-num">D${i+1}</div>
+              <div class="plan-day-ref" onclick="planDayStudy(${i}, '${esc(d.ref).replace(/'/g, "\\'")}')">${esc(d.ref)}</div>
+              <div class="plan-day-go">✦</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-sm btn-danger" onclick="abandonPlan()">Abandonar plan</button>
+        <button class="btn-save" onclick="closeModal()">Cerrar</button>
+      </div>`;
+  }
+
+  function startPlan(id) {
+    plan = { id, name: PLANS[id].name, completed: {}, started: today() };
+    savePlan();
+    openModal('plan');
+  }
+  function abandonPlan() {
+    if (!confirm('¿Abandonar el plan? Se perderá el progreso.')) return;
+    plan = null;
+    savePlan();
+    openModal('plan');
+  }
+  function togglePlanDay(i) {
+    if (!plan.completed) plan.completed = {};
+    if (plan.completed[i]) delete plan.completed[i];
+    else { plan.completed[i] = today(); recordHabit(); }
+    savePlan();
+    openModal('plan');
+  }
+  function planDayStudy(i, ref) {
+    closeModal();
+    const id = Date.now();
+    studies.unshift({
+      id, fav: false, template: 'soap', series: plan.name,
+      title: 'Día ' + (i+1) + ' — ' + ref,
+      reference: ref, book: ref.split(/\s\d/)[0], date: today(),
+      tags: ['plan'], xrefs: [], verse: '', notes: '',
+      soap: { s: '', o: '', a: '', p: '' }
+    });
+    saveStudies();
+    if (!plan.completed) plan.completed = {};
+    plan.completed[i] = today();
+    savePlan();
+    recordHabit();
+    openStudy(id);
+  }
+
+  /* Prayer modal */
+  function renderPrayerModal() {
+    const active = prayers.filter(p => p.status === 'active');
+    const answered = prayers.filter(p => p.status === 'answered');
+    return `
+      <div class="modal-head">
+        <h2>🙏 Oraciones</h2>
+        <button class="close-x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="prayer-add">
+          <input type="text" id="prayer-input" placeholder="Nueva petición de oración..." onkeydown="if(event.key==='Enter')addPrayer()" />
+          <button class="btn-save" onclick="addPrayer()">+</button>
+        </div>
+
+        <div class="section-label" style="margin-top:14px;margin-bottom:8px;">Activas (${active.length})</div>
+        ${active.length ? active.map(p => prayerHTML(p)).join('') : '<div style="color:var(--text3);font-style:italic;font-size:13px;padding:6px;">Sin peticiones activas.</div>'}
+
+        ${answered.length ? `
+          <div class="section-label" style="margin-top:18px;margin-bottom:8px;">Respondidas (${answered.length})</div>
+          ${answered.map(p => prayerHTML(p)).join('')}
+        ` : ''}
+      </div>`;
+  }
+
+  function prayerHTML(p) {
+    return `<div class="prayer-item ${p.status==='answered'?'answered':''}">
+      <div class="prayer-row1">
+        <button class="prayer-status-btn" onclick="togglePrayer(${p.id})" title="${p.status==='answered'?'Reactivar':'Marcar como respondida'}">${p.status==='answered'?'✓':''}</button>
+        <textarea class="prayer-text" oninput="updatePrayerText(${p.id}, this.value)">${esc(p.text)}</textarea>
+      </div>
+      <div class="prayer-meta">
+        <span>Agregada ${p.dateAdded}${p.dateAnswered?' · Respondida '+p.dateAnswered:''}</span>
+        <span>
+          <span class="prayer-cat" onclick="cyclePrayerCat(${p.id})">${esc(p.cat||'general')}</span>
+          <span class="prayer-del" onclick="deletePrayer(${p.id})">✕</span>
+        </span>
+      </div>
+    </div>`;
+  }
+
+  function addPrayer() {
+    const input = document.getElementById('prayer-input');
+    const val = input.value.trim();
+    if (!val) return;
+    prayers.unshift({ id: Date.now(), text: val, cat: 'personal', status: 'active', dateAdded: today() });
+    savePrayers();
+    openModal('prayer');
+    setTimeout(() => document.getElementById('prayer-input')?.focus(), 50);
+  }
+  function togglePrayer(id) {
+    const p = prayers.find(x => x.id === id);
+    if (!p) return;
+    if (p.status === 'answered') { p.status = 'active'; delete p.dateAnswered; }
+    else { p.status = 'answered'; p.dateAnswered = today(); recordHabit(); }
+    savePrayers();
+    openModal('prayer');
+  }
+  function updatePrayerText(id, txt) {
+    const p = prayers.find(x => x.id === id);
+    if (!p) return;
+    p.text = txt;
+    savePrayers();
+  }
+  function cyclePrayerCat(id) {
+    const cats = ['personal','familia','amigos','iglesia','trabajo','gratitud','intercesión','general'];
+    const p = prayers.find(x => x.id === id);
+    if (!p) return;
+    const i = cats.indexOf(p.cat || 'personal');
+    p.cat = cats[(i + 1) % cats.length];
+    savePrayers();
+    openModal('prayer');
+  }
+  function deletePrayer(id) {
+    if (!confirm('¿Eliminar esta petición?')) return;
+    prayers = prayers.filter(p => p.id !== id);
+    savePrayers();
+    openModal('prayer');
+  }
+
+  /* Calendar modal */
+  function renderCalModal() {
+    const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const first = new Date(calYear, calMonth, 1);
+    const startDow = (first.getDay() + 6) % 7; // Mon-first
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayKey = today();
+
+    const studiesByDate = {};
+    studies.forEach(s => { (studiesByDate[s.date] = studiesByDate[s.date] || []).push(s); });
+
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += '<div class="cal-cell empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const k = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = k === todayKey;
+      const list = studiesByDate[k] || [];
+      const items = list.slice(0, 2).map(s =>
+        `<div class="cal-cell-item" title="${esc(s.title)}" onclick="event.stopPropagation();closeModal();openStudy(${s.id})">${esc(s.title)}</div>`
+      ).join('');
+      const more = list.length > 2 ? `<div class="cal-cell-item" style="color:var(--text3);">+${list.length-2}</div>` : '';
+      cells += `<div class="cal-cell ${isToday?'today':''} ${list.length?'has-study':''}" onclick="closeModal();calNewOn('${k}')">
+        <div class="cal-cell-num">${d}</div>
+        <div class="cal-cell-list">${items}${more}</div>
+      </div>`;
+    }
+
+    return `
+      <div class="modal-head">
+        <h2>🗓 ${monthNames[calMonth]} ${calYear}</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+            <button class="cal-nav-btn" onclick="calToday()">hoy</button>
+            <button class="cal-nav-btn" onclick="calNext()">›</button>
+          </div>
+          <button class="close-x" onclick="closeModal()">×</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="calendar-wrap" style="padding:0;">
+          <div class="cal-grid">
+            ${['L','M','X','J','V','S','D'].map(d => `<div class="cal-dow">${d}</div>`).join('')}
+            ${cells}
+          </div>
+        </div>
+        <div style="margin-top:14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);">
+          Click en un día para crear un estudio · Click en un estudio para abrirlo
+        </div>
+      </div>`;
+  }
+  function calPrev() {
+    calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+    openModal('cal');
+  }
+  function calNext() {
+    calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+    openModal('cal');
+  }
+  function calToday() {
+    calMonth = new Date().getMonth(); calYear = new Date().getFullYear();
+    openModal('cal');
+  }
+  function calNewOn(date) {
+    const id = Date.now();
+    studies.unshift({
+      id, fav: false, template: 'libre', series: '',
+      title: 'Nuevo estudio', reference: '', book: '',
+      date, tags: [], xrefs: [], verse: '', notes: '', soap: {}
+    });
+    saveStudies();
+    openStudy(id);
+    setTimeout(() => document.getElementById('ed-title')?.select(), 100);
+  }
+
+  /* Settings modal */
+  function renderSettingsModal() {
+    return `
+      <div class="modal-head">
+        <h2>⚙ Ajustes</h2>
+        <button class="close-x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+
+        <div style="margin-bottom:18px;">
+          <div class="section-label">Tamaño de texto</div>
+          <input type="range" min="0.85" max="1.4" step="0.05" value="${settings.fontScale}"
+            oninput="settings.fontScale=parseFloat(this.value);applyFontScale();this.nextElementSibling.textContent=Math.round(settings.fontScale*100)+'%'"
+            onchange="saveSettings()" style="width:100%;" />
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-align:right;">${Math.round(settings.fontScale*100)}%</div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div class="section-label">Tema</div>
+          <div style="display:flex;gap:6px;">
+            ${['light','dark','sepia'].map(t => `
+              <button class="filter-btn ${settings.theme===t?'active':''}" style="flex:1;padding:8px;font-size:11px;"
+                onclick="settings.theme='${t}';saveSettings();applyTheme();openModal('settings')">${t==='light'?'☀ Claro':t==='dark'?'🌙 Oscuro':'📜 Sepia'}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div class="section-label">Auto-guardado</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text2);">
+            <input type="checkbox" ${settings.autosave?'checked':''} onchange="settings.autosave=this.checked;saveSettings()" />
+            Guardar automáticamente mientras escribo
+          </label>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div class="section-label">Datos</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <button class="btn-sm" onclick="exportJSON()" style="text-align:left;">↓ Exportar todo (JSON)</button>
+            <button class="btn-sm" onclick="document.getElementById('import-file').click()" style="text-align:left;">↑ Importar JSON</button>
+            <button class="btn-sm" onclick="exportAllPDF()" style="text-align:left;">⎙ Imprimir todo</button>
+            <button class="btn-sm btn-danger" onclick="resetAll()" style="text-align:left;">⚠ Borrar todo</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Atajos</div>
+          <button class="btn-sm" onclick="openModal('shortcuts')">Ver atajos de teclado</button>
+        </div>
+      </div>`;
+  }
+
+  function resetAll() {
+    if (!confirm('¿Borrar TODOS los datos? Esto no se puede deshacer.')) return;
+    if (!confirm('Última confirmación: ¿realmente borrar todo?')) return;
+    [KEY, KEY_PLAN, KEY_PRAYER, KEY_HABIT, KEY_SETTINGS].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+
+  function renderShortcutsModal() {
+    const rows = [
+      ['Nuevo estudio', ['Ctrl', 'N']],
+      ['Buscar', ['Ctrl', 'K']],
+      ['Guardar', ['Ctrl', 'S']],
+      ['Modo lectura', ['Ctrl', '/']],
+      ['Imprimir / PDF', ['Ctrl', 'P']],
+      ['Plan de lectura', ['Ctrl', 'L']],
+      ['Oraciones', ['Ctrl', 'O']],
+      ['Calendario', ['Ctrl', 'M']],
+      ['Cerrar modal', ['Esc']],
+      ['Negrita (notas)', ['Ctrl', 'B']],
+      ['Cursiva (notas)', ['Ctrl', 'I']],
+      ['Esta ayuda', ['?']],
+    ];
+    return `
+      <div class="modal-head">
+        <h2>⌨ Atajos de teclado</h2>
+        <button class="close-x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="kbd-list">
+          ${rows.map(([lbl, keys]) => `
+            <div class="kbd-row">
+              <span class="kbd-label">${lbl}</span>
+              <span class="kbd-keys">${keys.map(k => `<span class="kbd">${k}</span>`).join('')}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────────── SHORTCUTS ── */
+  function bindShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      // Esc
+      if (e.key === 'Escape') {
+        if (document.getElementById('modal').classList.contains('open')) {
+          closeModal();
+          e.preventDefault();
+          return;
+        }
+      }
+      // ? help
+      if (e.key === '?' && !['INPUT','TEXTAREA'].includes(e.target.tagName) && !e.target.isContentEditable) {
+        openModal('shortcuts'); e.preventDefault(); return;
+      }
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (!ctrl) return;
+      const k = e.key.toLowerCase();
+      if (k === 'n') { e.preventDefault(); newStudy(); }
+      else if (k === 'k') { e.preventDefault(); document.getElementById('search-input')?.focus(); }
+      else if (k === 's') { e.preventDefault(); saveCurrentStudy(true); }
+      else if (k === '/') { e.preventDefault(); if (currentId) { readMode ? exitReadMode() : enterReadMode(); } }
+      else if (k === 'p') { e.preventDefault(); if (currentId) printStudy(); }
+      else if (k === 'l') { e.preventDefault(); openModal('plan'); }
+      else if (k === 'o') { e.preventDefault(); openModal('prayer'); }
+      else if (k === 'm') { e.preventDefault(); openModal('cal'); }
+      else if (k === 'b' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('**'); }
+      else if (k === 'i' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('*'); }
+    });
+  }
+
+  // Periodic autosave fallback
+  setInterval(() => {
+    if (currentId && !readMode && settings.autosave) saveCurrentStudy(false, true);
+  }, 30000);
+
+  /* ─────────────────────────────────────────────── PWA ── */
+  let deferredInstallPrompt = null;
+  const INSTALL_DISMISSED_KEY = 'diario_install_dismissed_v1';
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (!isStandalone() && !localStorage.getItem(INSTALL_DISMISSED_KEY)) {
+      setTimeout(() => document.getElementById('install-banner').classList.add('show'), 1500);
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('install-banner').classList.remove('show');
+    deferredInstallPrompt = null;
+    showToast('App instalada ✓');
+  });
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  async function doInstall() {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        document.getElementById('install-banner').classList.remove('show');
+      }
+      deferredInstallPrompt = null;
+    } else if (isIOS()) {
+      // iOS doesn't support beforeinstallprompt — show instructions instead
+      alert('Para instalar en iPhone:\n\n1. Tocá el botón Compartir (□↑) en Safari\n2. Elegí "Agregar a pantalla de inicio"\n3. Tocá "Agregar"\n\n¡Listo! La app aparece como ícono.');
+    }
+  }
+
+  function dismissInstall() {
+    document.getElementById('install-banner').classList.remove('show');
+    localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
+  }
+
+  // iOS install hint (since iOS Safari doesn't fire beforeinstallprompt)
+  if (isIOS() && !isStandalone() && !localStorage.getItem(INSTALL_DISMISSED_KEY)) {
+    setTimeout(() => {
+      document.getElementById('ib-sub').textContent = 'Compartir → Agregar a pantalla de inicio';
+      document.getElementById('install-btn').textContent = 'Cómo';
+      document.getElementById('install-banner').classList.add('show');
+    }, 2500);
+  }
+
+</script>
+</body>
+</html>
