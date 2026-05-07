@@ -34,6 +34,7 @@
     --heat-0: #ECEAFE; --heat-1: #C8C2F2; --heat-2: #9B92E2; --heat-3: #6F65C9; --heat-4: #3C3489;
     --reading: 1;
     --gold: #C8962A; --gold-bg: #FFF8E7; --gold-dark: #8B6914; --fortaleza-bg: #FFF8E7;
+    --bell: #C8962A; --bell-bg: #FFF8E7;
   }
 
   body.dark {
@@ -46,6 +47,7 @@
     --meta-bg: #1C1930; --input-bg: #12101E; --toast-bg: #534AB7;
     --heat-0: #1F1B33; --heat-1: #312A55; --heat-2: #4A4080; --heat-3: #7268C5; --heat-4: #AFA9EC;
     --gold: #E6B84A; --gold-bg: #2E2410; --gold-dark: #C8962A; --fortaleza-bg: #2E2410;
+    --bell: #E6B84A; --bell-bg: #2E2410;
   }
 
   body.sepia {
@@ -58,6 +60,7 @@
     --meta-bg: #EBE0C5; --input-bg: #F4ECD8; --toast-bg: #4A3414;
     --heat-0: #E8D9B5; --heat-1: #C8AA78; --heat-2: #9B7340; --heat-3: #6B4A1F; --heat-4: #4A3414;
     --gold: #B8862A; --gold-bg: #F4E8D0; --gold-dark: #8B6914; --fortaleza-bg: #F4E8D0;
+    --bell: #B8862A; --bell-bg: #F4E8D0;
   }
 
   html, body { height: 100%; }
@@ -134,6 +137,29 @@
     width: 18px; height: 18px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700;
+  }
+
+  /* ── BELL BUTTON ── */
+  .btn-bell {
+    background: var(--bell-bg);
+    border: 1.5px solid var(--bell);
+    border-radius: 8px;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px;
+    color: var(--bell);
+    transition: all 0.2s;
+    position: relative;
+  }
+  .btn-bell:hover { background: var(--bell); color: #fff; transform: scale(1.05); }
+  .btn-bell.has-reminders { animation: bellWiggle 2s ease-in-out infinite; }
+  @keyframes bellWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    10% { transform: rotate(10deg); }
+    20% { transform: rotate(-10deg); }
+    30% { transform: rotate(5deg); }
+    40% { transform: rotate(-5deg); }
+    50% { transform: rotate(0deg); }
   }
 
   /* ── LAYOUT ── */
@@ -1270,6 +1296,9 @@
     <button class="btn-dark" onclick="openModal('plan')" title="Plan de lectura">📖</button>
     <button class="btn-dark" onclick="openModal('prayer')" title="Oraciones">🙏</button>
     <button class="btn-dark" onclick="openModal('cal')" title="Calendario">🗓</button>
+    <button class="btn-bell" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">
+      🔔
+    </button>
     <button class="btn-shield" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">
       🛡️
       <span class="shield-count" id="shield-count" style="display:none;">0</span>
@@ -1382,7 +1411,7 @@
       <div class="empty-icon">✦</div>
       <div class="empty-text" id="welcome-greeting">Bienvenido. Seleccioná un estudio o creá uno nuevo.</div>
       <div class="votd-card" id="votd"></div>
-      <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar · <span class="kbd" style="font-size:10px;">Ctrl+E</span> fortaleza</div>
+      <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar · <span class="kbd" style="font-size:10px;">Ctrl+E</span> fortaleza · <span class="kbd" style="font-size:10px;">Ctrl+R</span> recordatorios</div>
     </div>
   </div>
 </div>
@@ -1408,13 +1437,14 @@
 
 <script>
   /* ─────────────────────────────────────────────── KEYS ── */
-  const KEY = 'diario_v5';
-  const KEY_THEME = 'diario_theme_v5';
-  const KEY_PLAN = 'diario_plan_v5';
-  const KEY_PRAYER = 'diario_prayer_v5';
-  const KEY_HABIT = 'diario_habit_v5';
-  const KEY_SETTINGS = 'diario_settings_v5';
-  const KEY_FORTALEZA = 'diario_fortaleza_v5';
+  const KEY = 'diario_v6';
+  const KEY_THEME = 'diario_theme_v6';
+  const KEY_PLAN = 'diario_plan_v6';
+  const KEY_PRAYER = 'diario_prayer_v6';
+  const KEY_HABIT = 'diario_habit_v6';
+  const KEY_SETTINGS = 'diario_settings_v6';
+  const KEY_FORTALEZA = 'diario_fortaleza_v6';
+  const KEY_REMINDERS = 'diario_reminders_v6';
 
   /* ─────────────────────────────────────────────── STATE ── */
   let studies = [];
@@ -1423,6 +1453,7 @@
   let habit = {};
   let settings = { fontScale: 1, theme: 'light', autosave: true };
   let fortaleza = { count: 0, log: [] };
+  let reminders = { active: true, items: [], times: ['09:00', '13:00', '19:00'] };
   let currentId = null;
   let activeTag = null;
   let activeSeries = null;
@@ -1766,6 +1797,154 @@
     }
   }
 
+  /* ─────────────────────────────────────────────── REMINDER SYSTEM ── */
+  function saveReminders() { try { localStorage.setItem(KEY_REMINDERS, JSON.stringify(reminders)); } catch(e) {} }
+
+  function updateBellBadge() {
+    const bell = document.getElementById('btn-bell');
+    if (bell) {
+      const hasActive = reminders.items.filter(i => i.active).length > 0 && reminders.active;
+      bell.classList.toggle('has-reminders', hasActive);
+    }
+  }
+
+  function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(p => {
+        showToast(p === 'granted' ? '🔔 Notificaciones activadas' : '⚠ Notificaciones bloqueadas');
+      });
+    }
+  }
+
+  function addVerseReminder(verse, ref) {
+    reminders.items.push({
+      id: Date.now(),
+      verse: verse.replace(/<[^>]+>/g, ''),
+      ref: ref,
+      active: true,
+      added: today()
+    });
+    saveReminders();
+    updateBellBadge();
+    scheduleAllReminders();
+    showToast('🔔 Versículo agregado a recordatorios');
+  }
+
+  function toggleReminderActive(id) {
+    const item = reminders.items.find(i => i.id === id);
+    if (item) {
+      item.active = !item.active;
+      saveReminders();
+      updateBellBadge();
+      scheduleAllReminders();
+    }
+  }
+
+  function removeReminder(id) {
+    reminders.items = reminders.items.filter(i => i.id !== id);
+    saveReminders();
+    updateBellBadge();
+    scheduleAllReminders();
+    showToast('Recordatorio eliminado');
+    renderRemindersModal();
+  }
+
+  function updateTimes() {
+    const t1 = document.getElementById('rem-time1')?.value;
+    const t2 = document.getElementById('rem-time2')?.value;
+    const t3 = document.getElementById('rem-time3')?.value;
+    reminders.times = [t1, t2, t3].filter(Boolean);
+    saveReminders();
+    scheduleAllReminders();
+    showToast('⏰ Horarios actualizados');
+  }
+
+  function toggleAllReminders() {
+    reminders.active = !reminders.active;
+    saveReminders();
+    updateBellBadge();
+    scheduleAllReminders();
+    showToast(reminders.active ? '🔔 Recordatorios activados' : '🔕 Recordatorios pausados');
+  }
+
+  function scheduleAllReminders() {
+    if (!reminders.active) return;
+    const now = new Date();
+    const activeItems = reminders.items.filter(i => i.active);
+    if (activeItems.length === 0) return;
+
+    reminders.times.forEach(time => {
+      const [h, m] = time.split(':').map(Number);
+      const trigger = new Date(now);
+      trigger.setHours(h, m, 0, 0);
+      if (trigger <= now) trigger.setDate(trigger.getDate() + 1);
+
+      const delay = trigger.getTime() - now.getTime();
+      setTimeout(() => {
+        if (reminders.active) {
+          const randomItem = activeItems[Math.floor(Math.random() * activeItems.length)];
+          showNotification(randomItem);
+          scheduleAllReminders(); // reprogramar siguiente día
+        }
+      }, delay);
+    });
+  }
+
+  function showNotification(item) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('📖 Recordatorio de la Palabra', {
+        body: `"${item.verse.substring(0, 100)}${item.verse.length > 100 ? '...' : ''}" — ${item.ref}`,
+        icon: 'icon-192.png',
+        tag: 'verse-reminder',
+        requireInteraction: false
+      });
+    }
+  }
+
+  function renderRemindersModal() {
+    return `
+      <div class="modal-head">
+        <h2>🔔 Recordatorios de versículos</h2>
+        <button class="close-x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text2);margin-bottom:12px;font-size:14px;">
+          Los versículos aparecerán como notificación en los horarios configurados.
+        </p>
+        ${Notification.permission === 'default' ? 
+          `<button class="btn-sm" onclick="requestNotificationPermission()" style="margin-bottom:12px;">🔔 Activar notificaciones</button>` : ''}
+
+        <div class="reminder-section">
+          <div class="section-label">⏰ Horarios</div>
+          <div class="time-inputs" style="margin-bottom:12px;">
+            <input type="time" id="rem-time1" value="${reminders.times[0] || '09:00'}" />
+            <input type="time" id="rem-time2" value="${reminders.times[1] || '13:00'}" />
+            <input type="time" id="rem-time3" value="${reminders.times[2] || '19:00'}" />
+            <button class="btn-sm" onclick="updateTimes()">💾 Guardar</button>
+          </div>
+        </div>
+
+        <div class="reminder-section">
+          <div class="section-label" style="display:flex;justify-content:space-between;">
+            <span>📖 Versículos (${reminders.items.length})</span>
+            <button class="btn-sm" onclick="toggleAllReminders()" style="font-size:10px;">
+              ${reminders.active ? '🔕 Pausar todos' : '🔔 Activar todos'}
+            </button>
+          </div>
+          ${reminders.items.length ? reminders.items.map(item => `
+            <div class="reminder-card" style="opacity:${item.active ? 1 : 0.5};">
+              <span class="reminder-del" onclick="removeReminder(${item.id})">✕</span>
+              <div class="reminder-verse">"${esc(item.verse).substring(0, 120)}${item.verse.length > 120 ? '...' : ''}"</div>
+              <div class="reminder-ref">— ${esc(item.ref)}</div>
+              <button class="reminder-toggle" onclick="toggleReminderActive(${item.id})">
+                ${item.active ? '🔔 Activo' : '🔕 Pausado'}
+              </button>
+            </div>
+          `).join('') : '<div style="color:var(--text3);font-style:italic;padding:8px;">Sin versículos. Agregá desde cualquier estudio con "🔔 Recordar".</div>'}
+        </div>
+      </div>`;
+  }
+
   /* ─────────────────────────────────────────────── FORTALEZA ── */
   function saveFortaleza() { try { localStorage.setItem(KEY_FORTALEZA, JSON.stringify(fortaleza)); } catch(e) {} }
   
@@ -1890,6 +2069,7 @@
     try { habit = JSON.parse(localStorage.getItem(KEY_HABIT) || '{}'); } catch(e) { habit = {}; }
     try { settings = { ...settings, ...JSON.parse(localStorage.getItem(KEY_SETTINGS) || '{}') }; } catch(e) {}
     try { fortaleza = { ...fortaleza, ...JSON.parse(localStorage.getItem(KEY_FORTALEZA) || '{}') }; } catch(e) {}
+    try { reminders = { ...reminders, ...JSON.parse(localStorage.getItem(KEY_REMINDERS) || '{}') }; } catch(e) {}
 
     // Migration
     studies = studies.map(s => ({
@@ -1946,11 +2126,13 @@
     applyTheme();
     applyFontScale();
     updateShieldBadge();
+    updateBellBadge();
     renderSidebar();
     renderHeatmap();
     renderBooks();
     renderWelcome();
     bindShortcuts();
+    scheduleAllReminders();
   })();
 
   /* ─────────────────────────────────────────────── HELPERS ── */
@@ -2295,7 +2477,7 @@
         <div>
           <div class="section-label">
             <span>Versículo o pasaje</span>
-            <span class="sl-hint">seleccioná texto y elegí color para resaltar</span>
+            <button class="btn-sm" onclick="addVerseReminder(document.getElementById('ed-verse').innerText||document.getElementById('ed-verse').textContent,document.getElementById('ed-ref').value)" style="font-size:10px;" title="Agregar a recordatorios">🔔 Recordar</button>
           </div>
           <div class="verse-box" id="ed-verse" contenteditable="true"
                oninput="markDirty()"
@@ -2856,7 +3038,7 @@
 
   /* ── Export / Import ── */
   function exportJSON() {
-    const data = { version: 5, exportedAt: new Date().toISOString(), studies, plan, prayers, habit, settings, fortaleza };
+    const data = { version: 5, exportedAt: new Date().toISOString(), studies, plan, prayers, habit, settings, fortaleza, reminders };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2884,6 +3066,7 @@
         if (data.habit) { habit = { ...habit, ...data.habit }; saveHabit(); }
         if (data.plan && !plan) { plan = data.plan; savePlan(); }
         if (data.fortaleza) { fortaleza = { ...fortaleza, ...data.fortaleza }; saveFortaleza(); updateShieldBadge(); }
+        if (data.reminders) { reminders = { ...reminders, ...data.reminders }; saveReminders(); updateBellBadge(); scheduleAllReminders(); }
         renderSidebar();
         renderHeatmap();
         showToast('Importado ✓');
@@ -2905,6 +3088,7 @@
     else if (kind === 'settings') content.innerHTML = renderSettingsModal();
     else if (kind === 'shortcuts') content.innerHTML = renderShortcutsModal();
     else if (kind === 'fortaleza') content.innerHTML = renderFortalezaModal();
+    else if (kind === 'reminders') content.innerHTML = renderRemindersModal();
     overlay.classList.add('open');
   }
   function closeModal() {
@@ -3223,7 +3407,7 @@
   function resetAll() {
     if (!confirm('¿Borrar TODOS los datos? Esto no se puede deshacer.')) return;
     if (!confirm('Última confirmación: ¿realmente borrar todo?')) return;
-    [KEY, KEY_PLAN, KEY_PRAYER, KEY_HABIT, KEY_SETTINGS, KEY_FORTALEZA].forEach(k => localStorage.removeItem(k));
+    [KEY, KEY_PLAN, KEY_PRAYER, KEY_HABIT, KEY_SETTINGS, KEY_FORTALEZA, KEY_REMINDERS].forEach(k => localStorage.removeItem(k));
     location.reload();
   }
 
@@ -3238,6 +3422,7 @@
       ['Oraciones', ['Ctrl', 'O']],
       ['Calendario', ['Ctrl', 'M']],
       ['Modo Fortaleza', ['Ctrl', 'E']],
+      ['Recordatorios', ['Ctrl', 'R']],
       ['Cerrar modal', ['Esc']],
       ['Negrita (notas)', ['Ctrl', 'B']],
       ['Cursiva (notas)', ['Ctrl', 'I']],
@@ -3285,6 +3470,7 @@
       else if (k === 'o') { e.preventDefault(); openModal('prayer'); }
       else if (k === 'm') { e.preventDefault(); openModal('cal'); }
       else if (k === 'e') { e.preventDefault(); openModal('fortaleza'); }
+      else if (k === 'r') { e.preventDefault(); openModal('reminders'); }
       else if (k === 'b' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('**'); }
       else if (k === 'i' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('*'); }
     });
@@ -3292,7 +3478,8 @@
 
   setInterval(() => {
     if (currentId && !readMode && settings.autosave) saveCurrentStudy(false, true);
-  }, 30000);
+    scheduleAllReminders();
+  }, 60000);
 
   /* ─────────────────────────────────────────────── PWA ── */
   let deferredInstallPrompt = null;
