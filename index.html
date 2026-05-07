@@ -33,6 +33,7 @@
     --meta-bg: #F5F4F0; --input-bg: #FFFFFF; --toast-bg: #26215C;
     --heat-0: #ECEAFE; --heat-1: #C8C2F2; --heat-2: #9B92E2; --heat-3: #6F65C9; --heat-4: #3C3489;
     --reading: 1;
+    --gold: #C8962A; --gold-bg: #FFF8E7; --gold-dark: #8B6914; --fortaleza-bg: #FFF8E7;
   }
 
   body.dark {
@@ -44,6 +45,7 @@
     --verse-bg: #1E1A32; --verse-b: #534AB7; --verse-t: #CECBF6;
     --meta-bg: #1C1930; --input-bg: #12101E; --toast-bg: #534AB7;
     --heat-0: #1F1B33; --heat-1: #312A55; --heat-2: #4A4080; --heat-3: #7268C5; --heat-4: #AFA9EC;
+    --gold: #E6B84A; --gold-bg: #2E2410; --gold-dark: #C8962A; --fortaleza-bg: #2E2410;
   }
 
   body.sepia {
@@ -55,6 +57,7 @@
     --verse-bg: #E8D9B5; --verse-b: #9B7340; --verse-t: #4A3414;
     --meta-bg: #EBE0C5; --input-bg: #F4ECD8; --toast-bg: #4A3414;
     --heat-0: #E8D9B5; --heat-1: #C8AA78; --heat-2: #9B7340; --heat-3: #6B4A1F; --heat-4: #4A3414;
+    --gold: #B8862A; --gold-bg: #F4E8D0; --gold-dark: #8B6914; --fortaleza-bg: #F4E8D0;
   }
 
   html, body { height: 100%; }
@@ -110,6 +113,28 @@
     transition: opacity 0.15s; white-space: nowrap;
   }
   .btn-primary:hover { opacity: 0.88; }
+
+  /* ── SHIELD BUTTON ── */
+  .btn-shield {
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px;
+    color: var(--gold-dark);
+    transition: all 0.2s;
+    position: relative;
+  }
+  .btn-shield:hover { background: var(--gold); color: #fff; transform: scale(1.05); }
+  .btn-shield .shield-count {
+    position: absolute; top: -6px; right: -6px;
+    background: var(--danger); color: #fff;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
 
   /* ── LAYOUT ── */
   .main { display: flex; flex: 1; min-height: 0; height: calc(100dvh - 57px - env(safe-area-inset-top)); }
@@ -1117,6 +1142,111 @@
     font-size: 13px;
     padding: 4px 0;
   }
+
+  /* ── FORTALEZA MODAL ── */
+  .fortaleza-hero {
+    background: var(--fortaleza-bg);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 20px 18px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .fortaleza-hero .ft-verse {
+    font-size: 18px;
+    font-style: italic;
+    color: var(--gold-dark);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .fortaleza-hero .ft-ref {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+  }
+  .fortaleza-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .ft-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+    background: var(--bg);
+    color: var(--gold-dark);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ft-btn:hover {
+    background: var(--gold-bg);
+    border-color: var(--gold-dark);
+  }
+  .ft-btn.primary {
+    background: var(--gold);
+    color: #fff;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .ft-btn.primary:hover {
+    background: var(--gold-dark);
+  }
+  .ft-timer {
+    font-family: 'DM Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    text-align: center;
+    margin: 10px 0;
+  }
+  .ft-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    margin-top: 8px;
+  }
+  .ft-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 14px;
+    resize: vertical;
+    margin-top: 8px;
+  }
+  .ft-block-suggestions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .ft-block-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    color: var(--gold-dark);
+    cursor: pointer;
+  }
+  .ft-block-chip:hover {
+    background: var(--gold-bg);
+    border-color: var(--gold);
+  }
 </style>
 </head>
 <body>
@@ -1140,6 +1270,10 @@
     <button class="btn-dark" onclick="openModal('plan')" title="Plan de lectura">📖</button>
     <button class="btn-dark" onclick="openModal('prayer')" title="Oraciones">🙏</button>
     <button class="btn-dark" onclick="openModal('cal')" title="Calendario">🗓</button>
+    <button class="btn-shield" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">
+      🛡️
+      <span class="shield-count" id="shield-count" style="display:none;">0</span>
+    </button>
     <button class="btn-dark" onclick="openModal('settings')" title="Ajustes">⚙</button>
     <button class="btn-dark" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
     <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>
@@ -1248,7 +1382,7 @@
       <div class="empty-icon">✦</div>
       <div class="empty-text" id="welcome-greeting">Bienvenido. Seleccioná un estudio o creá uno nuevo.</div>
       <div class="votd-card" id="votd"></div>
-      <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar · <span class="kbd" style="font-size:10px;">?</span> ayuda</div>
+      <div class="empty-sub">Atajos: <span class="kbd" style="font-size:10px;">Ctrl+N</span> nuevo · <span class="kbd" style="font-size:10px;">Ctrl+K</span> buscar · <span class="kbd" style="font-size:10px;">Ctrl+E</span> fortaleza</div>
     </div>
   </div>
 </div>
@@ -1274,12 +1408,13 @@
 
 <script>
   /* ─────────────────────────────────────────────── KEYS ── */
-  const KEY = 'diario_v4';
-  const KEY_THEME = 'diario_theme_v4';
-  const KEY_PLAN = 'diario_plan_v4';
-  const KEY_PRAYER = 'diario_prayer_v4';
-  const KEY_HABIT = 'diario_habit_v4';
-  const KEY_SETTINGS = 'diario_settings_v4';
+  const KEY = 'diario_v5';
+  const KEY_THEME = 'diario_theme_v5';
+  const KEY_PLAN = 'diario_plan_v5';
+  const KEY_PRAYER = 'diario_prayer_v5';
+  const KEY_HABIT = 'diario_habit_v5';
+  const KEY_SETTINGS = 'diario_settings_v5';
+  const KEY_FORTALEZA = 'diario_fortaleza_v5';
 
   /* ─────────────────────────────────────────────── STATE ── */
   let studies = [];
@@ -1287,6 +1422,7 @@
   let plan = null;
   let habit = {};
   let settings = { fontScale: 1, theme: 'light', autosave: true };
+  let fortaleza = { count: 0, log: [] };
   let currentId = null;
   let activeTag = null;
   let activeSeries = null;
@@ -1299,6 +1435,31 @@
   let state_editingPassage = null;
   let toolsOpen = false;
   let toolsTab = 'hebrew'; // 'hebrew' | 'greek' | 'context'
+  let fortalezaTimer = null;
+  let fortalezaSeconds = 120;
+
+  /* ─────────────────────────────────────────────── FORTALEZA DATA ── */
+  const FORTALEZA_VERSES = [
+    { ref:'1 Corintios 10:13', text:'No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir, sino que dará también juntamente con la tentación la salida, para que podáis soportar.' },
+    { ref:'Santiago 4:7', text:'Someteos, pues, a Dios; resistid al diablo, y huirá de vosotros.' },
+    { ref:'Mateo 26:41', text:'Velad y orad, para que no entréis en tentación; el espíritu a la verdad está dispuesto, pero la carne es débil.' },
+    { ref:'Gálatas 5:16', text:'Digo, pues: Andad en el Espíritu, y no satisfagáis los deseos de la carne.' },
+    { ref:'2 Timoteo 2:22', text:'Huye también de las pasiones juveniles, y sigue la justicia, la fe, el amor y la paz, con los que de corazón limpio invocan al Señor.' },
+    { ref:'Hebreos 2:18', text:'Pues en cuanto él mismo padeció siendo tentado, es poderoso para socorrer a los que son tentados.' },
+    { ref:'Salmo 119:9-11', text:'¿Con qué limpiará el joven su camino? Con guardar tu palabra. Con todo mi corazón te he buscado; no me dejes desviarme de tus mandamientos. En mi corazón he guardado tus dichos, para no pecar contra ti.' },
+    { ref:'Salmo 51:10', text:'Crea en mí, oh Dios, un corazón limpio, y renueva un espíritu recto dentro de mí.' }
+  ];
+
+  const FORTALEZA_ORACION = 'Señor Jesús, en este momento me siento débil y tentado. Reconozco que sin vos no puedo resistir. Tomo autoridad en tu nombre sobre este pensamiento/deseo y te pido que limpies mi mente y mi corazón. Dame una salida, como lo prometiste. Llename con tu Espíritu Santo ahora. Amén. 🙏';
+
+  const FORTALEZA_BLOQUEOS = [
+    { text:'💧 Tomar agua fría', action:'Tomá un vaso de agua fría. Cambiá de ambiente.' },
+    { text:'🚶 Salir a caminar', action:'Salí a caminar 5 minutos. El movimiento ayuda.' },
+    { text:'📞 Llamar a alguien', action:'Llamá a alguien de confianza. No estás solo.' },
+    { text:'📖 Leer Salmo 51', action:'Leé Salmo 51 en voz alta. Dios crea corazones limpios.' },
+    { text:'🎵 Escuchar alabanza', action:'Poné música de adoración. Cambia la atmósfera.' },
+    { text:'📝 Escribir un estudio', action:'Abrí un nuevo estudio bíblico y enfocá tu mente.' }
+  ];
 
   /* ─────────────────────────────────────────────── BIBLE BOOKS ── */
   const BIBLE_OT = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías'];
@@ -1605,6 +1766,122 @@
     }
   }
 
+  /* ─────────────────────────────────────────────── FORTALEZA ── */
+  function saveFortaleza() { try { localStorage.setItem(KEY_FORTALEZA, JSON.stringify(fortaleza)); } catch(e) {} }
+  
+  function recordFortaleza() {
+    fortaleza.count++;
+    fortaleza.log.push({
+      date: today(),
+      time: new Date().toISOString()
+    });
+    saveFortaleza();
+    updateShieldBadge();
+  }
+
+  function updateShieldBadge() {
+    const badge = document.getElementById('shield-count');
+    if (badge) {
+      if (fortaleza.count > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = fortaleza.count > 99 ? '99+' : fortaleza.count;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  function renderFortalezaModal() {
+    const v = FORTALEZA_VERSES[Math.floor(Math.random() * FORTALEZA_VERSES.length)];
+    return `
+      <div class="modal-head">
+        <h2>🛡️ Modo Fortaleza</h2>
+        <button class="close-x" onclick="closeFortaleza()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="fortaleza-hero">
+          <div class="ft-verse">"${esc(v.text)}"</div>
+          <div class="ft-ref">— ${esc(v.ref)}</div>
+        </div>
+        <div class="fortaleza-actions">
+          <button class="ft-btn primary" onclick="activateFortalezaTimer()">⏱️ Resistir 2 minutos</button>
+          <div class="ft-timer" id="ft-timer" style="display:none;">2:00</div>
+          
+          <button class="ft-btn" onclick="document.getElementById('ft-textarea').style.display='block';this.style.display='none';">
+            ✍️ Escribir lo que estoy sintiendo
+          </button>
+          <textarea class="ft-textarea" id="ft-textarea" style="display:none;" 
+            placeholder="Descargá acá lo que estás sintiendo. Esto no se guarda sin tu permiso..."></textarea>
+
+          <button class="ft-btn" onclick="document.getElementById('ft-prayer').style.display='block';this.style.display='none';">
+            🙏 Leer oración de guerra espiritual
+          </button>
+          <div id="ft-prayer" style="display:none;margin-top:8px;padding:12px;background:var(--bg2);border-radius:8px;font-style:italic;color:var(--text2);line-height:1.7;border-left:3px solid var(--gold);">
+            ${FORTALEZA_ORACION}
+          </div>
+
+          <div class="section-label" style="margin-top:12px;">💡 Sugerencias para este momento</div>
+          <div class="ft-block-suggestions">
+            ${FORTALEZA_BLOQUEOS.map(b => 
+              `<span class="ft-block-chip" onclick="alert('${esc(b.action).replace(/'/g,"\\'")}')">${esc(b.text)}</span>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="ft-counter">
+          🛡️ Has usado el escudo <strong>${fortaleza.count}</strong> ${fortaleza.count === 1 ? 'vez' : 'veces'}
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-sm" onclick="registrarVictoria()">✅ Registrar victoria</button>
+        <button class="btn-save" onclick="closeFortaleza()">Cerrar</button>
+      </div>`;
+  }
+
+  function activateFortalezaTimer() {
+    const timerEl = document.getElementById('ft-timer');
+    if (!timerEl) return;
+    timerEl.style.display = 'block';
+    fortalezaSeconds = 120;
+    
+    if (fortalezaTimer) clearInterval(fortalezaTimer);
+    
+    fortalezaTimer = setInterval(() => {
+      fortalezaSeconds--;
+      const m = Math.floor(fortalezaSeconds / 60);
+      const s = fortalezaSeconds % 60;
+      timerEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
+      
+      if (fortalezaSeconds <= 0) {
+        clearInterval(fortalezaTimer);
+        fortalezaTimer = null;
+        timerEl.textContent = '¡Victoria! 🛡️';
+        recordFortaleza();
+        showToast('¡Resististe! Dios es fiel 🙌');
+      }
+    }, 1000);
+  }
+
+  function registrarVictoria() {
+    const textarea = document.getElementById('ft-textarea');
+    if (textarea && textarea.value.trim()) {
+      fortaleza.log[fortaleza.log.length - 1] = {
+        ...fortaleza.log[fortaleza.log.length - 1],
+        text: textarea.value.trim()
+      };
+    }
+    recordFortaleza();
+    showToast('¡Victoria registrada! 🛡️');
+    closeModal();
+  }
+
+  function closeFortaleza() {
+    if (fortalezaTimer) {
+      clearInterval(fortalezaTimer);
+      fortalezaTimer = null;
+    }
+    closeModal();
+  }
+
   /* ─────────────────────────────────────────────── INIT ── */
   (function init() {
     try { studies = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { studies = []; }
@@ -1612,6 +1889,7 @@
     try { prayers = JSON.parse(localStorage.getItem(KEY_PRAYER) || '[]'); } catch(e) { prayers = []; }
     try { habit = JSON.parse(localStorage.getItem(KEY_HABIT) || '{}'); } catch(e) { habit = {}; }
     try { settings = { ...settings, ...JSON.parse(localStorage.getItem(KEY_SETTINGS) || '{}') }; } catch(e) {}
+    try { fortaleza = { ...fortaleza, ...JSON.parse(localStorage.getItem(KEY_FORTALEZA) || '{}') }; } catch(e) {}
 
     // Migration
     studies = studies.map(s => ({
@@ -1667,6 +1945,7 @@
 
     applyTheme();
     applyFontScale();
+    updateShieldBadge();
     renderSidebar();
     renderHeatmap();
     renderBooks();
@@ -2577,7 +2856,7 @@
 
   /* ── Export / Import ── */
   function exportJSON() {
-    const data = { version: 4, exportedAt: new Date().toISOString(), studies, plan, prayers, habit, settings };
+    const data = { version: 5, exportedAt: new Date().toISOString(), studies, plan, prayers, habit, settings, fortaleza };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2604,6 +2883,7 @@
         if (data.prayers) { prayers = [...prayers, ...data.prayers]; savePrayers(); }
         if (data.habit) { habit = { ...habit, ...data.habit }; saveHabit(); }
         if (data.plan && !plan) { plan = data.plan; savePlan(); }
+        if (data.fortaleza) { fortaleza = { ...fortaleza, ...data.fortaleza }; saveFortaleza(); updateShieldBadge(); }
         renderSidebar();
         renderHeatmap();
         showToast('Importado ✓');
@@ -2624,6 +2904,7 @@
     else if (kind === 'cal') content.innerHTML = renderCalModal();
     else if (kind === 'settings') content.innerHTML = renderSettingsModal();
     else if (kind === 'shortcuts') content.innerHTML = renderShortcutsModal();
+    else if (kind === 'fortaleza') content.innerHTML = renderFortalezaModal();
     overlay.classList.add('open');
   }
   function closeModal() {
@@ -2942,7 +3223,7 @@
   function resetAll() {
     if (!confirm('¿Borrar TODOS los datos? Esto no se puede deshacer.')) return;
     if (!confirm('Última confirmación: ¿realmente borrar todo?')) return;
-    [KEY, KEY_PLAN, KEY_PRAYER, KEY_HABIT, KEY_SETTINGS].forEach(k => localStorage.removeItem(k));
+    [KEY, KEY_PLAN, KEY_PRAYER, KEY_HABIT, KEY_SETTINGS, KEY_FORTALEZA].forEach(k => localStorage.removeItem(k));
     location.reload();
   }
 
@@ -2956,6 +3237,7 @@
       ['Plan de lectura', ['Ctrl', 'L']],
       ['Oraciones', ['Ctrl', 'O']],
       ['Calendario', ['Ctrl', 'M']],
+      ['Modo Fortaleza', ['Ctrl', 'E']],
       ['Cerrar modal', ['Esc']],
       ['Negrita (notas)', ['Ctrl', 'B']],
       ['Cursiva (notas)', ['Ctrl', 'I']],
@@ -3002,6 +3284,7 @@
       else if (k === 'l') { e.preventDefault(); openModal('plan'); }
       else if (k === 'o') { e.preventDefault(); openModal('prayer'); }
       else if (k === 'm') { e.preventDefault(); openModal('cal'); }
+      else if (k === 'e') { e.preventDefault(); openModal('fortaleza'); }
       else if (k === 'b' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('**'); }
       else if (k === 'i' && document.activeElement?.id === 'ed-notes') { e.preventDefault(); mdWrap('*'); }
     });
@@ -3013,7 +3296,7 @@
 
   /* ─────────────────────────────────────────────── PWA ── */
   let deferredInstallPrompt = null;
-  const INSTALL_DISMISSED_KEY = 'diario_install_dismissed_v1';
+  const INSTALL_DISMISSED_KEY = 'diario_install_dismissed_v5';
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
