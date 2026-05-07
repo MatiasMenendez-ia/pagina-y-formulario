@@ -817,6 +817,203 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--purple4); }
+
+  /* ── PASSAGE CARDS ── */
+  .passages-section { margin-top: 8px; }
+  .passage-card {
+    background: var(--input-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .passage-card:hover { border-color: var(--purple4); }
+  .passage-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border-bottom: 0.5px solid var(--border2);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--purple);
+  }
+  .passage-card-header .pc-ref { font-weight: 600; flex: 1; min-width: 0; }
+  .passage-card-header .pc-translation {
+    font-size: 9px;
+    color: var(--text3);
+    background: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+  .passage-card-header .pc-btn {
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 13px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+  }
+  .passage-card-header .pc-btn:hover { color: var(--text); background: var(--bg3); }
+  .passage-card-header .pc-btn.pc-del:hover { color: var(--danger); }
+  .passage-card-body {
+    padding: 10px 14px;
+    font-size: calc(15px * var(--reading));
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .passage-card-body .pc-empty {
+    color: var(--text3);
+    font-style: italic;
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(14px * var(--reading));
+  }
+  .passage-card-body .pc-study-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--purple2);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-style: normal;
+  }
+  .passage-card-body .pc-study-link:hover { color: var(--purple); }
+
+  /* Passage edit inline en el editor */
+  .passage-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    border-top: 0.5px solid var(--border2);
+    background: var(--bg2);
+  }
+  .passage-edit-form .pe-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .passage-edit-form input {
+    flex: 1;
+    min-width: 120px;
+    padding: 5px 8px;
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+  .passage-edit-form select {
+    padding: 5px 8px;
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  .passage-edit-form textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 7px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(14px * var(--reading));
+    font-style: italic;
+    line-height: 1.6;
+    resize: vertical;
+  }
+  .passage-edit-form textarea:focus,
+  .passage-edit-form input:focus,
+  .passage-edit-form select:focus {
+    outline: none;
+    border-color: var(--purple2);
+  }
+  .passage-edit-form .pe-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  .passage-edit-form .pe-actions button {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pe-btn-save {
+    background: var(--purple);
+    color: #EEEDFE;
+    border: none;
+  }
+  .pe-btn-save:hover { opacity: 0.88; }
+  .pe-btn-cancel {
+    background: var(--bg);
+    color: var(--text2);
+    border: 0.5px solid var(--border);
+  }
+  .pe-btn-cancel:hover { background: var(--bg2); }
+
+  .add-passage-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 0.5px dashed var(--purple4);
+    background: transparent;
+    color: var(--purple2);
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .add-passage-btn:hover {
+    background: var(--bg3);
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+
+  /* Read mode passage cards */
+  .passage-read-card {
+    background: var(--input-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .passage-read-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg2);
+    border-bottom: 0.5px solid var(--border2);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--purple);
+  }
+  .passage-read-body {
+    padding: 10px 14px;
+    font-size: calc(15px * var(--reading));
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+  }
 </style>
 </head>
 <body>
@@ -996,6 +1193,7 @@
   let saveTimer = null;
   let calMonth = new Date().getMonth();
   let calYear = new Date().getFullYear();
+  let state_editingPassage = null; // null | { passageIndex, passageData }
 
   /* ─────────────────────────────────────────────── BIBLE BOOKS ── */
   const BIBLE_OT = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías'];
@@ -1094,6 +1292,120 @@
     exegetico: { name: 'Exegético', desc: 'Contexto · Texto · Significado · Aplicación' }
   };
 
+  /* ─────────────────────────────────────────────── PASSAGE HELPERS ── */
+  const TRANSLATIONS = ['NVI', 'RVR60', 'NTV', 'LBLA', 'DHH', 'TLA'];
+
+  function renderPassageCards(s) {
+    if (!s.xrefs || s.xrefs.length === 0) return '';
+    return s.xrefs.map((x, i) => {
+      const isEditing = state_editingPassage !== null && state_editingPassage.passageIndex === i;
+      const hasStudy = studies.find(st => st.id !== s.id && st.reference === x.ref);
+      if (isEditing) return ''; // el form se muestra aparte
+      return `
+        <div class="passage-card">
+          <div class="passage-card-header">
+            <span class="pc-ref" title="${esc(x.ref)}">${esc(x.ref)}</span>
+            <span class="pc-translation">${esc(x.translation || 'NVI')}</span>
+            <button class="pc-btn" onclick="startEditPassage(${i})" title="Editar">✏</button>
+            <button class="pc-btn pc-del" onclick="removePassage(${i})" title="Eliminar">✕</button>
+          </div>
+          <div class="passage-card-body">
+            ${x.text ? `"${esc(x.text)}"` : '<span class="pc-empty">Sin texto (click en ✏ para agregar)</span>'}
+            ${hasStudy ? `<div class="pc-study-link" onclick="openStudy(${hasStudy.id})">→ Ir al estudio "${esc(hasStudy.title)}"</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function getCurrentStudy() {
+    return studies.find(x => x.id === currentId);
+  }
+
+  function startAddPassage() {
+    state_editingPassage = { passageIndex: null, passageData: { ref: '', translation: 'NVI', text: '' } };
+    renderPassageForm();
+  }
+
+  function startEditPassage(index) {
+    const s = getCurrentStudy();
+    if (!s) return;
+    saveCurrentStudy();
+    const data = { ...s.xrefs[index] };
+    state_editingPassage = { passageIndex: index, passageData: data };
+    renderPassageForm();
+  }
+
+  function removePassage(index) {
+    const s = getCurrentStudy();
+    if (!s) return;
+    saveCurrentStudy();
+    s.xrefs.splice(index, 1);
+    saveStudies();
+    state_editingPassage = null;
+    renderEditor(s);
+  }
+
+  function renderPassageForm(specificStudy) {
+    const s = specificStudy || getCurrentStudy();
+    if (!s) return;
+    const container = document.getElementById('passage-form-container');
+    if (!container) return;
+    if (!state_editingPassage) {
+      container.innerHTML = '';
+      return;
+    }
+    const d = state_editingPassage.passageData;
+    const isNew = state_editingPassage.passageIndex === null;
+    container.innerHTML = `
+      <div class="passage-card" style="border-color:var(--purple4);margin-top:8px;">
+        <div class="passage-edit-form">
+          <div class="pe-row">
+            <input type="text" id="pe-ref" value="${esc(d.ref)}" placeholder="Referencia (ej: Mateo 6:22)" />
+            <select id="pe-trans">
+              ${TRANSLATIONS.map(t => `<option value="${t}" ${d.translation===t?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <textarea id="pe-text" placeholder="Pegá o escribí el texto del versículo...">${esc(d.text)}</textarea>
+          <div class="pe-actions">
+            <button class="pe-btn-cancel" onclick="cancelPassage()">Cancelar</button>
+            <button class="pe-btn-save" onclick="savePassage()">${isNew ? 'Agregar' : 'Guardar'}</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function cancelPassage() {
+    state_editingPassage = null;
+    const s = getCurrentStudy();
+    if (s) renderEditor(s);
+  }
+
+  function savePassage() {
+    const s = getCurrentStudy();
+    if (!s) return;
+    saveCurrentStudy();
+    const ref = document.getElementById('pe-ref')?.value.trim() || '';
+    const translation = document.getElementById('pe-trans')?.value || 'NVI';
+    const text = document.getElementById('pe-text')?.value.trim() || '';
+    const passageData = { ref, translation, text };
+
+    if (!ref) {
+      showToast('La referencia es obligatoria');
+      return;
+    }
+
+    if (state_editingPassage.passageIndex !== null) {
+      s.xrefs[state_editingPassage.passageIndex] = passageData;
+    } else {
+      s.xrefs = s.xrefs || [];
+      s.xrefs.push(passageData);
+    }
+    state_editingPassage = null;
+    saveStudies();
+    renderEditor(s);
+    showToast('Pasaje guardado ✓');
+  }
+
   /* ─────────────────────────────────────────────── INIT ── */
   (function init() {
     try { studies = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { studies = []; }
@@ -1106,6 +1418,10 @@
     studies = studies.map(s => ({
       fav: false, template: 'libre', series: '', xrefs: [], soap: {}, ...s,
       tags: s.tags || [],
+      // Migrar xrefs antiguos (strings) al nuevo formato
+      xrefs: (s.xrefs || []).map(x =>
+        typeof x === 'string' ? { ref: x, translation: 'NVI', text: '' } : x
+      )
     }));
 
     if (studies.length === 0) {
@@ -1114,7 +1430,11 @@
           id: 1, fav: false, template: 'libre', series: '',
           title: 'La fe como grano de mostaza',
           reference: 'Mateo 17:20', book: 'Mateo', date: '2026-04-28',
-          tags: ['fe', 'parábolas'], xrefs: ['Lucas 17:6', 'Hebreos 11:1'],
+          tags: ['fe', 'parábolas'],
+          xrefs: [
+            { ref: 'Lucas 17:6', translation: 'NVI', text: '—Si tuvieran fe tan pequeña como una semilla de mostaza —respondió el Señor—, podrían decirle a esta morera: "Desarráigate y plántate en el mar", y les obedecería.' },
+            { ref: 'Hebreos 11:1', translation: 'NVI', text: 'Ahora bien, la fe es la garantía de lo que se espera, la certeza de lo que no se ve.' }
+          ],
           verse: '"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
           notes: '## Reflexión\n\nLa fe no se mide en cantidad sino en **calidad**. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada. La imagen del grano de mostaza me recuerda que algo pequeño pero real puede transformar montañas.\n\n## Aplicación\n\n¿En qué áreas de mi vida necesito ejercitar más esta fe activa?\n\n- Trabajo\n- Relaciones\n- Decisiones difíciles',
           soap: {}
@@ -1123,7 +1443,11 @@
           id: 2, fav: true, template: 'soap', series: 'Evangelio de Juan',
           title: 'El amor de Dios en Juan 3',
           reference: 'Juan 3:16', book: 'Juan', date: '2026-05-01',
-          tags: ['amor', 'salvación'], xrefs: ['1 Juan 4:9', 'Romanos 5:8'],
+          tags: ['amor', 'salvación'],
+          xrefs: [
+            { ref: '1 Juan 4:9', translation: 'NVI', text: 'Así manifestó Dios su amor entre nosotros: en que envió a su Hijo unigénito al mundo para que vivamos por medio de él.' },
+            { ref: 'Romanos 5:8', translation: 'NVI', text: 'Pero Dios demuestra su amor por nosotros en esto: en que cuando todavía éramos pecadores, Cristo murió por nosotros.' }
+          ],
           verse: '"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna."',
           notes: '',
           soap: {
@@ -1393,7 +1717,6 @@
 
   /* ─────────────────────────────────────────────── WELCOME ── */
   function renderWelcome() {
-    // Pick a verse based on day-of-year
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
@@ -1507,10 +1830,13 @@
             <button class="hl-btn green" onclick="highlight('hl-green')" title="Resaltar verde"></button>
             <button class="hl-btn clear" onclick="highlight(null)" title="Quitar resaltado"></button>
             <span class="vt-divider"></span>
-            <button class="vt-mini-btn" onclick="addXref()">+ Referencia cruzada</button>
           </div>
-          <div class="xref-row" id="xref-row">
-            ${(s.xrefs || []).map(x => `<span class="xref-chip" onclick="findStudyByRef('${esc(x)}')">${esc(x)}<span class="x-del" onclick="event.stopPropagation();removeXref('${esc(x)}')">×</span></span>`).join('')}
+          <div class="passages-section" id="passages-section">
+            ${renderPassageCards(s)}
+            ${(state_editingPassage === null) ? `
+              <button class="add-passage-btn" onclick="startAddPassage()">+ Agregar pasaje complementario</button>
+            ` : ''}
+            <div id="passage-form-container"></div>
           </div>
         </div>
 
@@ -1659,6 +1985,7 @@
 
   function changeTemplate() {
     saveCurrentStudy();
+    state_editingPassage = null; // Resetear edición inline de pasajes
     const sel = document.getElementById('ed-template');
     const s = studies.find(x => x.id === currentId);
     if (!s) return;
@@ -1752,37 +2079,10 @@
   }
 
   /* ── Cross refs ── */
-  function addXref() {
-    const ref = prompt('Referencia cruzada (ej: Romanos 8:28):');
-    if (!ref || !ref.trim()) return;
-    const s = studies.find(x => x.id === currentId);
-    if (!s) return;
-    saveCurrentStudy();
-    s.xrefs = s.xrefs || [];
-    if (!s.xrefs.includes(ref.trim())) s.xrefs.push(ref.trim());
-    saveStudies();
-    renderEditor(s);
-  }
-  function removeXref(ref) {
-    const s = studies.find(x => x.id === currentId);
-    if (!s) return;
-    saveCurrentStudy();
-    s.xrefs = (s.xrefs || []).filter(x => x !== ref);
-    saveStudies();
-    renderEditor(s);
-  }
   function findStudyByRef(ref) {
     const found = studies.find(s => s.reference === ref);
-    if (found) openStudy(found.id);
-    else if (confirm(`No existe estudio con referencia "${ref}". ¿Crear uno?`)) {
-      const id = Date.now();
-      studies.unshift({
-        id, fav: false, template: 'libre', series: '', title: 'Estudio sobre ' + ref,
-        reference: ref, book: ref.split(/\s\d/)[0], date: today(),
-        tags: [], xrefs: [], verse: '', notes: '', soap: {}
-      });
-      saveStudies(); recordHabit(); openStudy(id);
-    }
+    if (found) { openStudy(found.id); }
+    else { showToast('No hay estudio con esa referencia'); }
   }
 
   /* ── Read mode ── */
@@ -1840,8 +2140,21 @@
             <div class="verse-read">${s.verse || ''}</div>
           </div>` : ''}
         ${(s.xrefs||[]).length ? `
-          <div class="xref-row">
-            ${s.xrefs.map(x => `<span class="xref-chip" onclick="findStudyByRef('${esc(x)}')">${esc(x)}</span>`).join('')}
+          <div class="passages-section">
+            ${s.xrefs.map(x => {
+              const hasStudy = studies.find(st => st.id !== s.id && st.reference === x.ref);
+              return `
+                <div class="passage-read-card">
+                  <div class="passage-read-header">
+                    <span style="font-weight:600;">${esc(x.ref)}</span>
+                    <span style="font-size:9px;color:var(--text3);background:var(--bg3);padding:1px 6px;border-radius:3px;">${esc(x.translation || 'NVI')}</span>
+                  </div>
+                  <div class="passage-read-body">
+                    ${x.text ? `"${esc(x.text)}"` : '<span style="color:var(--text3);font-style:italic;">Sin texto</span>'}
+                    ${hasStudy ? `<div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--purple2);cursor:pointer;text-decoration:underline;font-style:normal;" onclick="openStudy(${hasStudy.id})">→ Ir al estudio "${esc(hasStudy.title)}"</div>` : ''}
+                  </div>
+                </div>`;
+            }).join('')}
           </div>` : ''}
         ${templateBody}
         ${s.notes ? `
@@ -1922,6 +2235,7 @@
     if (!s) return;
     const data = getCurrentData();
     if (data) Object.assign(s, data);
+    // Preservar xrefs que no vienen del form
     saveStudies();
     if (!isAutosave) recordHabit();
     renderSidebar();
@@ -2151,7 +2465,6 @@
     const completedCount = Object.keys(plan.completed || {}).length;
     const pct = Math.round((completedCount / days.length) * 100);
     const todayKey = today();
-    // Find today's expected day (next undone)
     let todayDay = -1;
     for (let i = 0; i < days.length; i++) {
       if (!plan.completed?.[i]) { todayDay = i; break; }
@@ -2311,7 +2624,7 @@
   function renderCalModal() {
     const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const first = new Date(calYear, calMonth, 1);
-    const startDow = (first.getDay() + 6) % 7; // Mon-first
+    const startDow = (first.getDay() + 6) % 7;
     const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
     const todayKey = today();
 
@@ -2476,7 +2789,6 @@
   /* ─────────────────────────────────────────────── SHORTCUTS ── */
   function bindShortcuts() {
     document.addEventListener('keydown', (e) => {
-      // Esc
       if (e.key === 'Escape') {
         if (document.getElementById('modal').classList.contains('open')) {
           closeModal();
@@ -2484,7 +2796,6 @@
           return;
         }
       }
-      // ? help
       if (e.key === '?' && !['INPUT','TEXTAREA'].includes(e.target.tagName) && !e.target.isContentEditable) {
         openModal('shortcuts'); e.preventDefault(); return;
       }
@@ -2504,7 +2815,6 @@
     });
   }
 
-  // Periodic autosave fallback
   setInterval(() => {
     if (currentId && !readMode && settings.autosave) saveCurrentStudy(false, true);
   }, 30000);
@@ -2550,7 +2860,6 @@
       }
       deferredInstallPrompt = null;
     } else if (isIOS()) {
-      // iOS doesn't support beforeinstallprompt — show instructions instead
       alert('Para instalar en iPhone:\n\n1. Tocá el botón Compartir (□↑) en Safari\n2. Elegí "Agregar a pantalla de inicio"\n3. Tocá "Agregar"\n\n¡Listo! La app aparece como ícono.');
     }
   }
@@ -2560,7 +2869,6 @@
     localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
   }
 
-  // iOS install hint (since iOS Safari doesn't fire beforeinstallprompt)
   if (isIOS() && !isStandalone() && !localStorage.getItem(INSTALL_DISMISSED_KEY)) {
     setTimeout(() => {
       document.getElementById('ib-sub').textContent = 'Compartir → Agregar a pantalla de inicio';
