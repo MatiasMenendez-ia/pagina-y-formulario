@@ -602,6 +602,43 @@
   .gs-result-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px}
   .gs-result-snippet{font-size:13px;color:var(--text2);font-style:italic;margin-top:4px;line-height:1.5}
   .gs-result-snippet mark{background:rgba(127,127,221,.3);padding:0 2px;border-radius:2px}
+
+  /* === ADDS === */
+  body.focus-mode .topbar,body.focus-mode .sidebar,body.focus-mode .toolbar,body.focus-mode .editor-meta,body.focus-mode .read-toolbar{display:none!important}
+  body.focus-mode .main{height:100dvh!important}
+  body.focus-mode .editor-body{max-width:760px;margin:0 auto;padding:40px 28px}
+  .focus-exit{position:fixed;top:14px;right:14px;z-index:200;background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;display:none}
+  body.focus-mode .focus-exit{display:block}
+  .tts-btn{background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);cursor:pointer;margin-left:6px}
+  .tts-btn:hover{background:var(--bg3);border-color:var(--purple4)}
+  .tts-btn.playing{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .goal-bar{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding:6px;background:var(--bg2);border-radius:6px;margin-bottom:8px}
+  .goal-bar .gb-track{flex:1;height:4px;background:var(--border2);border-radius:4px;overflow:hidden}
+  .goal-bar .gb-fill{height:100%;background:linear-gradient(90deg,var(--purple4),var(--purple));border-radius:4px;transition:width .4s}
+  .week-summary{background:var(--bg2);border:.5px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+  .week-summary .ws-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--purple);margin-bottom:6px;text-transform:uppercase}
+  .week-summary .ws-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text2)}
+  .week-summary .ws-grid b{color:var(--purple)}
+  .victory-chart{display:flex;align-items:flex-end;gap:3px;height:40px;margin:8px 0;padding:0 2px}
+  .victory-chart .vc-bar{flex:1;background:var(--gold);border-radius:2px 2px 0 0;min-height:2px;transition:height .3s;position:relative}
+  .victory-chart .vc-bar:hover::after{content:attr(data-v);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-dark);background:var(--bg);padding:1px 4px;border-radius:3px;border:.5px solid var(--gold);white-space:nowrap}
+  .memo-card{background:var(--input-bg);border:.5px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:8px}
+  .memo-card .mc-ref{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);margin-bottom:6px}
+  .memo-card .mc-text{font-style:italic;color:var(--text);line-height:1.6;font-size:15px;margin-bottom:8px}
+  .memo-card .mc-cloze{background:var(--purple);color:var(--purple);border-radius:3px;padding:0 4px;cursor:pointer;user-select:none}
+  .memo-card .mc-cloze.shown{background:transparent;color:var(--purple);font-weight:600}
+  .memo-card .mc-meta{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:6px}
+  .memo-card .mc-actions{display:flex;gap:4px}
+  .memo-card .mc-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;border:.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer}
+  .memo-card .mc-actions button.again{color:var(--danger);border-color:var(--danger)}
+  .memo-card .mc-actions button.good{color:var(--green);border-color:var(--green)}
+  .memo-card .mc-actions button:hover{background:var(--bg3)}
+  .prayer-cat[data-cat="familia"]{background:rgba(232,184,74,.18);border-color:var(--gold);color:var(--gold-dark)}
+  .prayer-cat[data-cat="iglesia"]{background:rgba(127,119,221,.18);border-color:var(--purple4);color:var(--purple)}
+  .prayer-cat[data-cat="salud"]{background:rgba(216,128,159,.18);border-color:#D8809F;color:#9B4A66}
+  .prayer-cat[data-cat="trabajo"]{background:rgba(127,177,127,.18);border-color:var(--green);color:var(--green)}
+  body.dark .prayer-cat[data-cat="salud"]{color:#F5B5C9}
+  body.dark .prayer-cat[data-cat="trabajo"]{color:#A8D5A8}
 </style>
 </head>
 <body>
@@ -745,7 +782,8 @@
 /* ─── KEYS ─── */
 const K = { studies:'diario_v6', plan:'diario_plan_v6', prayer:'diario_prayer_v6',
   habit:'diario_habit_v6', settings:'diario_settings_v6', fortaleza:'diario_fortaleza_v6',
-  reminders:'diario_reminders_v6', dismissed:'diario_install_dismissed' };
+  reminders:'diario_reminders_v6', dismissed:'diario_install_dismissed',
+  memo:'diario_memo_v6', backup:'diario_backup_v6' };
 
 /* ─── COMPACT STORAGE ─── */
 const save = (k,v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
@@ -756,13 +794,14 @@ let studies = load(K.studies, []);
 let plan = load(K.plan, null);
 let prayers = load(K.prayer, []);
 let habit = load(K.habit, {});
-let settings = { fontScale:1, theme:'light', autosave:true, ...load(K.settings,{}) };
-let fortaleza = { count:0, log:[], ...load(K.fortaleza,{}) };
+let settings = { fontScale:1, theme:'light', autosave:true, dailyGoal:100, customTemplate:null, autoBackupDays:7, ...load(K.settings,{}) };
+let fortaleza = { count:0, log:[], emergencyContact:'', ...load(K.fortaleza,{}) };
+let memoCards = load(K.memo, []);
 let reminders = { active:true, items:[], times:['09:00','13:00','19:00'], ...load(K.reminders,{}) };
 
 let currentId=null, activeTag=null, activeSeries=null, activeBook=null;
 let favFilter='all', readMode=false, dirty=false;
-let saveTimer=null, reminderTimers=[];
+let saveTimer=null, reminderTimers=[], focusMode=false;
 let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
 let editingPassage=null, toolsOpen=false, toolsTab='hebrew';
 let fortalezaTimer=null, fortalezaSeconds=120;
@@ -779,7 +818,8 @@ const TEMPLATES = {
   soap: { name:'SOAP' },
   inductivo: { name:'Inductivo' },
   devocional: { name:'Devocional' },
-  exegetico: { name:'Exegético' }
+  exegetico: { name:'Exegético' },
+  custom: { name:'Personalizada' }
 };
 
 /* Compacted templates: [key, letter, name] */
@@ -787,7 +827,8 @@ const TEMPLATE_FIELDS = {
   soap: [['s','S','Escritura'],['o','O','Observación'],['a','A','Aplicación'],['p','P','Oración']],
   inductivo: [['s','1','¿Qué dice?'],['o','2','¿Qué significa?'],['a','3','¿Cómo aplico?']],
   devocional: [['s','✿','Reflexión'],['a','→','Aplicación'],['p','🙏','Oración']],
-  exegetico: [['s','①','Contexto histórico'],['o','②','Análisis del texto'],['a','③','Significado original'],['p','④','Aplicación contemporánea']]
+  exegetico: [['s','①','Contexto histórico'],['o','②','Análisis del texto'],['a','③','Significado original'],['p','④','Aplicación contemporánea']],
+  get custom(){ const c=settings.customTemplate; if(!c||!c.length) return [['s','✎','Notas']]; return c.map((n,i)=>[['s','o','a','p'][i]||'s', String(i+1), n]); }
 };
 const TEMPLATE_PLACEHOLDERS = {
   s:'Escribí el pasaje...', o:'¿Qué observás?', a:'¿Cómo aplico?', p:'Tu oración...'
@@ -966,7 +1007,8 @@ function init() {
   // Topbar buttons
   $('topbar-right').innerHTML = TOPBAR_BTNS.map(([m,i,t]) =>
     `<button class="btn-dark" onclick="openModal('${m}')" title="${t}">${i}</button>`).join('') +
-    `<button class="btn-icon-accent btn-bell" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">🔔</button>
+    `<button class="btn-dark" onclick="openModal('memoria')" title="Memorizar (Ctrl+M)">🧠</button>
+     <button class="btn-icon-accent btn-bell" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">🔔</button>
      <button class="btn-icon-accent btn-shield" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">🛡️<span class="badge-count" id="shield-count" style="display:none">0</span></button>
      <button class="btn-dark" onclick="openModal('settings')" title="Ajustes">⚙</button>
      <button class="btn-dark" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
@@ -988,6 +1030,7 @@ function init() {
   bindShortcuts();
   scheduleAllReminders();
   registerSW();
+  if (typeof checkAutoBackup === 'function') checkAutoBackup();
 }
 
 function refreshSeriesDatalist() {
@@ -1159,7 +1202,29 @@ function renderHeatmap() {
 }
 function renderStats() {
   const totalWords = studies.reduce((a,s) => a+totalLength(s), 0);
+  // Daily goal
+  const todayStudies = studies.filter(s => s.date === today());
+  const todayWords = todayStudies.reduce((a,s) => a+totalLength(s), 0);
+  const goal = settings.dailyGoal||0;
+  const goalPct = goal ? Math.min(100, Math.round(todayWords/goal*100)) : 0;
+  // Weekly summary
+  const weekStart = new Date(); weekStart.setDate(weekStart.getDate()-6);
+  const weekKey = weekStart.toISOString().split('T')[0];
+  const wkStudies = studies.filter(s => s.date >= weekKey);
+  const wkWords = wkStudies.reduce((a,s) => a+totalLength(s), 0);
+  const wkDays = new Set(wkStudies.map(s => s.date)).size;
+  const wkRefs = [...new Set(wkStudies.map(s => s.book).filter(Boolean))];
   $('stats').innerHTML = `
+    ${goal ? `<div class="goal-bar" title="${todayWords}/${goal} palabras hoy"><span>META HOY</span><div class="gb-track"><div class="gb-fill" style="width:${goalPct}%"></div></div><span><b style="color:var(--purple)">${todayWords}</b>/${goal}</span></div>`:''}
+    <div class="week-summary">
+      <div class="ws-title">Últimos 7 días</div>
+      <div class="ws-grid">
+        <span>Estudios: <b>${wkStudies.length}</b></span>
+        <span>Días activos: <b>${wkDays}/7</b></span>
+        <span>Palabras: <b>${wkWords.toLocaleString('es')}</b></span>
+        <span>Libros: <b>${wkRefs.length}</b></span>
+      </div>
+    </div>
     <div class="stat-row"><span>Estudios</span><span class="stat-val">${studies.length}</span></div>
     <div class="stat-row"><span>Favoritos</span><span class="stat-val">${studies.filter(s=>s.fav).length}</span></div>
     <div class="stat-row"><span>Series</span><span class="stat-val">${allSeries().length}</span></div>
@@ -1168,6 +1233,7 @@ function renderStats() {
     <div class="stat-row"><span>Prom/estudio</span><span class="stat-val">${studies.length?Math.round(totalWords/studies.length):0}</span></div>
     <div class="stat-row"><span>Días activos</span><span class="stat-val">${Object.keys(habit).length}</span></div>
     <div class="stat-row"><span>Racha</span><span class="stat-val">${calcStreak()}</span></div>
+    <div class="stat-row"><span>Memorizando</span><span class="stat-val">${memoCards.length}</span></div>
   `;
 }
 
@@ -1187,6 +1253,8 @@ function renderWelcome() {
     <div class="votd-actions">
       <button onclick='studyVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>✦ Estudiar</button>
       <button onclick='copyVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>⧉ Copiar</button>
+      <button onclick='speakText(${JSON.stringify(v.text)})'>🔊 Escuchar</button>
+      <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>🧠 Memorizar</button>
     </div>`;
 }
 function studyVerse(ref, text) {
@@ -1263,6 +1331,8 @@ function renderEditor(s) {
           <button class="hl-btn pink" onclick="highlight('hl-pink')" title="Rosa"></button>
           <button class="hl-btn green" onclick="highlight('hl-green')" title="Verde"></button>
           <button class="hl-btn clear" onclick="highlight(null)" title="Quitar"></button>
+          <button class="tts-btn" id="tts-btn" onclick="speakVerseEditor()">🔊 Escuchar</button>
+          <button class="tts-btn" onclick="addCurrentToMemo()">🧠 Memorizar</button>
         </div>
         <div class="passages-section" id="passages-section">
           ${renderPassageCards(s)}
@@ -1295,6 +1365,8 @@ function renderEditor(s) {
       </div>
       <div class="toolbar-right">
         <button class="btn-sm" onclick="enterReadMode()">👁 Leer</button>
+        <button class="btn-sm" onclick="toggleFocusMode()">⛶ Enfoque</button>
+        <button class="btn-sm" onclick="shareAsImage()">📤 Imagen</button>
         <button class="btn-sm" onclick="window.print()">⎙ PDF</button>
         <button class="btn-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
         <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})">Eliminar</button>
@@ -1668,27 +1740,36 @@ const MODALS = {
       </div>`;
   },
 
-  prayer: () => modalHead('🙏 Oraciones') + `
+  prayer: () => {
+    const ans = prayers.filter(p=>p.status==='answered'&&p.dateAnswered);
+    const avg = ans.length ? Math.round(ans.reduce((a,p)=>a+((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000),0)/ans.length) : 0;
+    const old = prayers.filter(p=>p.status==='active'&&((Date.now()-new Date(p.dateAdded).getTime())/86400000)>14);
+    return modalHead('🙏 Oraciones') + `
     <div class="modal-body">
+      ${ans.length?`<div class="week-summary"><div class="ws-title">Resumen</div><div class="ws-grid"><span>Activas: <b>${prayers.filter(p=>p.status==='active').length}</b></span><span>Respondidas: <b>${ans.length}</b></span><span>Tiempo prom: <b>${avg}d</b></span><span>Ratio: <b>${Math.round(ans.length/prayers.length*100)}%</b></span></div></div>`:''}
+      ${old.length?`<div style="background:var(--gold-bg);border:.5px solid var(--gold);padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:12px;color:var(--gold-dark)">⏳ Tenés ${old.length} petición${old.length>1?'es':''} sin revisar hace más de 2 semanas.</div>`:''}
       <div class="prayer-add">
         <input type="text" id="prayer-input" placeholder="Nueva petición..." onkeydown="if(event.key==='Enter')addPrayer()" />
         <button class="btn-save" onclick="addPrayer()">+</button>
       </div>
       <div style="margin-top:12px">
-        ${prayers.length ? prayers.map(p=>`
+        ${prayers.length ? prayers.map(p=>{
+          const days = p.status==='answered'&&p.dateAnswered ? Math.round((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000) : Math.round((Date.now()-new Date(p.dateAdded).getTime())/86400000);
+          return `
           <div class="prayer-item ${p.status==='answered'?'answered':''}">
             <div class="prayer-row1">
               <button class="prayer-status-btn" onclick="togglePrayer(${p.id})">${p.status==='answered'?'✓':''}</button>
               <textarea class="prayer-text" oninput="updatePrayer(${p.id}, this.value)">${esc(p.text)}</textarea>
             </div>
             <div class="prayer-meta">
-              <span class="prayer-cat" onclick="cyclePrayerCat(${p.id})">${esc(p.cat)}</span>
-              <span><span style="margin-right:8px">${p.dateAdded}</span><span class="prayer-del" onclick="deletePrayer(${p.id})">✕ eliminar</span></span>
+              <span class="prayer-cat" data-cat="${esc(p.cat)}" onclick="cyclePrayerCat(${p.id})">${esc(p.cat)}</span>
+              <span><span style="margin-right:8px">${p.status==='answered'?`respondida en ${days}d`:`hace ${days}d`}</span><span class="prayer-del" onclick="deletePrayer(${p.id})">✕</span></span>
             </div>
-          </div>`).join('')
+          </div>`;}).join('')
         : '<div style="color:var(--text3);font-style:italic;padding:8px">Sin peticiones aún.</div>'}
       </div>
-    </div>`,
+    </div>`;
+  },
 
   cal: () => {
     const d = new Date(calYear, calMonth, 1);
@@ -1750,11 +1831,16 @@ const MODALS = {
 
   fortaleza: () => {
     const v = FORTALEZA_VERSES[Math.floor(Math.random()*FORTALEZA_VERSES.length)];
+    // Build last 14 days victory chart
+    const days = []; const counts = [];
+    for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=d.toISOString().split('T')[0]; days.push(k.slice(5)); counts.push(fortaleza.log.filter(x=>x.date===k).length); }
+    const maxC = Math.max(1, ...counts);
     return modalHead('🛡️ Modo Fortaleza') + `
       <div class="modal-body">
         <div class="fortaleza-hero">
           <div class="ft-verse">"${esc(v.text)}"</div>
           <div class="ft-ref">— ${esc(v.ref)}</div>
+          <button class="tts-btn" onclick='speakText(${JSON.stringify(v.text)})' style="margin-top:8px;background:#fff;border-color:var(--gold);color:var(--gold-dark)">🔊 Escuchar</button>
         </div>
         <div class="fortaleza-actions">
           <button class="ft-btn primary" onclick="activateFortalezaTimer()">⏱️ Resistir 2 minutos</button>
@@ -1763,10 +1849,13 @@ const MODALS = {
           <textarea class="ft-textarea" id="ft-textarea" style="display:none" placeholder="Descargá lo que sentís..."></textarea>
           <button class="ft-btn" onclick="document.getElementById('ft-prayer').style.display='block';this.style.display='none'">🙏 Oración de guerra espiritual</button>
           <div id="ft-prayer" style="display:none;margin-top:8px;padding:12px;background:var(--bg2);border-radius:8px;font-style:italic;color:var(--text2);line-height:1.7;border-left:3px solid var(--gold)">${FORTALEZA_ORACION}</div>
+          ${fortaleza.emergencyContact ? `<a class="ft-btn" href="tel:${esc(fortaleza.emergencyContact)}" style="text-decoration:none">📞 Llamar contacto de emergencia</a>` : `<button class="ft-btn" onclick="setEmergencyContact()">📞 Configurar contacto de emergencia</button>`}
           <div class="section-label" style="margin-top:12px">💡 Bloqueos rápidos</div>
           <div class="ft-block-suggestions">
             ${FORTALEZA_BLOQUEOS.map(b=>`<span class="ft-block-chip" onclick="showToast('${esc(b.action).replace(/'/g,"\\'")}')">${esc(b.text)}</span>`).join('')}
           </div>
+          ${fortaleza.count>0?`<div class="section-label" style="margin-top:14px">📊 Victorias úiltimos 14 días</div>
+          <div class="victory-chart">${counts.map((c,i)=>`<div class="vc-bar" style="height:${(c/maxC)*100}%" data-v="${days[i]}: ${c}"></div>`).join('')}</div>`:''}
         </div>
         <div class="ft-counter">🛡️ Has usado el escudo <strong>${fortaleza.count}</strong> ${fortaleza.count===1?'vez':'veces'}</div>
       </div>
@@ -1795,16 +1884,56 @@ const MODALS = {
           <span>Autosave</span>
           <input type="checkbox" ${settings.autosave?'checked':''} onchange="settings.autosave=this.checked;save(K.settings,settings)" />
         </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <span>Meta diaria (palabras)</span>
+          <input type="number" min="0" max="2000" step="25" value="${settings.dailyGoal}" class="meta-input" style="width:90px" oninput="settings.dailyGoal=parseInt(this.value)||0;save(K.settings,settings)" />
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <span>Backup auto cada</span>
+          <select class="meta-input" onchange="settings.autoBackupDays=parseInt(this.value);save(K.settings,settings)">
+            <option value="0" ${settings.autoBackupDays===0?'selected':''}>Nunca</option>
+            <option value="3" ${settings.autoBackupDays===3?'selected':''}>3 días</option>
+            <option value="7" ${settings.autoBackupDays===7?'selected':''}>7 días</option>
+            <option value="30" ${settings.autoBackupDays===30?'selected':''}>30 días</option>
+          </select>
+        </label>
+        <div>
+          <div class="section-label">✎ Plantilla personalizada</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Hasta 4 nombres separados por coma. Ej: "Texto,Pregunta,Aplico,Oración"</div>
+          <input class="meta-input" style="width:100%" placeholder="Texto,Pregunta,Aplico,Oración" value="${(settings.customTemplate||[]).join(',')}" onchange="settings.customTemplate=this.value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,4);save(K.settings,settings);showToast('Plantilla guardada')" />
+        </div>
+        <div>
+          <div class="section-label">📞 Contacto de emergencia (Fortaleza)</div>
+          <input class="meta-input" style="width:100%" type="tel" placeholder="+54 11 1234 5678" value="${esc(fortaleza.emergencyContact||'')}" onchange="fortaleza.emergencyContact=this.value.trim();save(K.fortaleza,fortaleza);showToast('Contacto guardado')" />
+        </div>
         <hr style="border:none;border-top:.5px solid var(--border)" />
         <button class="btn-sm" onclick="openModal('shortcuts')">⌨ Atajos de teclado</button>
+        <button class="btn-sm" onclick="exportJSON();markBackup()">↓ Backup ahora</button>
         <button class="btn-sm btn-danger" onclick="if(confirm('¿Borrar TODOS los datos? No se puede deshacer.')){localStorage.clear();location.reload()}">🗑 Borrar todo</button>
       </div>
     </div>`,
+
+  memoria: () => {
+    const due = memoCards.filter(c => !c.next || c.next <= today());
+    const total = memoCards.length;
+    return modalHead('🧠 Memorización') + `
+    <div class="modal-body">
+      <div class="week-summary"><div class="ws-title">Repetición espaciada</div><div class="ws-grid"><span>Total: <b>${total}</b></span><span>Para hoy: <b>${due.length}</b></span><span>Aprendidas: <b>${memoCards.filter(c=>(c.streak||0)>=4).length}</b></span><span>Nuevas: <b>${memoCards.filter(c=>!(c.streak)).length}</b></span></div></div>
+      ${due.length ? due.map((c,i)=>renderMemoCard(c,i)).join('') : (total?'<div style="text-align:center;padding:20px;color:var(--green)">✨ ¡Por hoy listo! Volvé mañana.</div>':'<div style="color:var(--text3);font-style:italic;padding:10px">Sin versiculos. Agregá desde el versiculo del día o desde un estudio.</div>')}
+      <div style="margin-top:14px;padding:10px;background:var(--bg2);border-radius:8px">
+        <div class="section-label">+ Agregar manualmente</div>
+        <input id="memo-ref" class="meta-input" placeholder="Referencia (ej: Juan 3:16)" style="width:100%;margin-bottom:6px" />
+        <textarea id="memo-text" class="meta-input" placeholder="Texto del versículo" style="width:100%;min-height:60px;font-family:'Crimson Pro',serif"></textarea>
+        <button class="btn-save" onclick="addMemoManual()" style="margin-top:6px">+ Agregar</button>
+      </div>
+    </div>`;
+  },
 
   shortcuts: () => modalHead('⌨ Atajos') + `
     <div class="modal-body">
       <div class="kbd-list">
         ${[['Nuevo estudio','Ctrl+N'],['Buscar global','Ctrl+K'],['Modo Fortaleza','Ctrl+E'],['Recordatorios','Ctrl+R'],
+           ['Memorización','Ctrl+M'],['Modo enfoque','Ctrl+.'],
            ['Guardar','Ctrl+S'],['Modo lectura','Ctrl+/'],['Cerrar modal','Esc'],['Cambiar tema','Ctrl+Shift+T']]
           .map(([l,k])=>`<div class="kbd-row"><span class="kbd-label">${l}</span><span class="kbd-keys">${k.split('+').map(x=>`<span class="kbd">${x}</span>`).join('')}</span></div>`).join('')}
       </div>
@@ -2105,13 +2234,192 @@ function bindShortcuts() {
     else if (k === 's') { e.preventDefault(); saveCurrentStudy(true); }
     else if (k === '/') { e.preventDefault(); if (currentId) readMode?exitReadMode():enterReadMode(); }
     else if (e.shiftKey && k === 't') { e.preventDefault(); cycleTheme(); }
+    else if (k === 'm') { e.preventDefault(); openModal('memoria'); }
+    else if (k === '.') { e.preventDefault(); toggleFocusMode(); }
   });
   // Save before unload
   window.addEventListener('beforeunload', () => { if (currentId && !readMode && dirty) saveCurrentStudy(); });
 }
 
+/* ─── TTS ─── */
+let ttsUtter = null;
+function speakText(text) {
+  if (!('speechSynthesis' in window)) { showToast('TTS no disponible'); return; }
+  if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'es-ES'; u.rate = .95;
+  const voices = speechSynthesis.getVoices();
+  const sp = voices.find(v => v.lang.startsWith('es'));
+  if (sp) u.voice = sp;
+  ttsUtter = u;
+  speechSynthesis.speak(u);
+}
+function speakVerseEditor() {
+  const v = $('ed-verse'); if (!v) return;
+  const txt = v.innerText.trim().replace(/\n+/g,' ');
+  if (!txt) { showToast('Sin versículo'); return; }
+  const btn = $('tts-btn');
+  if (speechSynthesis.speaking) { speechSynthesis.cancel(); btn?.classList.remove('playing'); return; }
+  btn?.classList.add('playing');
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = 'es-ES'; u.rate = .95;
+  u.onend = () => btn?.classList.remove('playing');
+  speechSynthesis.speak(u);
+}
+
+/* ─── FOCUS MODE ─── */
+function toggleFocusMode() {
+  if (!currentId) { showToast('Abrí un estudio primero'); return; }
+  focusMode = !focusMode;
+  document.body.classList.toggle('focus-mode', focusMode);
+  showToast(focusMode ? 'Modo enfoque • Esc o Ctrl+. para salir' : 'Modo normal');
+}
+
+/* ─── MEMORIZACIÓN (SM-2 simplificado) ─── */
+function renderMemoCard(c, i) {
+  const words = c.text.split(/\s+/);
+  // Cloze: hide ~30% of words at random positions (deterministic by id)
+  const seed = c.id % 1000;
+  const hideIdx = new Set();
+  const need = Math.max(1, Math.floor(words.length * .3));
+  for (let j = 0; j < need; j++) hideIdx.add((seed * (j+1) * 7) % words.length);
+  const html = words.map((w,j) => hideIdx.has(j) ? `<span class="mc-cloze" onclick="this.classList.toggle('shown')">${esc(w)}</span>` : esc(w)).join(' ');
+  const streak = c.streak||0;
+  return `<div class="memo-card">
+    <div class="mc-ref">${esc(c.ref)}</div>
+    <div class="mc-text">${html}</div>
+    <div class="mc-meta">
+      <span>Racha: ${streak} • ${streak>=4?'🎯 Aprendido':streak>=2?'✨ Familiar':'🌱 Nuevo'}</span>
+      <div class="mc-actions">
+        <button onclick='speakText(${JSON.stringify(c.text)})'>🔊</button>
+        <button class="again" onclick="rateMemo(${c.id},0)">Otra vez</button>
+        <button onclick="rateMemo(${c.id},1)">Bien</button>
+        <button class="good" onclick="rateMemo(${c.id},2)">Fácil</button>
+        <button onclick="deleteMemo(${c.id})">✕</button>
+      </div>
+    </div></div>`;
+}
+function rateMemo(id, q) {
+  const c = memoCards.find(x => x.id===id); if (!c) return;
+  c.streak = q===0 ? 0 : (c.streak||0) + 1;
+  const intervals = [1,2,4,7,14,30,60,120];
+  const idx = q===0 ? 0 : Math.min(c.streak, intervals.length-1);
+  let days = intervals[idx];
+  if (q===2) days = Math.round(days * 1.5);
+  const next = new Date(); next.setDate(next.getDate()+days);
+  c.next = next.toISOString().split('T')[0];
+  c.lastReview = today();
+  save(K.memo, memoCards);
+  openModal('memoria');
+}
+function deleteMemo(id) {
+  memoCards = memoCards.filter(c => c.id!==id);
+  save(K.memo, memoCards); openModal('memoria');
+}
+function addMemoFromVerse(ref, text) {
+  if (memoCards.some(c => c.ref===ref)) { showToast('Ya está en tu lista'); return; }
+  memoCards.unshift({ id:Date.now(), ref, text, streak:0, next:today(), added:today() });
+  save(K.memo, memoCards); showToast('🧠 Agregado a memorización');
+}
+function addCurrentToMemo() {
+  const v = $('ed-verse'); const refIn = $('ed-ref');
+  if (!v || !refIn) return;
+  const text = v.innerText.trim();
+  const ref = refIn.value.trim();
+  if (!text || !ref) { showToast('Falta versículo o referencia'); return; }
+  addMemoFromVerse(ref, text);
+}
+function addMemoManual() {
+  const ref = $('memo-ref')?.value.trim();
+  const text = $('memo-text')?.value.trim();
+  if (!ref || !text) { showToast('Faltan datos'); return; }
+  addMemoFromVerse(ref, text);
+  openModal('memoria');
+}
+
+/* ─── SHARE AS IMAGE ─── */
+async function shareAsImage() {
+  const s = studies.find(x => x.id===currentId); if (!s) return;
+  const W=1080, H=1350;
+  const c = document.createElement('canvas'); c.width=W; c.height=H;
+  const ctx = c.getContext('2d');
+  // Bg
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  const dark = settings.theme==='dark';
+  grad.addColorStop(0, dark?'#1C1930':'#FFFFFF');
+  grad.addColorStop(1, dark?'#12101E':'#EEEDFE');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  // Border accent
+  ctx.fillStyle = '#3C3489'; ctx.fillRect(80, 110, 6, 80);
+  // Reference
+  ctx.fillStyle = dark?'#AFA9EC':'#3C3489';
+  ctx.font = '600 32px "DM Mono", monospace';
+  ctx.fillText(s.reference || s.title, 110, 160);
+  // Verse
+  const verseText = (s.verse || '').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
+  if (verseText) {
+    ctx.fillStyle = dark?'#EAE9F8':'#1A1A2E';
+    ctx.font = 'italic 500 56px "Crimson Pro", serif';
+    wrapText(ctx, '“' + verseText + '”', 110, 270, W-220, 76);
+  }
+  // Reflection (P)
+  const p = s.soap?.p || s.soap?.s || s.notes || '';
+  if (p) {
+    const txt = p.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').slice(0,400);
+    ctx.fillStyle = dark?'#AFA9EC':'#555466';
+    ctx.font = '400 30px "Crimson Pro", serif';
+    wrapText(ctx, txt, 110, 720, W-220, 44);
+  }
+  // Footer
+  ctx.fillStyle = dark?'#6B65A8':'#999899';
+  ctx.font = '500 18px "DM Mono", monospace';
+  ctx.fillText('DIARIO BÍBLICO • ' + s.date, 110, H-80);
+  // Share or download
+  c.toBlob(async (blob) => {
+    const file = new File([blob], `estudio-${s.date}.png`, { type:'image/png' });
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      try { await navigator.share({files:[file], title:s.title}); return; } catch(e){}
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    showToast('Imagen descargada ✓');
+  }, 'image/png');
+}
+function wrapText(ctx, text, x, y, maxW, lh) {
+  const words = text.split(' '); let line = '';
+  for (const w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, y); line = w+' '; y += lh; }
+    else line = test;
+    if (y > 1250) break;
+  }
+  if (line) ctx.fillText(line, x, y);
+}
+
+/* ─── BACKUP AUTO ─── */
+function checkAutoBackup() {
+  if (!settings.autoBackupDays) return;
+  const last = parseInt(localStorage.getItem(K.backup)||'0');
+  const days = (Date.now() - last) / 86400000;
+  if (days >= settings.autoBackupDays) {
+    setTimeout(() => {
+      if (confirm(`Hace ${Math.floor(days)} días que no haces backup. ¿Hacer ahora?`)) { exportJSON(); markBackup(); }
+      else markBackup();
+    }, 2000);
+  }
+}
+function markBackup() { localStorage.setItem(K.backup, String(Date.now())); }
+
+/* ─── EMERGENCY CONTACT ─── */
+function setEmergencyContact() {
+  const v = prompt('Teléfono o número de emergencia (alguien de confianza):');
+  if (v && v.trim()) { fortaleza.emergencyContact = v.trim(); save(K.fortaleza, fortaleza); openModal('fortaleza'); }
+}
+
 /* ─── BOOT ─── */
 init();
 </script>
+<button class="focus-exit" onclick="toggleFocusMode()">⛶ Salir de Enfoque • Esc</button>
+<script>document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('focus-mode')){e.preventDefault();toggleFocusMode()}});</script>
 </body>
 </html>
