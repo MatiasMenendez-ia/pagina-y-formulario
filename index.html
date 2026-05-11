@@ -122,7 +122,8 @@
 
   .study-list{display:flex;flex-direction:column;gap:3px}
   .study-item{padding:8px 10px;border-radius:6px;cursor:pointer;border:.5px solid transparent;
-    transition:background .12s,border-color .12s;display:flex;align-items:flex-start;gap:6px}
+    transition:background .12s,border-color .12s;display:flex;align-items:flex-start;gap:6px;
+    -webkit-user-select:none;user-select:none}
   .study-item:hover{background:var(--bg2)}
   .study-item.active{background:var(--bg3);border-color:var(--purple4)}
   .si-body{flex:1;min-width:0}
@@ -137,6 +138,15 @@
     color:var(--text3);transition:transform .15s,color .15s;flex-shrink:0;margin-top:1px}
   .fav-btn:hover{transform:scale(1.2)}
   .fav-btn.active{color:var(--gold)}
+
+  /* Swipe-to-delete */
+  .study-item-wrap{position:relative;overflow:hidden;border-radius:6px;margin-bottom:3px}
+  .study-item-wrap .swipe-del{position:absolute;right:0;top:0;bottom:0;width:64px;
+    background:var(--danger);display:flex;align-items:center;justify-content:center;
+    font-size:18px;cursor:pointer;transform:translateX(100%);transition:transform .2s;border-radius:0 6px 6px 0}
+  .study-item-wrap.swiped .swipe-del{transform:translateX(0)}
+  .study-item-wrap.swiped .study-item{transform:translateX(-64px)}
+  .study-item{transition:background .12s,border-color .12s,transform .2s}
 
   .tag-grid{display:flex;flex-wrap:wrap;gap:5px;padding:0 2px}
   .tag{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;
@@ -158,7 +168,7 @@
 
   .heatmap-wrap{padding:0 4px}
   .heatmap{display:grid;grid-template-columns:repeat(26,1fr);gap:2px;margin-bottom:6px}
-  .heat-cell{aspect-ratio:1;border-radius:2px;background:var(--heat-0);cursor:pointer;transition:transform .1s}
+  .heat-cell{aspect-ratio:1;border-radius:2px;background:var(--heat-0);cursor:pointer;transition:transform .1s;min-height:10px}
   .heat-cell:hover{transform:scale(1.4);outline:1px solid var(--purple)}
   .heat-cell[data-level="1"]{background:var(--heat-1)}
   .heat-cell[data-level="2"]{background:var(--heat-2)}
@@ -225,7 +235,7 @@
   .verse-box{background:var(--verse-bg);border:.5px solid var(--purple4);border-left:3px solid var(--verse-b);
     border-radius:8px;padding:12px 16px;font-size:calc(16px * var(--reading));font-style:italic;
     color:var(--verse-t);line-height:1.7;min-height:64px;font-family:'Crimson Pro',serif;
-    outline:none;transition:all .25s}
+    outline:none;transition:all .25s;-webkit-user-modify:read-write-plaintext-only}
   .verse-box[contenteditable="true"]:focus{border-color:var(--purple2)}
   .verse-box:empty::before{content:attr(data-placeholder);color:var(--purple4);font-style:italic}
   .verse-box mark.hl-yellow{background:rgba(232,184,74,.45);padding:0 2px;border-radius:3px}
@@ -233,7 +243,7 @@
   .verse-box mark.hl-green{background:rgba(127,177,127,.45);padding:0 2px;border-radius:3px}
 
   .verse-toolbar{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap}
-  .hl-btn{width:22px;height:22px;border-radius:50%;border:.5px solid var(--border);cursor:pointer;transition:transform .1s}
+  .hl-btn{width:28px;height:28px;border-radius:50%;border:.5px solid var(--border);cursor:pointer;transition:transform .1s}
   .hl-btn:hover{transform:scale(1.15)}
   .hl-btn.yellow{background:rgba(232,184,74,.7)}
   .hl-btn.pink{background:rgba(216,128,159,.7)}
@@ -242,8 +252,9 @@
   .hl-btn.clear::after{content:'×';position:absolute;inset:0;display:flex;align-items:center;
     justify-content:center;font-size:13px;color:var(--text3)}
 
+  /* FIX: SOAP grid — breakpoint corregido a 800px para funcionar bien en mobile */
   .soap-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media (max-width:720px){.soap-grid{grid-template-columns:1fr !important}}
+  @media (max-width:800px){.soap-grid{grid-template-columns:1fr !important}}
   .soap-block{border:.5px solid var(--border);border-radius:8px;padding:12px 14px;
     background:var(--input-bg);display:flex;flex-direction:column}
   .soap-block .soap-letter{font-family:'DM Mono',monospace;font-weight:600;font-size:11px;
@@ -261,7 +272,7 @@
   .md-toolbar{display:flex;gap:4px;align-items:center}
   .md-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;
     border:.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;
-    transition:all .12s;min-width:26px}
+    transition:all .12s;min-width:26px;min-height:30px}
   .md-btn:hover{background:var(--bg3);color:var(--purple);border-color:var(--purple4)}
   .md-btn.italic{font-style:italic}
   .md-btn.bold{font-weight:800}
@@ -288,40 +299,46 @@
   .notes-read code{font-family:'DM Mono',monospace;font-size:.9em;background:var(--bg2);padding:1px 5px;border-radius:3px}
 
   .toolbar{display:flex;gap:6px;padding:10px 24px;border-top:.5px solid var(--border);background:var(--meta-bg);
-    align-items:center;flex-wrap:wrap;justify-content:space-between}
+    align-items:center;flex-wrap:wrap;justify-content:space-between;
+    position:sticky;bottom:0;z-index:5;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
   .tags-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .tag-del{cursor:pointer;margin-left:3px;opacity:.6}
   .tag-del:hover{opacity:1}
   .toolbar-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .btn-sm{font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;
     border:.5px solid var(--border);border-radius:4px;background:transparent;color:var(--text2);
-    cursor:pointer;transition:all .12s}
+    cursor:pointer;transition:all .12s;min-height:32px}
   .btn-sm:hover{background:var(--bg);color:var(--text)}
   .btn-danger{color:var(--danger) !important}
   .btn-save{font-family:'DM Mono',monospace;font-size:12px;padding:7px 18px;background:var(--purple);
-    color:#EEEDFE;border:none;border-radius:6px;cursor:pointer;transition:opacity .15s}
+    color:#EEEDFE;border:none;border-radius:6px;cursor:pointer;transition:opacity .15s;min-height:36px}
   .btn-save:hover{opacity:.88}
   .read-toolbar{display:flex;gap:8px;align-items:center;padding:10px 24px;border-top:.5px solid var(--border);
-    background:var(--meta-bg);justify-content:flex-end;flex-wrap:wrap}
+    background:var(--meta-bg);justify-content:flex-end;flex-wrap:wrap;
+    position:sticky;bottom:0;z-index:5;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 
   .toast{position:fixed;bottom:22px;right:22px;background:var(--toast-bg);color:#EEEDFE;
     padding:10px 18px;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;
     opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;z-index:999}
   .toast.show{opacity:1;transform:translateY(0)}
 
+  /* Modales: FIX sticky footer */
   .modal-overlay{position:fixed;inset:0;background:rgba(20,18,40,.55);
     display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg);border:.5px solid var(--border);border-radius:12px;
-    max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 18px 60px rgba(0,0,0,.25)}
+    max-width:640px;width:100%;max-height:90vh;display:flex;flex-direction:column;
+    box-shadow:0 18px 60px rgba(0,0,0,.25)}
   .modal-head{padding:16px 22px;border-bottom:.5px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center}
+    display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
   .modal-head h2{font-size:18px;font-weight:600;color:var(--text)}
-  .modal-head .close-x{background:none;border:none;font-size:22px;color:var(--text3);cursor:pointer;line-height:1}
+  .modal-head .close-x{background:none;border:none;font-size:22px;color:var(--text3);cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
   .modal-head .close-x:hover{color:var(--text)}
-  .modal-body{padding:18px 22px}
+  /* FIX: modal-body con overflow propio, footer siempre visible */
+  .modal-body{padding:18px 22px;overflow-y:auto;flex:1}
   .modal-foot{padding:14px 22px;border-top:.5px solid var(--border);
-    display:flex;justify-content:flex-end;gap:8px}
+    display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 
   .plan-summary{background:var(--bg2);border:.5px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
   .plan-summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -330,14 +347,14 @@
   .plan-pct{font-family:'DM Mono',monospace;font-size:22px;font-weight:600;color:var(--purple)}
   .plan-bar{height:6px;background:var(--border2);border-radius:6px;overflow:hidden;margin-bottom:4px}
   .plan-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple4),var(--purple));border-radius:6px;transition:width .4s}
-  .plan-list{display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto}
+  .plan-list{display:flex;flex-direction:column;gap:4px}
   .plan-day{display:flex;align-items:center;gap:10px;padding:8px 10px;
     border:.5px solid var(--border);border-radius:6px;background:var(--input-bg);
     cursor:pointer;transition:all .12s}
   .plan-day:hover{border-color:var(--purple4)}
   .plan-day.done{background:var(--bg3);border-color:var(--purple4)}
   .plan-day.today{border-color:var(--purple2);background:var(--verse-bg)}
-  .plan-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--purple4);
+  .plan-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--purple4);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent}
   .plan-day.done .plan-check{background:var(--purple);border-color:var(--purple);color:#fff}
   .plan-day-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:32px;flex-shrink:0}
@@ -358,16 +375,16 @@
   .prayer-item.answered{background:var(--bg3);border-color:var(--purple4)}
   .prayer-item.answered .prayer-text{text-decoration:line-through;color:var(--text2)}
   .prayer-row1{display:flex;gap:8px;align-items:flex-start}
-  .prayer-status-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--purple4);
+  .prayer-status-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--purple4);
     background:var(--bg);cursor:pointer;flex-shrink:0;margin-top:2px;
     display:flex;align-items:center;justify-content:center;color:transparent;font-size:12px}
   .prayer-item.answered .prayer-status-btn{background:var(--green);border-color:var(--green);color:#fff}
   .prayer-text{flex:1;font-size:15px;color:var(--text);line-height:1.5;
     border:none;outline:none;background:transparent;font-family:'Crimson Pro',serif;resize:none;min-height:22px}
   .prayer-meta{display:flex;justify-content:space-between;align-items:center;
-    font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-left:30px}
-  .prayer-cat{padding:1px 6px;border-radius:4px;background:var(--bg2);border:.5px solid var(--border);cursor:pointer}
-  .prayer-del{color:var(--danger);cursor:pointer;opacity:.6}
+    font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-left:34px}
+  .prayer-cat{padding:2px 8px;border-radius:4px;background:var(--bg2);border:.5px solid var(--border);cursor:pointer}
+  .prayer-del{color:var(--danger);cursor:pointer;opacity:.6;padding:4px}
   .prayer-del:hover{opacity:1}
   .prayer-add{display:flex;gap:6px;padding:8px;background:var(--bg2);border:.5px solid var(--border);border-radius:8px}
   .prayer-add input{flex:1;padding:7px 10px;border:.5px solid var(--border);border-radius:4px;
@@ -378,7 +395,7 @@
   .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
   .cal-title{font-size:20px;font-weight:600;color:var(--text)}
   .cal-nav{display:flex;gap:4px}
-  .cal-nav-btn{width:30px;height:30px;border:.5px solid var(--border);border-radius:6px;
+  .cal-nav-btn{width:36px;height:36px;border:.5px solid var(--border);border-radius:6px;
     background:var(--bg);color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace}
   .cal-nav-btn:hover{border-color:var(--purple4);color:var(--purple)}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
@@ -386,7 +403,7 @@
     text-transform:uppercase;color:var(--text3);text-align:center;padding:4px 0}
   .cal-cell{aspect-ratio:1;padding:6px;border-radius:6px;border:.5px solid var(--border);
     background:var(--bg);display:flex;flex-direction:column;gap:3px;cursor:pointer;
-    transition:all .12s;min-height:70px}
+    transition:all .12s;min-height:60px}
   .cal-cell:hover{border-color:var(--purple4);background:var(--bg2)}
   .cal-cell.empty{opacity:.3;cursor:default}
   .cal-cell.empty:hover{border-color:var(--border);background:var(--bg)}
@@ -425,20 +442,18 @@
     .topbar{padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top))}
     .logo-sub{display:none}
     .streak-pill{padding:4px 8px;font-size:10px}
-    .modal{max-height:92vh;border-radius:14px 14px 0 0;align-self:flex-end;margin-bottom:0}
+    .modal{max-height:92vh;border-radius:14px 14px 0 0;align-self:flex-end;margin-bottom:0;margin:0}
     .modal-overlay{align-items:flex-end;padding:0}
     .heatmap{grid-template-columns:repeat(20,1fr)}
-    .cal-cell{min-height:52px;padding:4px}
+    .cal-cell{min-height:44px;padding:4px}
     .cal-cell-item{font-size:9px}
     .votd-card{padding:18px 20px}
     .votd-text{font-size:16px}
     .kbd-list{grid-template-columns:1fr}
   }
+  /* FIX: heatmap en pantallas muy chicas - celdas con tamaño mínimo touch */
   @media (max-width:420px){
-    .topbar-right .btn-dark:nth-child(1),
-    .topbar-right .btn-dark:nth-child(2),
-    .topbar-right .btn-dark:nth-child(3){display:none}
-    .streak-pill{display:none}
+    .btn-hide-sm{display:none !important}
     .btn-primary{padding:8px 12px;font-size:12px}
     .logo-text{font-size:16px}
     .editor-meta{flex-direction:column;align-items:stretch}
@@ -446,7 +461,8 @@
     .meta-input.template-select{width:100% !important}
     .toolbar-right{gap:4px}
     .btn-sm{padding:5px 8px;font-size:10px}
-    .heatmap{grid-template-columns:repeat(14,1fr)}
+    .heatmap{grid-template-columns:repeat(10,1fr)}
+    .heat-cell{min-height:22px}
   }
 
   .install-banner{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));
@@ -491,8 +507,8 @@
   .passage-card-header .pc-ref{font-weight:600;flex:1;min-width:0}
   .passage-card-header .pc-translation{font-size:9px;color:var(--text3);background:var(--bg3);
     padding:1px 6px;border-radius:3px;letter-spacing:.5px}
-  .passage-card-header .pc-btn{cursor:pointer;color:var(--text3);font-size:13px;padding:2px 4px;
-    border-radius:4px;transition:all .15s;background:none;border:none;font-family:'DM Mono',monospace}
+  .passage-card-header .pc-btn{cursor:pointer;color:var(--text3);font-size:13px;padding:4px 6px;
+    border-radius:4px;transition:all .15s;background:none;border:none;font-family:'DM Mono',monospace;min-height:30px}
   .passage-card-header .pc-btn:hover{color:var(--text);background:var(--bg3)}
   .passage-card-header .pc-btn.pc-del:hover{color:var(--danger)}
   .passage-card-body{padding:10px 14px;font-size:calc(15px * var(--reading));font-style:italic;
@@ -520,41 +536,44 @@
     outline:none;border-color:var(--purple2)}
   .passage-edit-form .pe-actions{display:flex;gap:4px;justify-content:flex-end}
   .passage-edit-form .pe-actions button{font-family:'DM Mono',monospace;font-size:11px;
-    padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
+    padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .15s;min-height:32px}
   .pe-btn-save{background:var(--purple);color:#EEEDFE;border:none}
   .pe-btn-save:hover{opacity:.88}
   .pe-btn-cancel{background:var(--bg);color:var(--text2);border:.5px solid var(--border)}
   .pe-btn-cancel:hover{background:var(--bg2)}
 
-  .add-passage-btn{font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;
+  .add-passage-btn{font-family:'DM Mono',monospace;font-size:11px;padding:8px 12px;border-radius:6px;
     border:.5px dashed var(--purple4);background:transparent;color:var(--purple2);cursor:pointer;
-    transition:all .15s;width:100%;margin-top:4px}
+    transition:all .15s;width:100%;margin-top:4px;min-height:38px}
   .add-passage-btn:hover{background:var(--bg3);border-color:var(--purple);color:var(--purple)}
 
+  /* FIX: tools-panel — búsqueda funcional */
   .tools-panel{margin-top:8px;border:.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--input-bg)}
-  .tools-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);
+  .tools-header{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg2);
     border-bottom:.5px solid var(--border2);cursor:pointer;user-select:none;
-    font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.5px}
+    font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.5px;min-height:42px}
   .tools-header:hover{background:var(--bg3)}
   .tools-header .tools-arrow{transition:transform .2s;font-size:14px;margin-right:4px}
   .tools-panel.open .tools-arrow{transform:rotate(90deg)}
   .tools-body{display:none;padding:10px 14px;gap:10px;flex-direction:column}
   .tools-panel.open .tools-body{display:flex}
   .tools-tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .tools-tab{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;
-    border:.5px solid var(--border);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all .15s}
+  .tools-tab{font-family:'DM Mono',monospace;font-size:10px;padding:6px 10px;border-radius:4px;
+    border:.5px solid var(--border);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all .15s;min-height:32px}
   .tools-tab.active{background:var(--bg3);border-color:var(--purple4);color:var(--purpleT)}
   .tools-tab:hover{border-color:var(--purple4);color:var(--text)}
-  .tools-search{font-family:'DM Mono',monospace;font-size:12px;padding:6px 10px;
-    border:.5px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);width:100%}
+  .tools-search{font-family:'DM Mono',monospace;font-size:13px;padding:8px 10px;
+    border:.5px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);width:100%;min-height:40px}
   .tools-search:focus{outline:none;border-color:var(--purple2)}
-  .tools-results{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-  .lex-result{background:var(--bg2);border-radius:6px;padding:8px 10px;font-size:13px;line-height:1.5}
-  .lex-word{font-family:'DM Mono',monospace;font-weight:600;color:var(--purple);font-size:14px}
+  .tools-search::placeholder{color:var(--text3)}
+  .tools-results{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+  .lex-result{background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:13px;line-height:1.6}
+  .lex-word{font-family:'DM Mono',monospace;font-weight:600;color:var(--purple);font-size:16px}
   .lex-strong{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-left:6px}
-  .lex-def{color:var(--text2);font-style:italic}
+  .lex-translit{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px;font-style:italic}
+  .lex-def{color:var(--text2);font-style:italic;margin-top:4px}
   .lex-refs{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:4px}
-  .no-results{color:var(--text3);font-style:italic;font-size:13px;padding:4px 0}
+  .no-results{color:var(--text3);font-style:italic;font-size:13px;padding:8px 4px}
 
   .fortaleza-hero{background:var(--gold-bg);border:1px solid var(--gold);border-radius:10px;
     padding:20px 18px;text-align:center;margin-bottom:14px}
@@ -563,7 +582,7 @@
   .fortaleza-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .ft-btn{font-family:'DM Mono',monospace;font-size:11px;padding:10px 14px;border-radius:8px;
     border:1px solid var(--gold);background:var(--bg);color:var(--gold-dark);cursor:pointer;
-    text-align:left;transition:all .15s;display:flex;align-items:center;gap:8px}
+    text-align:left;transition:all .15s;display:flex;align-items:center;gap:8px;min-height:42px}
   .ft-btn:hover{background:var(--gold-bg);border-color:var(--gold-dark)}
   .ft-btn.primary{background:var(--gold);color:#fff;justify-content:center;font-weight:700;font-size:13px}
   .ft-btn.primary:hover{background:var(--gold-dark)}
@@ -575,24 +594,24 @@
     background:var(--input-bg);color:var(--text);font-family:'Crimson Pro',serif;
     font-size:14px;resize:vertical;margin-top:8px}
   .ft-block-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-  .ft-block-chip{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;
-    background:var(--bg2);border:.5px solid var(--border);color:var(--gold-dark);cursor:pointer}
+  .ft-block-chip{font-family:'DM Mono',monospace;font-size:10px;padding:6px 10px;border-radius:4px;
+    background:var(--bg2);border:.5px solid var(--border);color:var(--gold-dark);cursor:pointer;min-height:32px}
   .ft-block-chip:hover{background:var(--gold-bg);border-color:var(--gold)}
 
   .reminder-card{position:relative;background:var(--bg2);border:.5px solid var(--border);
     border-radius:8px;padding:10px 14px;margin-bottom:6px}
   .reminder-del{position:absolute;top:6px;right:8px;color:var(--danger);cursor:pointer;
-    opacity:.5;font-family:'DM Mono',monospace;font-size:14px}
+    opacity:.5;font-family:'DM Mono',monospace;font-size:18px;padding:4px}
   .reminder-del:hover{opacity:1}
-  .reminder-verse{font-style:italic;color:var(--text2);line-height:1.5;font-size:14px;padding-right:20px}
+  .reminder-verse{font-style:italic;color:var(--text2);line-height:1.5;font-size:14px;padding-right:28px}
   .reminder-ref{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);margin-top:4px}
   .reminder-toggle{margin-top:6px;font-family:'DM Mono',monospace;font-size:10px;
-    padding:3px 8px;border-radius:4px;border:.5px solid var(--border);background:var(--bg);
-    color:var(--text2);cursor:pointer}
+    padding:4px 10px;border-radius:4px;border:.5px solid var(--border);background:var(--bg);
+    color:var(--text2);cursor:pointer;min-height:30px}
   .reminder-toggle:hover{border-color:var(--purple4);color:var(--purple)}
   .time-inputs{display:flex;gap:6px;flex-wrap:wrap}
-  .time-inputs input[type="time"]{font-family:'DM Mono',monospace;font-size:12px;padding:5px 8px;
-    border:.5px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text)}
+  .time-inputs input[type="time"]{font-family:'DM Mono',monospace;font-size:12px;padding:6px 8px;
+    border:.5px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);min-height:38px}
 
   .gs-results{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;margin-top:10px}
   .gs-result{padding:10px 12px;border:.5px solid var(--border);border-radius:8px;
@@ -603,13 +622,12 @@
   .gs-result-snippet{font-size:13px;color:var(--text2);font-style:italic;margin-top:4px;line-height:1.5}
   .gs-result-snippet mark{background:rgba(127,127,221,.3);padding:0 2px;border-radius:2px}
 
-  /* === ADDS === */
   body.focus-mode .topbar,body.focus-mode .sidebar,body.focus-mode .toolbar,body.focus-mode .editor-meta,body.focus-mode .read-toolbar{display:none!important}
   body.focus-mode .main{height:100dvh!important}
   body.focus-mode .editor-body{max-width:760px;margin:0 auto;padding:40px 28px}
   .focus-exit{position:fixed;top:14px;right:14px;z-index:200;background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;display:none}
   body.focus-mode .focus-exit{display:block}
-  .tts-btn{background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);cursor:pointer;margin-left:6px}
+  .tts-btn{background:var(--bg2);border:.5px solid var(--border);border-radius:20px;padding:5px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);cursor:pointer;margin-left:6px;min-height:30px}
   .tts-btn:hover{background:var(--bg3);border-color:var(--purple4)}
   .tts-btn.playing{background:var(--purple);color:#fff;border-color:var(--purple)}
   .goal-bar{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding:6px;background:var(--bg2);border-radius:6px;margin-bottom:8px}
@@ -629,7 +647,7 @@
   .memo-card .mc-cloze.shown{background:transparent;color:var(--purple);font-weight:600}
   .memo-card .mc-meta{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:6px}
   .memo-card .mc-actions{display:flex;gap:4px}
-  .memo-card .mc-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;border:.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer}
+  .memo-card .mc-actions button{font-family:'DM Mono',monospace;font-size:10px;padding:5px 10px;border-radius:4px;border:.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;min-height:32px}
   .memo-card .mc-actions button.again{color:var(--danger);border-color:var(--danger)}
   .memo-card .mc-actions button.good{color:var(--green);border-color:var(--green)}
   .memo-card .mc-actions button:hover{background:var(--bg3)}
@@ -639,6 +657,18 @@
   .prayer-cat[data-cat="trabajo"]{background:rgba(127,177,127,.18);border-color:var(--green);color:var(--green)}
   body.dark .prayer-cat[data-cat="salud"]{color:#F5B5C9}
   body.dark .prayer-cat[data-cat="trabajo"]{color:#A8D5A8}
+
+  /* Modal confirm personalizado */
+  .confirm-overlay{position:fixed;inset:0;background:rgba(20,18,40,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+  .confirm-box{background:var(--bg);border:.5px solid var(--border);border-radius:12px;padding:24px;max-width:380px;width:100%;box-shadow:0 18px 60px rgba(0,0,0,.25)}
+  .confirm-box p{font-size:15px;color:var(--text);line-height:1.6;margin-bottom:18px}
+  .confirm-box .confirm-btns{display:flex;gap:8px;justify-content:flex-end}
+  .confirm-box .confirm-btns .btn-save{padding:8px 18px}
+
+  /* Whatsapp share */
+  .btn-wa{background:#25D366;color:#fff;border:none;padding:8px 14px;border-radius:6px;
+    font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:opacity .15s}
+  .btn-wa:hover{opacity:.88}
 </style>
 </head>
 <body>
@@ -785,7 +815,7 @@ const K = { studies:'diario_v6', plan:'diario_plan_v6', prayer:'diario_prayer_v6
   reminders:'diario_reminders_v6', dismissed:'diario_install_dismissed',
   memo:'diario_memo_v6', backup:'diario_backup_v6' };
 
-/* ─── COMPACT STORAGE ─── */
+/* ─── STORAGE ─── */
 const save = (k,v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
 const load = (k,d) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; }catch(e){ return d; } };
 
@@ -801,11 +831,12 @@ let reminders = { active:true, items:[], times:['09:00','13:00','19:00'], ...loa
 
 let currentId=null, activeTag=null, activeSeries=null, activeBook=null;
 let favFilter='all', readMode=false, dirty=false;
-let saveTimer=null, reminderTimers=[], focusMode=false;
+let saveTimer=null, reminderTimers={}, focusMode=false;
 let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
 let editingPassage=null, toolsOpen=false, toolsTab='hebrew';
 let fortalezaTimer=null, fortalezaSeconds=120;
 let deferredPrompt=null;
+let gsDebounce=null;
 
 /* ─── DATA ─── */
 const BIBLE_OT = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías'];
@@ -822,7 +853,6 @@ const TEMPLATES = {
   custom: { name:'Personalizada' }
 };
 
-/* Compacted templates: [key, letter, name] */
 const TEMPLATE_FIELDS = {
   soap: [['s','S','Escritura'],['o','O','Observación'],['a','A','Aplicación'],['p','P','Oración']],
   inductivo: [['s','1','¿Qué dice?'],['o','2','¿Qué significa?'],['a','3','¿Cómo aplico?']],
@@ -834,34 +864,51 @@ const TEMPLATE_PLACEHOLDERS = {
   s:'Escribí el pasaje...', o:'¿Qué observás?', a:'¿Cómo aplico?', p:'Tu oración...'
 };
 
-/* Unified lexicon */
+/* ─── FIX: LEXICÓN AMPLIADO con búsqueda robusta ─── */
 const LEXICON = [
-  {l:'h',strong:'H216',word:'אוֹר',translit:'’ôr',def:'luz, brillo, iluminación; metafóricamente verdad, vida, presencia de Dios.',refs:'Gén 1:3; Sal 119:105; Is 9:2'},
-  {l:'h',strong:'H430',word:'אֱלֹהִים',translit:'’ĕlōhîm',def:'Dios, dioses; plural mayestático, designa al Dios verdadero.',refs:'Gén 1:1; Deut 6:4'},
-  {l:'h',strong:'H3068',word:'יהוה',translit:'YHWH',def:'Nombre propio de Dios, "Yo Soy", Señor.',refs:'Éx 3:14; Sal 23:1'},
-  {l:'h',strong:'H2416',word:'חַי',translit:'ḥay',def:'vivo, viviente; vida en sentido pleno.',refs:'Gén 2:7; Deut 30:19'},
-  {l:'h',strong:'H3820',word:'לֵב',translit:'lēb',def:'corazón, mente, interioridad; centro de la voluntad y el pensamiento.',refs:'Prov 4:23; Jer 17:9'},
-  {l:'h',strong:'H7307',word:'רוּחַ',translit:'rûaḥ',def:'espíritu, viento, aliento; Espíritu de Dios.',refs:'Gén 1:2; Sal 51:11'},
-  {l:'h',strong:'H2617',word:'חֶסֶד',translit:'ḥesed',def:'misericordia, amor leal, pacto; fidelidad de Dios.',refs:'Sal 136:1; Os 6:6'},
-  {l:'h',strong:'H571',word:'אֱמֶת',translit:'’ĕmet',def:'verdad, fidelidad, firmeza; lo que es confiable.',refs:'Sal 25:5; Prov 3:3'},
-  {l:'h',strong:'H8451',word:'תּוֹרָה',translit:'tôrâ',def:'ley, instrucción, enseñanza; especialmente la Ley de Moisés.',refs:'Sal 1:2; Jos 1:8'},
-  {l:'h',strong:'H5927',word:'עָלָה',translit:'‘ālâ',def:'subir, ascender; ofrecer sacrificio.',refs:'Gén 22:2; Lev 1:3'},
-  {l:'g',strong:'G5457',word:'φῶς',translit:'phōs',def:'luz, brillo; metafóricamente verdad, pureza, revelación divina.',refs:'Mat 6:22; Juan 1:7'},
+  {l:'h',strong:'H216',word:'אוֹר',translit:'or',def:'luz, brillo, iluminación; metafóricamente verdad, vida, presencia de Dios.',refs:'Gén 1:3; Sal 119:105; Is 9:2'},
+  {l:'h',strong:'H430',word:'אֱלֹהִים',translit:'elohim',def:'Dios, dioses; plural mayestático, designa al Dios verdadero.',refs:'Gén 1:1; Deut 6:4'},
+  {l:'h',strong:'H3068',word:'יהוה',translit:'YHWH',def:'Nombre propio de Dios, "Yo Soy", Señor. Tetragrámaton.',refs:'Éx 3:14; Sal 23:1'},
+  {l:'h',strong:'H2416',word:'חַי',translit:'chay',def:'vivo, viviente; vida en sentido pleno.',refs:'Gén 2:7; Deut 30:19'},
+  {l:'h',strong:'H3820',word:'לֵב',translit:'lev',def:'corazón, mente, interioridad; centro de la voluntad y el pensamiento.',refs:'Prov 4:23; Jer 17:9'},
+  {l:'h',strong:'H7307',word:'רוּחַ',translit:'ruaj',def:'espíritu, viento, aliento; Espíritu de Dios.',refs:'Gén 1:2; Sal 51:11'},
+  {l:'h',strong:'H2617',word:'חֶסֶד',translit:'jesed',def:'misericordia, amor leal, pacto; fidelidad de Dios.',refs:'Sal 136:1; Os 6:6'},
+  {l:'h',strong:'H571',word:'אֱמֶת',translit:'emet',def:'verdad, fidelidad, firmeza; lo que es confiable.',refs:'Sal 25:5; Prov 3:3'},
+  {l:'h',strong:'H8451',word:'תּוֹרָה',translit:'torah',def:'ley, instrucción, enseñanza; especialmente la Ley de Moisés.',refs:'Sal 1:2; Jos 1:8'},
+  {l:'h',strong:'H5927',word:'עָלָה',translit:'alah',def:'subir, ascender; ofrecer sacrificio.',refs:'Gén 22:2; Lev 1:3'},
+  {l:'h',strong:'H7965',word:'שָׁלוֹם',translit:'shalom',def:'paz, plenitud, bienestar, armonía total.',refs:'Núm 6:26; Is 26:3'},
+  {l:'h',strong:'H6680',word:'מִצְוָה',translit:'mitzvah',def:'mandamiento, orden divina.',refs:'Deut 6:25; Sal 19:8'},
+  {l:'h',strong:'H539',word:'אָמַן',translit:'aman',def:'ser fiel, creer, confiar; raíz de "amén".',refs:'Gén 15:6; Hab 2:4'},
+  {l:'h',strong:'H3444',word:'יְשׁוּעָה',translit:'yeshuah',def:'salvación, liberación, victoria; nombre Jesús en hebreo.',refs:'Sal 91:16; Is 12:2'},
+  {l:'h',strong:'H1697',word:'דָּבָר',translit:'dabar',def:'palabra, cosa, asunto; la Palabra de Dios.',refs:'Sal 119:11; Is 55:11'},
+  {l:'g',strong:'G5457',word:'φῶς',translit:'phos',def:'luz, brillo; metafóricamente verdad, pureza, revelación divina.',refs:'Mat 6:22; Juan 1:7'},
   {l:'g',strong:'G2316',word:'θεός',translit:'theos',def:'Dios, divinidad; el único Dios verdadero.',refs:'Mat 1:23; Juan 1:1'},
   {l:'g',strong:'G2962',word:'κύριος',translit:'kyrios',def:'Señor, dueño, amo; título de Jesús.',refs:'Rom 10:9; Fil 2:11'},
-  {l:'g',strong:'G2424',word:'Ἰησοῦς',translit:'Iēsous',def:'Jesús, "YHWH es salvación".',refs:'Mat 1:21; Hech 4:12'},
+  {l:'g',strong:'G2424',word:'Ἰησοῦς',translit:'Iesous',def:'Jesús, "YHWH es salvación".',refs:'Mat 1:21; Hech 4:12'},
   {l:'g',strong:'G5547',word:'Χριστός',translit:'Christos',def:'Ungido, Mesías; título de Jesús.',refs:'Mat 16:16; Juan 20:31'},
-  {l:'g',strong:'G26',word:'ἀγάπη',translit:'agapē',def:'amor (ágape), amor sacrificial y comprometido.',refs:'1 Cor 13; 1 Jn 4:8'},
+  {l:'g',strong:'G26',word:'ἀγάπη',translit:'agape',def:'amor (ágape), amor sacrificial y comprometido.',refs:'1 Cor 13; 1 Jn 4:8'},
   {l:'g',strong:'G4102',word:'πίστις',translit:'pistis',def:'fe, confianza, fidelidad; creer en Dios.',refs:'Heb 11:1; Rom 1:17'},
   {l:'g',strong:'G5485',word:'χάρις',translit:'charis',def:'gracia, favor inmerecido; don de Dios.',refs:'Ef 2:8; 2 Cor 12:9'},
-  {l:'g',strong:'G2222',word:'ζωή',translit:'zōē',def:'vida, especialmente vida eterna y plena.',refs:'Juan 3:16; Rom 6:23'},
-  {l:'g',strong:'G3056',word:'λόγος',translit:'logos',def:'palabra, verbo, razón; Jesucristo como Palabra.',refs:'Juan 1:1; Heb 4:12'}
+  {l:'g',strong:'G2222',word:'ζωή',translit:'zoe',def:'vida, especialmente vida eterna y plena.',refs:'Juan 3:16; Rom 6:23'},
+  {l:'g',strong:'G3056',word:'λόγος',translit:'logos',def:'palabra, verbo, razón; Jesucristo como Palabra.',refs:'Juan 1:1; Heb 4:12'},
+  {l:'g',strong:'G1515',word:'εἰρήνη',translit:'eirene',def:'paz, tranquilidad, armonía; equivalente al shalom hebreo.',refs:'Juan 14:27; Fil 4:7'},
+  {l:'g',strong:'G1343',word:'δικαιοσύνη',translit:'dikaiosyne',def:'justicia, rectitud; ser declarado justo por Dios.',refs:'Rom 1:17; Mat 5:6'},
+  {l:'g',strong:'G3340',word:'μετάνοια',translit:'metanoia',def:'arrepentimiento, cambio de mente y dirección.',refs:'Mat 3:2; Hech 2:38'},
+  {l:'g',strong:'G40',word:'ἅγιος',translit:'hagios',def:'santo, separado, consagrado; el Espíritu Santo.',refs:'1 Ped 1:16; Rom 1:7'},
+  {l:'g',strong:'G4991',word:'σωτηρία',translit:'soteria',def:'salvación, liberación, preservación.',refs:'Ef 2:8; Heb 2:3'}
 ];
+
 const CONTEXT = [
   {term:'lámpara (mundo antiguo)',def:'En el mundo bíblico las lámparas de aceite eran la única luz artificial; simbolizaban vigilancia, revelación y guía.',refs:'Sal 119:105; Mat 25:1-13'},
-  {term:'ojos (buenos / malos)',def:'En la cultura semítica "ojo bueno" denotaba generosidad; "ojo malo", envidia y avaricia.',refs:'Mat 6:22-23; Deut 15:9'},
-  {term:'koinonía (comunión)',def:'Participación común, compartir vida y bienes. Comunión con Dios y entre creyentes.',refs:'Hech 2:42; 1 Jn 1:3'},
-  {term:'Denario',def:'Moneda romana de plata; salario de un día de trabajo. Usada en parábolas del reino.',refs:'Mat 20:2; Luc 10:35'}
+  {term:'ojos buenos y malos',def:'En la cultura semítica "ojo bueno" denotaba generosidad; "ojo malo", envidia y avaricia.',refs:'Mat 6:22-23; Deut 15:9'},
+  {term:'koinonia comunion',def:'Participación común, compartir vida y bienes. Comunión con Dios y entre creyentes.',refs:'Hech 2:42; 1 Jn 1:3'},
+  {term:'denario moneda',def:'Moneda romana de plata; salario de un día de trabajo. Usada en parábolas del reino.',refs:'Mat 20:2; Luc 10:35'},
+  {term:'gracia misericordia hesed',def:'En el AT, hesed es el amor fiel de alianza; en el NT, charis es el favor gratuito e inmerecido de Dios.',refs:'Sal 136; Ef 2:8'},
+  {term:'espiritu santo pentecostes',def:'La llegada del Espíritu en Pentecostés cumplió la promesa de Joel 2. El fuego y el viento son símbolos de su presencia.',refs:'Joel 2:28; Hech 2:1-4'},
+  {term:'fe obras santiago pablo',def:'Pablo habla de fe que justifica ante Dios; Santiago habla de fe que se demuestra en obras. No hay contradicción: ambos afirman que la fe genuina produce obediencia.',refs:'Rom 3:28; Sant 2:17'},
+  {term:'reino de dios cielo',def:'El "Reino de Dios" en Marcos/Lucas y "Reino de los cielos" en Mateo son sinónimos. Es el reinado soberano de Dios inaugurado en Cristo.',refs:'Mar 1:15; Mat 5:3'},
+  {term:'alianza pacto berith',def:'Berith en hebreo: compromiso solemne entre Dios y su pueblo. El AT tiene alianzas con Noé, Abraham, Moisés y David; el NT inaugura la nueva alianza en Cristo.',refs:'Gén 9:9; Luc 22:20'},
+  {term:'sacrificio cordero expiacion',def:'El sistema sacrificial del AT anticipaba la obra expiatoria de Cristo. El cordero pascual prefigura al "Cordero de Dios" (Juan 1:29).',refs:'Lev 1:4; Juan 1:29; Heb 10:4'}
 ];
 
 const FORTALEZA_VERSES = [
@@ -933,15 +980,10 @@ const PLANS = {
   }
 };
 
-const TOPBAR_BTNS = [
-  ['plan','📖','Plan de lectura'],
-  ['prayer','🙏','Oraciones'],
-  ['cal','🗓','Calendario']
-];
-
 /* ─── HELPERS ─── */
 const $ = id => document.getElementById(id);
 const today = () => new Date().toISOString().split('T')[0];
+/* FIX: esc solo escapa para HTML display — no usar antes de procesar markdown */
 const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const wordCount = t => (t||'').trim().split(/\s+/).filter(Boolean).length;
 const progColor = p => p<30?'var(--purple4)':p<65?'var(--purple2)':'var(--purple)';
@@ -952,20 +994,42 @@ const allTags = () => [...new Set(studies.flatMap(s => s.tags||[]))].sort();
 const allSeries = () => [...new Set(studies.map(s => s.series).filter(Boolean))].sort();
 const modalHead = title => `<div class="modal-head"><h2>${title}</h2><button class="close-x" onclick="closeModal()">×</button></div>`;
 
+/* FIX: normalizar texto para búsqueda sin acentos */
+const normalize = s => (s||'').toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[^a-z0-9\s]/g,' ');
+
 function showToast(msg) {
   const el = $('toast'); el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+/* FIX: confirm personalizado (funciona en PWA iOS) */
+function customConfirm(msg) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `<div class="confirm-box">
+      <p>${esc(msg)}</p>
+      <div class="confirm-btns">
+        <button class="btn-sm" id="cf-no">Cancelar</button>
+        <button class="btn-save btn-danger" id="cf-yes">Confirmar</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#cf-yes').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.querySelector('#cf-no').onclick = () => { overlay.remove(); resolve(false); };
+    overlay.onclick = e => { if(e.target===overlay){ overlay.remove(); resolve(false); } };
+  });
+}
+
 /* ─── INIT ─── */
 function init() {
-  // Migration
   studies = studies.map(s => ({
     fav:false, template:'libre', series:'', xrefs:[], soap:{}, tags:[], ...s,
     xrefs: (s.xrefs||[]).map(x => typeof x==='string' ? {ref:x,translation:'NVI',text:''} : x)
   }));
 
-  // Seed
   if (studies.length === 0) {
     studies = [
       { id:1, fav:false, template:'libre', series:'',
@@ -987,7 +1051,7 @@ function init() {
         soap:{ s:'Juan 3:16 — "Porque de tal manera amó Dios al mundo..."',
           o:'"De tal manera" (houtos) en griego indica la *forma* del amor, no solo el grado.',
           a:'Mi entendimiento del amor de Dios debe transformar cómo amo a otros.',
-          p:'Padre, gracias por tu amor que se hizo carne. Enseñame a amar como tú amás.' } }
+          p:'Padre, gracias por tu amor que se hizo carne. Enseñame a amar como vos amás.' } }
     ];
     save(K.studies, studies);
   }
@@ -1000,21 +1064,22 @@ function init() {
     save(K.prayer, prayers);
   }
 
-  // Datalists once
   $('bible-books-dl').innerHTML = BIBLE_ALL.map(b => `<option value="${esc(b)}">`).join('');
   refreshSeriesDatalist();
 
-  // Topbar buttons
-  $('topbar-right').innerHTML = TOPBAR_BTNS.map(([m,i,t]) =>
+  $('topbar-right').innerHTML = [
+    ['plan','📖','Plan de lectura'],
+    ['prayer','🙏','Oraciones'],
+    ['cal','🗓','Calendario']
+  ].map(([m,i,t]) =>
     `<button class="btn-dark" onclick="openModal('${m}')" title="${t}">${i}</button>`).join('') +
-    `<button class="btn-dark" onclick="openModal('memoria')" title="Memorizar (Ctrl+M)">🧠</button>
+    `<button class="btn-dark btn-hide-sm" onclick="openModal('memoria')" title="Memorizar (Ctrl+M)">🧠</button>
      <button class="btn-icon-accent btn-bell" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">🔔</button>
      <button class="btn-icon-accent btn-shield" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">🛡️<span class="badge-count" id="shield-count" style="display:none">0</span></button>
-     <button class="btn-dark" onclick="openModal('settings')" title="Ajustes">⚙</button>
+     <button class="btn-dark btn-hide-sm" onclick="openModal('settings')" title="Ajustes">⚙</button>
      <button class="btn-dark" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
      <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>`;
 
-  // Auto dark
   if (!localStorage.getItem(K.settings) && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
     settings.theme = 'dark'; save(K.settings, settings);
   }
@@ -1030,7 +1095,8 @@ function init() {
   bindShortcuts();
   scheduleAllReminders();
   registerSW();
-  if (typeof checkAutoBackup === 'function') checkAutoBackup();
+  checkAutoBackup();
+  bindSwipe();
 }
 
 function refreshSeriesDatalist() {
@@ -1043,43 +1109,33 @@ function registerSW() {
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
   window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
+    e.preventDefault(); deferredPrompt = e;
     if (!localStorage.getItem(K.dismissed)) $('install-banner').classList.add('show');
   });
 }
 function doInstall() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.finally(() => {
-    deferredPrompt = null;
-    $('install-banner').classList.remove('show');
-  });
+  deferredPrompt.userChoice.finally(() => { deferredPrompt=null; $('install-banner').classList.remove('show'); });
 }
 function dismissInstall() {
-  localStorage.setItem(K.dismissed, '1');
-  $('install-banner').classList.remove('show');
+  localStorage.setItem(K.dismissed,'1'); $('install-banner').classList.remove('show');
 }
 
 /* ─── THEMES + FONT ─── */
 function applyTheme() {
   document.body.classList.remove('dark','sepia');
-  if (settings.theme === 'dark') document.body.classList.add('dark');
-  else if (settings.theme === 'sepia') document.body.classList.add('sepia');
+  if (settings.theme==='dark') document.body.classList.add('dark');
+  else if (settings.theme==='sepia') document.body.classList.add('sepia');
   const btn = $('dark-btn');
-  if (btn) {
-    btn.textContent = settings.theme==='dark' ? '☀️' : settings.theme==='sepia' ? '📜' : '🌙';
-    btn.title = 'Tema: ' + settings.theme;
-  }
+  if (btn) { btn.textContent = settings.theme==='dark'?'☀️':settings.theme==='sepia'?'📜':'🌙'; btn.title='Tema: '+settings.theme; }
 }
 function cycleTheme() {
-  const order = ['light','dark','sepia'];
+  const order=['light','dark','sepia'];
   settings.theme = order[(order.indexOf(settings.theme)+1)%order.length];
-  save(K.settings, settings); applyTheme();
+  save(K.settings,settings); applyTheme();
 }
-function applyFontScale() {
-  document.documentElement.style.setProperty('--reading', settings.fontScale);
-}
+function applyFontScale() { document.documentElement.style.setProperty('--reading', settings.fontScale); }
 
 /* ─── SIDEBAR ─── */
 function toggleSidebar() {
@@ -1098,124 +1154,140 @@ function setSidebarTab(tab) {
   if (tab==='books') renderBooks();
 }
 function setFavFilter(v) {
-  favFilter = v;
-  $('fb-all').classList.toggle('active', v==='all');
-  $('fb-fav').classList.toggle('active', v==='fav');
+  favFilter=v; $('fb-all').classList.toggle('active',v==='all'); $('fb-fav').classList.toggle('active',v==='fav');
   renderSidebar();
 }
 
 function renderSidebar() {
-  const q = ($('search-input')?.value || '').toLowerCase();
-  const sort = $('sort-select')?.value || 'recent';
+  const q = ($('search-input')?.value||'').toLowerCase();
+  const sort = $('sort-select')?.value||'recent';
   let filtered = studies.filter(s => {
-    const matchFav = favFilter==='all' || s.fav;
-    const matchText = !q || s.title.toLowerCase().includes(q) || (s.reference||'').toLowerCase().includes(q) ||
-      (s.notes||'').toLowerCase().includes(q) || (s.verse||'').toLowerCase().includes(q) ||
-      Object.values(s.soap||{}).some(v => (v||'').toLowerCase().includes(q));
-    return matchFav && matchText &&
-      (!activeTag || (s.tags||[]).includes(activeTag)) &&
-      (!activeSeries || s.series===activeSeries) &&
-      (!activeBook || s.book===activeBook);
+    const matchFav = favFilter==='all'||s.fav;
+    const matchText = !q || s.title.toLowerCase().includes(q)||(s.reference||'').toLowerCase().includes(q)||
+      (s.notes||'').toLowerCase().includes(q)||(s.verse||'').toLowerCase().includes(q)||
+      Object.values(s.soap||{}).some(v=>(v||'').toLowerCase().includes(q));
+    return matchFav&&matchText&&(!activeTag||(s.tags||[]).includes(activeTag))&&
+      (!activeSeries||s.series===activeSeries)&&(!activeBook||s.book===activeBook);
   });
   const sorters = {
-    recent: (a,b) => (b.date||'').localeCompare(a.date||''),
-    oldest: (a,b) => (a.date||'').localeCompare(b.date||''),
-    title:  (a,b) => a.title.localeCompare(b.title),
-    bible:  (a,b) => bookIndex(a.book)-bookIndex(b.book) || a.title.localeCompare(b.title),
-    length: (a,b) => totalLength(b)-totalLength(a)
+    recent:(a,b)=>(b.date||'').localeCompare(a.date||''),
+    oldest:(a,b)=>(a.date||'').localeCompare(b.date||''),
+    title:(a,b)=>a.title.localeCompare(b.title),
+    bible:(a,b)=>bookIndex(a.book)-bookIndex(b.book)||a.title.localeCompare(b.title),
+    length:(a,b)=>totalLength(b)-totalLength(a)
   };
   filtered.sort(sorters[sort]);
 
   $('study-list').innerHTML = filtered.length ? filtered.map(s => `
-    <div class="study-item ${s.id===currentId?'active':''}" onclick="openStudy(${s.id})">
-      <div class="si-body">
-        <div class="si-title">${esc(s.title)}</div>
-        <div class="si-ref">${esc(s.reference)}</div>
-        <div class="si-meta">
-          <span class="si-date">${s.date}</span>
-          ${s.template&&s.template!=='libre'?`<span class="si-template">${esc(TEMPLATES[s.template]?.name||s.template)}</span>`:''}
-          ${s.series?`<span class="si-series">· ${esc(s.series)}</span>`:''}
+    <div class="study-item-wrap" id="wrap-${s.id}">
+      <div class="study-item ${s.id===currentId?'active':''}" onclick="openStudy(${s.id})">
+        <div class="si-body">
+          <div class="si-title">${esc(s.title)}</div>
+          <div class="si-ref">${esc(s.reference)}</div>
+          <div class="si-meta">
+            <span class="si-date">${s.date}</span>
+            ${s.template&&s.template!=='libre'?`<span class="si-template">${esc(TEMPLATES[s.template]?.name||s.template)}</span>`:''}
+            ${s.series?`<span class="si-series">· ${esc(s.series)}</span>`:''}
+          </div>
         </div>
+        <button class="fav-btn ${s.fav?'active':''}" onclick="event.stopPropagation();toggleFav(${s.id})" title="${s.fav?'Quitar':'Favorito'}">${s.fav?'⭐':'☆'}</button>
       </div>
-      <button class="fav-btn ${s.fav?'active':''}" onclick="event.stopPropagation();toggleFav(${s.id})" title="${s.fav?'Quitar':'Favorito'}">${s.fav?'⭐':'☆'}</button>
-    </div>`).join('') : `<div style="padding:10px 6px;font-size:13px;color:var(--text3);font-style:italic">Sin resultados</div>`;
+      <div class="swipe-del" onclick="deleteStudy(${s.id})">🗑</div>
+    </div>`).join('') :
+    `<div style="padding:10px 6px;font-size:13px;color:var(--text3);font-style:italic">Sin resultados</div>`;
 
   const ser = allSeries();
   $('series-filters').innerHTML = ser.length
-    ? ser.map(s => `<span class="tag ${s===activeSeries?'active':''}" onclick="filterSeries('${esc(s)}')">${esc(s)}</span>`).join('')
+    ? ser.map(s=>`<span class="tag ${s===activeSeries?'active':''}" onclick="filterSeries('${esc(s)}')">${esc(s)}</span>`).join('')
     : '<div style="font-size:11px;color:var(--text3);font-style:italic;padding:0 4px">Sin series.</div>';
   const tags = allTags();
   $('tag-filters').innerHTML = tags.length
-    ? tags.map(t => `<span class="tag ${t===activeTag?'active':''}" onclick="filterTag('${esc(t)}')">${esc(t)}</span>`).join('')
+    ? tags.map(t=>`<span class="tag ${t===activeTag?'active':''}" onclick="filterTag('${esc(t)}')">${esc(t)}</span>`).join('')
     : '<div style="font-size:11px;color:var(--text3);font-style:italic;padding:0 4px">Sin temas.</div>';
 
   renderStreak();
 }
 
-const filterTag = t => { activeTag = activeTag===t?null:t; renderSidebar(); };
-const filterSeries = s => { activeSeries = activeSeries===s?null:s; renderSidebar(); };
-const filterBook = b => { activeBook = activeBook===b?null:b; renderSidebar(); renderBooks(); };
+const filterTag = t => { activeTag=activeTag===t?null:t; renderSidebar(); };
+const filterSeries = s => { activeSeries=activeSeries===s?null:s; renderSidebar(); };
+const filterBook = b => { activeBook=activeBook===b?null:b; renderSidebar(); renderBooks(); };
 
 function renderBooks() {
-  const counts = {};
-  studies.forEach(s => { if (s.book) counts[s.book] = (counts[s.book]||0)+1; });
-  const html = books => books.map(b => {
-    const n = counts[b]||0;
+  const counts={};
+  studies.forEach(s=>{ if(s.book) counts[s.book]=(counts[s.book]||0)+1; });
+  const html = books => books.map(b=>{
+    const n=counts[b]||0;
     return `<div class="book-row ${activeBook===b?'active':''} ${n===0?'empty':''}" onclick="filterBook('${esc(b)}')">
       <span>${b}</span>${n>0?`<span class="bk-count">${n}</span>`:''}</div>`;
   }).join('');
-  if ($('book-list-at')) $('book-list-at').innerHTML = html(BIBLE_OT);
-  if ($('book-list-nt')) $('book-list-nt').innerHTML = html(BIBLE_NT);
+  if($('book-list-at')) $('book-list-at').innerHTML=html(BIBLE_OT);
+  if($('book-list-nt')) $('book-list-nt').innerHTML=html(BIBLE_NT);
+}
+
+/* ─── SWIPE TO DELETE (mobile) ─── */
+function bindSwipe() {
+  let startX=0, startY=0, currentWrap=null;
+  document.addEventListener('touchstart', e => {
+    const wrap = e.target.closest('.study-item-wrap');
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    if (currentWrap && currentWrap !== wrap) { currentWrap.classList.remove('swiped'); }
+    currentWrap = wrap;
+  }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if (!currentWrap) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    if (dy > 30) return;
+    if (dx < -50) currentWrap.classList.add('swiped');
+    else if (dx > 20) currentWrap.classList.remove('swiped');
+  }, {passive:true});
 }
 
 /* ─── HABIT ─── */
 function recordHabit() {
-  const t = today();
-  habit[t] = (habit[t]||0)+1;
-  save(K.habit, habit);
+  const t=today(); habit[t]=(habit[t]||0)+1; save(K.habit,habit);
   renderHeatmap(); renderStreak();
 }
 function calcStreak() {
-  let s = 0; const d = new Date();
-  while (habit[d.toISOString().split('T')[0]]) { s++; d.setDate(d.getDate()-1); }
+  let s=0; const d=new Date();
+  while(habit[d.toISOString().split('T')[0]]){ s++; d.setDate(d.getDate()-1); }
   return s;
 }
 function renderStreak() {
-  const s = calcStreak();
-  $('streak-text').textContent = s + (s===1?' día':' días');
-  $('streak-pill').classList.toggle('hot', s>=3);
+  const s=calcStreak();
+  $('streak-text').textContent=s+(s===1?' día':' días');
+  $('streak-pill').classList.toggle('hot',s>=3);
 }
 function renderHeatmap() {
-  const el = $('heatmap'); if (!el) return;
-  const days = 26*7;
-  const start = new Date(); start.setDate(start.getDate()-days+1);
-  const max = Math.max(1, ...Object.values(habit));
-  const cells = [];
-  for (let i=0;i<days;i++) {
-    const d = new Date(start); d.setDate(start.getDate()+i);
-    const k = d.toISOString().split('T')[0];
-    const v = habit[k]||0;
-    const lvl = v>0 ? Math.min(4, Math.ceil((v/max)*4)) : 0;
-    cells.push(`<div class="heat-cell" data-level="${lvl}" title="${k}: ${v}"></div>`);
+  const el=$('heatmap'); if(!el) return;
+  const days=26*7;
+  const start=new Date(); start.setDate(start.getDate()-days+1);
+  const max=Math.max(1,...Object.values(habit));
+  const cells=[];
+  for(let i=0;i<days;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const k=d.toISOString().split('T')[0];
+    const v=habit[k]||0;
+    const lvl=v>0?Math.min(4,Math.ceil((v/max)*4)):0;
+    cells.push(`<div class="heat-cell" data-level="${lvl}" title="${k}: ${v} estudio${v!==1?'s':''}"></div>`);
   }
-  el.innerHTML = cells.join('');
+  el.innerHTML=cells.join('');
 }
 function renderStats() {
-  const totalWords = studies.reduce((a,s) => a+totalLength(s), 0);
-  // Daily goal
-  const todayStudies = studies.filter(s => s.date === today());
-  const todayWords = todayStudies.reduce((a,s) => a+totalLength(s), 0);
-  const goal = settings.dailyGoal||0;
-  const goalPct = goal ? Math.min(100, Math.round(todayWords/goal*100)) : 0;
-  // Weekly summary
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate()-6);
-  const weekKey = weekStart.toISOString().split('T')[0];
-  const wkStudies = studies.filter(s => s.date >= weekKey);
-  const wkWords = wkStudies.reduce((a,s) => a+totalLength(s), 0);
-  const wkDays = new Set(wkStudies.map(s => s.date)).size;
-  const wkRefs = [...new Set(wkStudies.map(s => s.book).filter(Boolean))];
-  $('stats').innerHTML = `
-    ${goal ? `<div class="goal-bar" title="${todayWords}/${goal} palabras hoy"><span>META HOY</span><div class="gb-track"><div class="gb-fill" style="width:${goalPct}%"></div></div><span><b style="color:var(--purple)">${todayWords}</b>/${goal}</span></div>`:''}
+  const totalWords=studies.reduce((a,s)=>a+totalLength(s),0);
+  const todayStudies=studies.filter(s=>s.date===today());
+  const todayWords=todayStudies.reduce((a,s)=>a+totalLength(s),0);
+  const goal=settings.dailyGoal||0;
+  const goalPct=goal?Math.min(100,Math.round(todayWords/goal*100)):0;
+  const weekStart=new Date(); weekStart.setDate(weekStart.getDate()-6);
+  const weekKey=weekStart.toISOString().split('T')[0];
+  const wkStudies=studies.filter(s=>s.date>=weekKey);
+  const wkWords=wkStudies.reduce((a,s)=>a+totalLength(s),0);
+  const wkDays=new Set(wkStudies.map(s=>s.date)).size;
+  const wkRefs=[...new Set(wkStudies.map(s=>s.book).filter(Boolean))];
+  $('stats').innerHTML=`
+    ${goal?`<div class="goal-bar" title="${todayWords}/${goal} palabras hoy"><span>META HOY</span><div class="gb-track"><div class="gb-fill" style="width:${goalPct}%"></div></div><span><b style="color:var(--purple)">${todayWords}</b>/${goal}</span></div>`:''}
     <div class="week-summary">
       <div class="ws-title">Últimos 7 días</div>
       <div class="ws-grid">
@@ -1233,78 +1305,80 @@ function renderStats() {
     <div class="stat-row"><span>Prom/estudio</span><span class="stat-val">${studies.length?Math.round(totalWords/studies.length):0}</span></div>
     <div class="stat-row"><span>Días activos</span><span class="stat-val">${Object.keys(habit).length}</span></div>
     <div class="stat-row"><span>Racha</span><span class="stat-val">${calcStreak()}</span></div>
-    <div class="stat-row"><span>Memorizando</span><span class="stat-val">${memoCards.length}</span></div>
-  `;
+    <div class="stat-row"><span>Memorizando</span><span class="stat-val">${memoCards.length}</span></div>`;
 }
 
 /* ─── WELCOME ─── */
 function renderWelcome() {
-  const now = new Date();
-  // Deterministic by date number across larger pool
-  const seed = now.getFullYear()*1000 + Math.floor((now - new Date(now.getFullYear(),0,0))/86400000);
-  const v = VOTD[seed % VOTD.length];
-  const hour = now.getHours();
-  const greet = hour<12?'Buen día':hour<19?'Buenas tardes':'Buenas noches';
-  $('welcome-greeting').textContent = `${greet}. Seleccioná un estudio o creá uno nuevo.`;
-  $('votd').innerHTML = `
+  const now=new Date();
+  const seed=now.getFullYear()*1000+Math.floor((now-new Date(now.getFullYear(),0,0))/86400000);
+  const v=VOTD[seed%VOTD.length];
+  const hour=now.getHours();
+  const greet=hour<12?'Buen día':hour<19?'Buenas tardes':'Buenas noches';
+  $('welcome-greeting').textContent=`${greet}. Seleccioná un estudio o creá uno nuevo.`;
+  $('votd').innerHTML=`
     <div class="votd-label">Versículo del día</div>
     <div class="votd-text">"${esc(v.text)}"</div>
     <div class="votd-ref">— ${esc(v.ref)}</div>
     <div class="votd-actions">
-      <button onclick='studyVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>✦ Estudiar</button>
-      <button onclick='copyVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>⧉ Copiar</button>
+      <button onclick='studyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>✦ Estudiar</button>
+      <button onclick='copyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>⧉ Copiar</button>
+      <button onclick='shareWhatsapp(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>💬 WhatsApp</button>
       <button onclick='speakText(${JSON.stringify(v.text)})'>🔊 Escuchar</button>
-      <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)}, ${JSON.stringify(v.text)})'>🧠 Memorizar</button>
+      <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>🧠 Memorizar</button>
     </div>`;
 }
-function studyVerse(ref, text) {
-  const id = Date.now();
-  const book = ref.split(/\s\d/)[0];
-  studies.unshift({ id, fav:false, template:'soap', series:'',
-    title:'Estudio sobre '+ref, reference:ref, book, date:today(),
-    tags:[], xrefs:[], verse:'"'+text+'"', notes:'',
-    soap:{ s:ref+' — "'+text+'"', o:'', a:'', p:'' }
+function studyVerse(ref,text) {
+  const id=Date.now(); const book=ref.split(/\s\d/)[0];
+  studies.unshift({id,fav:false,template:'soap',series:'',
+    title:'Estudio sobre '+ref,reference:ref,book,date:today(),
+    tags:[],xrefs:[],verse:'"'+text+'"',notes:'',
+    soap:{s:ref+' — "'+text+'"',o:'',a:'',p:''}
   });
-  save(K.studies, studies); recordHabit(); openStudy(id);
+  save(K.studies,studies); recordHabit(); openStudy(id);
 }
-function copyVerse(ref, text) {
-  navigator.clipboard?.writeText(`"${text}" — ${ref}`).then(() => showToast('Copiado ✓'));
+function copyVerse(ref,text) {
+  navigator.clipboard?.writeText(`"${text}" — ${ref}`).then(()=>showToast('Copiado ✓'));
+}
+/* FIX: compartir por WhatsApp */
+function shareWhatsapp(ref,text) {
+  const msg=encodeURIComponent(`"${text}" — ${ref}`);
+  window.open('https://wa.me/?text='+msg,'_blank');
 }
 
 /* ─── FAV ─── */
 function toggleFav(id) {
-  const s = studies.find(x => x.id===id); if (!s) return;
-  s.fav = !s.fav; save(K.studies, studies); renderSidebar();
-  const fb = $('ed-fav');
-  if (fb && currentId===id) { fb.textContent = s.fav?'⭐':'☆'; fb.classList.toggle('active', s.fav); }
+  const s=studies.find(x=>x.id===id); if(!s) return;
+  s.fav=!s.fav; save(K.studies,studies); renderSidebar();
+  const fb=$('ed-fav');
+  if(fb&&currentId===id){fb.textContent=s.fav?'⭐':'☆';fb.classList.toggle('active',s.fav);}
   showToast(s.fav?'⭐ Agregado a favoritos':'☆ Quitado');
 }
 
 /* ─── EDITOR ─── */
 function newStudy() {
-  if (currentId && !readMode) saveCurrentStudy();
-  const id = Date.now();
-  studies.unshift({ id, fav:false, template:'libre', series:'',
-    title:'Nuevo estudio', reference:'', book:'', date:today(),
-    tags:[], xrefs:[], verse:'', notes:'', soap:{} });
-  save(K.studies, studies);
-  openStudy(id);
+  if(currentId&&!readMode) saveCurrentStudy();
+  const id=Date.now();
+  studies.unshift({id,fav:false,template:'libre',series:'',
+    title:'Nuevo estudio',reference:'',book:'',date:today(),
+    tags:[],xrefs:[],verse:'',notes:'',soap:{}});
+  save(K.studies,studies); openStudy(id);
 }
 
 function openStudy(id) {
-  if (currentId !== null && currentId !== id && !readMode) saveCurrentStudy();
-  currentId = id;
-  const s = studies.find(x => x.id===id); if (!s) return;
-  editingPassage = null; toolsOpen = false;
+  if(currentId!==null&&currentId!==id&&!readMode) saveCurrentStudy();
+  currentId=id;
+  const s=studies.find(x=>x.id===id); if(!s) return;
+  editingPassage=null; toolsOpen=false;
   renderSidebar();
-  if (readMode) renderReadMode(s); else renderEditor(s);
+  if(readMode) renderReadMode(s); else renderEditor(s);
   closeSidebar();
 }
 
 function renderEditor(s) {
-  const wc = totalLength(s);
-  const pct = Math.min(100, wc/3);
-  $('content').innerHTML = `
+  const wc=totalLength(s);
+  const pct=Math.min(100,wc/3);
+  $('content').innerHTML=`
     <div class="editor-header">
       <input class="ed-title" id="ed-title" value="${esc(s.title)}" placeholder="Título..." oninput="markDirty()" />
       <span class="save-badge saved" id="save-badge">Guardado ✓</span>
@@ -1330,7 +1404,7 @@ function renderEditor(s) {
           <button class="hl-btn yellow" onclick="highlight('hl-yellow')" title="Amarillo"></button>
           <button class="hl-btn pink" onclick="highlight('hl-pink')" title="Rosa"></button>
           <button class="hl-btn green" onclick="highlight('hl-green')" title="Verde"></button>
-          <button class="hl-btn clear" onclick="highlight(null)" title="Quitar"></button>
+          <button class="hl-btn clear" onclick="clearHighlights()" title="Quitar resaltados"></button>
           <button class="tts-btn" id="tts-btn" onclick="speakVerseEditor()">🔊 Escuchar</button>
           <button class="tts-btn" onclick="addCurrentToMemo()">🧠 Memorizar</button>
         </div>
@@ -1350,7 +1424,7 @@ function renderEditor(s) {
             <button class="md-btn italic" onclick="mdWrap('*')">I</button>
             <button class="md-btn" onclick="mdLine('## ')">H</button>
             <button class="md-btn" onclick="mdLine('- ')">•</button>
-            <button class="md-btn" onclick="mdLine('&gt; ')">"</button>
+            <button class="md-btn" onclick="mdLine('> ')">"</button>
           </div>
           <span class="wc-label" id="wc-label">${wc} ${wc===1?'palabra':'palabras'}</span>
         </div>
@@ -1366,9 +1440,9 @@ function renderEditor(s) {
       <div class="toolbar-right">
         <button class="btn-sm" onclick="enterReadMode()">👁 Leer</button>
         <button class="btn-sm" onclick="toggleFocusMode()">⛶ Enfoque</button>
-        <button class="btn-sm" onclick="shareAsImage()">📤 Imagen</button>
-        <button class="btn-sm" onclick="window.print()">⎙ PDF</button>
-        <button class="btn-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
+        <button class="btn-sm btn-hide-sm" onclick="shareAsImage()">📤 Imagen</button>
+        <button class="btn-sm btn-hide-sm" onclick="window.print()">⎙ PDF</button>
+        <button class="btn-sm btn-hide-sm" onclick="duplicateStudy(${s.id})">Duplicar</button>
         <button class="btn-sm btn-danger" onclick="deleteStudy(${s.id})">Eliminar</button>
         <button class="btn-save" onclick="saveCurrentStudy(true)">Guardar</button>
       </div>
@@ -1376,10 +1450,10 @@ function renderEditor(s) {
 }
 
 function renderTemplateBody(s) {
-  const fields = TEMPLATE_FIELDS[s.template]; if (!fields) return '';
-  const cols = fields.length===3 ? '1fr 1fr 1fr' : '1fr 1fr';
-  const so = s.soap||{};
-  return `<div class="soap-grid" style="grid-template-columns:${cols}">${fields.map(([k,letter,name])=>`
+  const fields=TEMPLATE_FIELDS[s.template]; if(!fields) return '';
+  /* FIX: siempre 1fr 1fr, el CSS ya maneja el breakpoint correcto */
+  const so=s.soap||{};
+  return `<div class="soap-grid">${fields.map(([k,letter,name])=>`
     <div class="soap-block">
       <div class="soap-letter">${letter}</div><div class="soap-name">${name}</div>
       <textarea class="soap-textarea" id="soap-${k}" placeholder="${TEMPLATE_PLACEHOLDERS[k]||''}" oninput="markDirty();updateWC()">${esc(so[k]||'')}</textarea>
@@ -1387,20 +1461,17 @@ function renderTemplateBody(s) {
 }
 
 function changeTemplate() {
-  saveCurrentStudy();
-  editingPassage = null;
-  const s = getCurrentStudy(); if (!s) return;
-  s.template = $('ed-template').value;
-  save(K.studies, studies);
-  renderEditor(s);
+  saveCurrentStudy(); editingPassage=null;
+  const s=getCurrentStudy(); if(!s) return;
+  s.template=$('ed-template').value; save(K.studies,studies); renderEditor(s);
 }
 
 /* ─── PASSAGE CARDS ─── */
 function renderPassageCards(s) {
-  if (!s.xrefs || !s.xrefs.length) return '';
-  return s.xrefs.map((x,i) => {
-    if (editingPassage?.passageIndex === i) return '';
-    const linked = studies.find(st => st.id !== s.id && st.reference === x.ref);
+  if(!s.xrefs||!s.xrefs.length) return '';
+  return s.xrefs.map((x,i)=>{
+    if(editingPassage?.passageIndex===i) return '';
+    const linked=studies.find(st=>st.id!==s.id&&st.reference===x.ref);
     return `
       <div class="passage-card">
         <div class="passage-card-header">
@@ -1417,28 +1488,27 @@ function renderPassageCards(s) {
   }).join('');
 }
 function startAddPassage() {
-  editingPassage = { passageIndex:null, passageData:{ref:'',translation:'NVI',text:''} };
+  editingPassage={passageIndex:null,passageData:{ref:'',translation:'NVI',text:''}};
   renderPassageForm();
 }
 function startEditPassage(i) {
-  const s = getCurrentStudy(); if (!s) return;
+  const s=getCurrentStudy(); if(!s) return;
   saveCurrentStudy();
-  editingPassage = { passageIndex:i, passageData:{...s.xrefs[i]} };
+  editingPassage={passageIndex:i,passageData:{...s.xrefs[i]}};
   renderPassageForm();
 }
 function removePassage(i) {
-  const s = getCurrentStudy(); if (!s) return;
-  saveCurrentStudy();
-  s.xrefs.splice(i,1); save(K.studies, studies);
-  editingPassage = null; renderEditor(s);
+  const s=getCurrentStudy(); if(!s) return;
+  saveCurrentStudy(); s.xrefs.splice(i,1); save(K.studies,studies);
+  editingPassage=null; renderEditor(s);
 }
 function renderPassageForm() {
-  const s = getCurrentStudy(); if (!s) return;
-  const c = $('passage-form-container'); if (!c) return;
-  if (!editingPassage) { c.innerHTML=''; return; }
-  const d = editingPassage.passageData;
-  const isNew = editingPassage.passageIndex===null;
-  c.innerHTML = `
+  const s=getCurrentStudy(); if(!s) return;
+  const c=$('passage-form-container'); if(!c) return;
+  if(!editingPassage){c.innerHTML='';return;}
+  const d=editingPassage.passageData;
+  const isNew=editingPassage.passageIndex===null;
+  c.innerHTML=`
     <div class="passage-card" style="border-color:var(--purple4);margin-top:8px">
       <div class="passage-edit-form">
         <div class="pe-row">
@@ -1453,218 +1523,287 @@ function renderPassageForm() {
       </div>
     </div>`;
 }
-function cancelPassage() {
-  editingPassage = null;
-  const s = getCurrentStudy(); if (s) renderEditor(s);
-}
+function cancelPassage() { editingPassage=null; const s=getCurrentStudy(); if(s) renderEditor(s); }
 function savePassage() {
-  const s = getCurrentStudy(); if (!s) return;
+  const s=getCurrentStudy(); if(!s) return;
   saveCurrentStudy();
-  const ref = $('pe-ref')?.value.trim() || '';
-  if (!ref) { showToast('Referencia obligatoria'); return; }
-  const data = { ref, translation:$('pe-trans')?.value||'NVI', text:$('pe-text')?.value.trim()||'' };
-  if (editingPassage.passageIndex !== null) s.xrefs[editingPassage.passageIndex] = data;
-  else { s.xrefs = s.xrefs||[]; s.xrefs.push(data); }
-  editingPassage = null;
-  save(K.studies, studies); renderEditor(s);
-  showToast('Pasaje guardado ✓');
+  const ref=$('pe-ref')?.value.trim()||'';
+  if(!ref){showToast('Referencia obligatoria');return;}
+  const data={ref,translation:$('pe-trans')?.value||'NVI',text:$('pe-text')?.value.trim()||''};
+  if(editingPassage.passageIndex!==null) s.xrefs[editingPassage.passageIndex]=data;
+  else{s.xrefs=s.xrefs||[];s.xrefs.push(data);}
+  editingPassage=null; save(K.studies,studies); renderEditor(s); showToast('Pasaje guardado ✓');
 }
 
-/* ─── TOOLS PANEL ─── */
+/* ─── TOOLS PANEL — FIX: búsqueda robusta con normalización ─── */
 function toggleTools() {
-  toolsOpen = !toolsOpen;
-  $('tools-panel')?.classList.toggle('open', toolsOpen);
+  toolsOpen=!toolsOpen;
+  $('tools-panel')?.classList.toggle('open',toolsOpen);
+  if(toolsOpen) { setTimeout(()=>{ renderToolsBody(); $('tools-search-input')?.focus(); },50); }
 }
-function setToolsTab(t) { toolsTab = t; renderToolsBody(); }
+function setToolsTab(t) { toolsTab=t; renderToolsBody(); }
+
 function renderTools() {
   return `
     <div class="tools-panel ${toolsOpen?'open':''}" id="tools-panel">
       <div class="tools-header" onclick="toggleTools()">
         <span class="tools-arrow">▶</span> 🛠 Herramientas de estudio
+        <span style="margin-left:auto;font-size:10px;color:var(--text3)">${LEXICON.filter(x=>x.l==='h').length}H · ${LEXICON.filter(x=>x.l==='g').length}G · ${CONTEXT.length}C</span>
       </div>
       <div class="tools-body">
         <div class="tools-tabs">
-          ${[['hebrew','Hebreo'],['greek','Griego'],['context','Contexto']].map(([k,n])=>`<button class="tools-tab ${toolsTab===k?'active':''}" onclick="setToolsTab('${k}')">${n}</button>`).join('')}
+          ${[['hebrew','🔤 Hebreo'],['greek','αβ Griego'],['context','📜 Contexto']].map(([k,n])=>`<button class="tools-tab ${toolsTab===k?'active':''}" onclick="setToolsTab('${k}')">${n}</button>`).join('')}
         </div>
-        <input class="tools-search" id="tools-search-input" type="text" placeholder="Buscar..." oninput="renderToolsBody()" />
-        <div class="tools-results" id="tools-results"></div>
+        <input class="tools-search" id="tools-search-input" type="text"
+          placeholder="${toolsTab==='hebrew'?'Buscar: luz, amor, YHWH...':toolsTab==='greek'?'Buscar: logos, agape, charis...':'Buscar: pacto, sacrificio...'}"
+          oninput="renderToolsBody()" autocomplete="off" autocorrect="off" />
+        <div class="tools-results" id="tools-results">
+          <div class="no-results" style="color:var(--text2);font-style:normal">
+            ${toolsTab==='hebrew'?'Escribí una palabra en español o hebreo para buscar.':toolsTab==='greek'?'Escribí una palabra en español o griego para buscar.':'Escribí un término para buscar contexto histórico.'}
+          </div>
+        </div>
       </div>
     </div>`;
 }
+
+/* FIX PRINCIPAL: renderToolsBody con normalización sin acentos y búsqueda amplia */
 function renderToolsBody() {
-  const input = $('tools-search-input'), out = $('tools-results');
-  if (!input || !out) return;
-  const q = input.value.toLowerCase().trim();
-  if (toolsTab === 'context') {
-    const f = CONTEXT.filter(x => x.term.toLowerCase().includes(q) || x.def.toLowerCase().includes(q));
-    out.innerHTML = f.length ? f.map(x=>`<div class="lex-result"><div style="font-weight:600;color:var(--purple)">${esc(x.term)}</div><div class="lex-def">${esc(x.def)}</div><div class="lex-refs">${esc(x.refs)}</div></div>`).join('') : '<div class="no-results">Sin resultados.</div>';
-  } else {
-    const lang = toolsTab==='hebrew'?'h':'g';
-    const f = LEXICON.filter(x => x.l===lang && (x.word.includes(q)||x.translit.toLowerCase().includes(q)||x.def.toLowerCase().includes(q)||x.strong.toLowerCase().includes(q)));
-    out.innerHTML = f.length ? f.map(x=>`<div class="lex-result"><span class="lex-word">${esc(x.word)}</span><span class="lex-strong">${esc(x.strong)}</span><div style="font-size:12px;color:var(--text2)">${esc(x.translit)}</div><div class="lex-def">${esc(x.def)}</div><div class="lex-refs">${esc(x.refs)}</div></div>`).join('') : '<div class="no-results">Sin resultados.</div>';
+  const input=$('tools-search-input'), out=$('tools-results');
+  if(!input||!out) return;
+  const raw=input.value.trim();
+  const q=normalize(raw);
+
+  /* Actualizar placeholder según tab */
+  input.placeholder = toolsTab==='hebrew'?'Buscar: luz, amor, YHWH...':toolsTab==='greek'?'Buscar: logos, agape, charis...':'Buscar: pacto, sacrificio...';
+
+  if(!q) {
+    out.innerHTML=`<div class="no-results" style="color:var(--text2);font-style:normal">
+      ${toolsTab==='hebrew'?'Ej: luz, corazon, espiritu, YHWH':toolsTab==='greek'?'Ej: logos, agape, pistis, zoe':'Ej: lampara, koinonia, denario, sacrificio'}
+    </div>`;
+    return;
   }
+
+  if(toolsTab==='context') {
+    const f=CONTEXT.filter(x=>normalize(x.term).includes(q)||normalize(x.def).includes(q)||normalize(x.refs).includes(q));
+    out.innerHTML=f.length?f.map(x=>`
+      <div class="lex-result">
+        <div class="lex-word">${esc(x.term)}</div>
+        <div class="lex-def">${esc(x.def)}</div>
+        <div class="lex-refs">${esc(x.refs)}</div>
+      </div>`).join(''):`<div class="no-results">Sin resultados para "${esc(raw)}"</div>`;
+    return;
+  }
+
+  const lang=toolsTab==='hebrew'?'h':'g';
+  const f=LEXICON.filter(x=>{
+    if(x.l!==lang) return false;
+    /* Buscar en: palabra original, transliteración, definición, strong, refs */
+    return x.word.includes(raw)||
+      normalize(x.translit).includes(q)||
+      normalize(x.def).includes(q)||
+      normalize(x.strong).includes(q)||
+      normalize(x.refs).includes(q);
+  });
+
+  out.innerHTML=f.length?f.map(x=>`
+    <div class="lex-result">
+      <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+        <span class="lex-word">${esc(x.word)}</span>
+        <span class="lex-strong">${esc(x.strong)}</span>
+      </div>
+      <div class="lex-translit">${esc(x.translit)}</div>
+      <div class="lex-def">${esc(x.def)}</div>
+      <div class="lex-refs">${esc(x.refs)}</div>
+    </div>`).join(''):`<div class="no-results">Sin resultados para "${esc(raw)}".<br>
+    <span style="font-size:11px;color:var(--text3)">Probá: ${lang==='h'?'luz, amor, paz, ley, verdad':'logos, agape, fe, gracia, vida'}</span>
+    </div>`;
 }
 
 /* ─── DIRTY / AUTOSAVE ─── */
 function markDirty() {
-  dirty = true;
-  const b = $('save-badge'); if (b) { b.className = 'save-badge saving'; b.textContent = 'Editando...'; }
-  if (settings.autosave) {
+  dirty=true;
+  const b=$('save-badge'); if(b){b.className='save-badge saving';b.textContent='Editando...';}
+  if(settings.autosave){
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => saveCurrentStudy(false, true), 800);
+    /* FIX: autosave a 1600ms — menos agresivo en mobile */
+    saveTimer=setTimeout(()=>saveCurrentStudy(false,true),1600);
   }
 }
 function updateWC() {
-  const s = getCurrentStudy(); if (!s) return;
-  // Live count without overwriting state
-  const notes = $('ed-notes')?.value || '';
-  let total = wordCount(notes);
-  ['s','o','a','p'].forEach(k => { const el = $('soap-'+k); if (el) total += wordCount(el.value); });
-  const lbl = $('wc-label'); if (lbl) lbl.textContent = total + (total===1?' palabra':' palabras');
-  const pct = Math.min(100, total/3);
-  const p = $('prog'); if (p) { p.style.width = pct+'%'; p.style.background = progColor(pct); }
+  const notes=$('ed-notes')?.value||'';
+  let total=wordCount(notes);
+  ['s','o','a','p'].forEach(k=>{const el=$('soap-'+k);if(el) total+=wordCount(el.value);});
+  const lbl=$('wc-label'); if(lbl) lbl.textContent=total+(total===1?' palabra':' palabras');
+  const pct=Math.min(100,total/3);
+  const p=$('prog'); if(p){p.style.width=pct+'%';p.style.background=progColor(pct);}
 }
 
-function saveCurrentStudy(showMsg=false, fromAuto=false) {
-  if (!currentId) return;
-  const s = getCurrentStudy(); if (!s) return;
-  const get = id => $(id)?.value;
-  const t = $('ed-title')?.value?.trim();
-  if (t !== undefined) s.title = t || 'Sin título';
-  if (get('ed-ref') !== undefined) s.reference = $('ed-ref').value.trim();
-  if (get('ed-book') !== undefined) s.book = $('ed-book').value.trim();
-  if (get('ed-series') !== undefined) { s.series = $('ed-series').value.trim(); refreshSeriesDatalist(); }
-  if (get('ed-date') !== undefined) s.date = $('ed-date').value || today();
-  if (get('ed-notes') !== undefined) s.notes = $('ed-notes').value;
-  const v = $('ed-verse'); if (v) s.verse = v.innerHTML;
-  ['s','o','a','p'].forEach(k => { const el = $('soap-'+k); if (el) { s.soap = s.soap||{}; s.soap[k] = el.value; } });
-  save(K.studies, studies);
-  if (dirty) recordHabit();
-  dirty = false;
-  const b = $('save-badge'); if (b) { b.className='save-badge saved'; b.textContent='Guardado ✓'; }
+function saveCurrentStudy(showMsg=false,fromAuto=false) {
+  if(!currentId) return;
+  const s=getCurrentStudy(); if(!s) return;
+  const get=id=>$(id)?.value;
+  const t=$('ed-title')?.value?.trim();
+  if(t!==undefined) s.title=t||'Sin título';
+  if(get('ed-ref')!==undefined) s.reference=$('ed-ref').value.trim();
+  if(get('ed-book')!==undefined) s.book=$('ed-book').value.trim();
+  if(get('ed-series')!==undefined){s.series=$('ed-series').value.trim();refreshSeriesDatalist();}
+  if(get('ed-date')!==undefined) s.date=$('ed-date').value||today();
+  if(get('ed-notes')!==undefined) s.notes=$('ed-notes').value;
+  const v=$('ed-verse'); if(v) s.verse=v.innerHTML;
+  ['s','o','a','p'].forEach(k=>{const el=$('soap-'+k);if(el){s.soap=s.soap||{};s.soap[k]=el.value;}});
+  save(K.studies,studies);
+  if(dirty) recordHabit();
+  dirty=false;
+  const b=$('save-badge'); if(b){b.className='save-badge saved';b.textContent='Guardado ✓';}
   renderSidebar();
-  if (showMsg) showToast('Guardado ✓');
+  if(showMsg) showToast('Guardado ✓');
 }
 
 /* ─── DELETE / DUPLICATE ─── */
-function deleteStudy(id) {
-  const s = studies.find(x => x.id===id); if (!s) return;
-  if (!confirm(`¿Eliminar "${s.title}"? No se puede deshacer.`)) return;
-  studies = studies.filter(x => x.id!==id);
-  save(K.studies, studies);
-  if (currentId===id) { currentId=null; renderWelcome(); $('content').innerHTML = $('welcome').outerHTML; renderWelcome(); }
+async function deleteStudy(id) {
+  const s=studies.find(x=>x.id===id); if(!s) return;
+  /* FIX: usar confirm personalizado en vez del nativo (funciona en PWA) */
+  const ok=await customConfirm(`¿Eliminar "${s.title}"? No se puede deshacer.`);
+  if(!ok) return;
+  studies=studies.filter(x=>x.id!==id); save(K.studies,studies);
+  if(currentId===id){currentId=null;$('content').innerHTML='<div class="empty-state" id="welcome"><div class="empty-icon">✦</div></div>';renderWelcome();}
   renderSidebar(); showToast('Eliminado');
 }
 function duplicateStudy(id) {
-  const s = studies.find(x => x.id===id); if (!s) return;
-  const copy = { ...JSON.parse(JSON.stringify(s)), id:Date.now(), title:s.title+' (copia)', date:today(), fav:false };
-  studies.unshift(copy); save(K.studies, studies);
-  openStudy(copy.id); showToast('Duplicado ✓');
+  const s=studies.find(x=>x.id===id); if(!s) return;
+  const copy={...JSON.parse(JSON.stringify(s)),id:Date.now(),title:s.title+' (copia)',date:today(),fav:false};
+  studies.unshift(copy); save(K.studies,studies); openStudy(copy.id); showToast('Duplicado ✓');
 }
 
 /* ─── TAGS ─── */
 function addTagEnter(e) {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const v = e.target.value.trim(); if (!v) return;
-  const s = getCurrentStudy(); if (!s) return;
-  s.tags = s.tags||[];
-  if (!s.tags.includes(v)) s.tags.push(v);
-  e.target.value = '';
-  save(K.studies, studies);
-  renderEditor(s); renderSidebar();
+  if(e.key!=='Enter') return; e.preventDefault();
+  const v=e.target.value.trim(); if(!v) return;
+  const s=getCurrentStudy(); if(!s) return;
+  s.tags=s.tags||[];
+  if(!s.tags.includes(v)) s.tags.push(v);
+  e.target.value=''; save(K.studies,studies); renderEditor(s); renderSidebar();
 }
 function removeTag(t) {
-  const s = getCurrentStudy(); if (!s) return;
-  s.tags = (s.tags||[]).filter(x => x!==t);
-  save(K.studies, studies);
-  renderEditor(s); renderSidebar();
+  const s=getCurrentStudy(); if(!s) return;
+  s.tags=(s.tags||[]).filter(x=>x!==t); save(K.studies,studies); renderEditor(s); renderSidebar();
 }
 
-/* ─── MARKDOWN ─── */
+/* ─── FIX: MARKDOWN — el texto se procesa sin esc() previo ─── */
 function mdWrap(w) {
-  const ta = $('ed-notes'); if (!ta) return;
-  const start = ta.selectionStart, end = ta.selectionEnd;
-  const sel = ta.value.slice(start,end) || 'texto';
-  ta.value = ta.value.slice(0,start) + w + sel + w + ta.value.slice(end);
-  ta.focus();
-  ta.selectionStart = start + w.length;
-  ta.selectionEnd = start + w.length + sel.length;
+  const ta=$('ed-notes'); if(!ta) return;
+  const start=ta.selectionStart,end=ta.selectionEnd;
+  const sel=ta.value.slice(start,end)||'texto';
+  ta.value=ta.value.slice(0,start)+w+sel+w+ta.value.slice(end);
+  ta.focus(); ta.selectionStart=start+w.length; ta.selectionEnd=start+w.length+sel.length;
   markDirty(); updateWC();
 }
+/* FIX: mdLine usa el carácter > real, no la entity HTML */
 function mdLine(prefix) {
-  const ta = $('ed-notes'); if (!ta) return;
-  const start = ta.selectionStart;
-  const before = ta.value.slice(0,start);
-  const lineStart = before.lastIndexOf('\n')+1;
-  ta.value = before.slice(0,lineStart) + prefix + before.slice(lineStart) + ta.value.slice(start);
-  ta.focus(); ta.selectionStart = ta.selectionEnd = start + prefix.length;
+  const ta=$('ed-notes'); if(!ta) return;
+  const start=ta.selectionStart;
+  const before=ta.value.slice(0,start);
+  const lineStart=before.lastIndexOf('\n')+1;
+  ta.value=before.slice(0,lineStart)+prefix+before.slice(lineStart)+ta.value.slice(start);
+  ta.focus(); ta.selectionStart=ta.selectionEnd=start+prefix.length;
   markDirty(); updateWC();
-}
-function renderMarkdown(text) {
-  if (!text) return '<span style="color:var(--text3);font-style:italic">Sin notas aún.</span>';
-  let h = esc(text);
-  h = h.replace(/^### (.+)$/gm,'<h3>$1</h3>')
-       .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-       .replace(/^# (.+)$/gm,'<h1>$1</h1>')
-       .replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>')
-       .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
-       .replace(/\*([^*]+)\*/g,'<em>$1</em>')
-       .replace(/`([^`]+)`/g,'<code>$1</code>');
-  h = h.replace(/(^|\n)((?:- .+\n?)+)/g, (m,p,l)=>p+'<ul>'+l.trim().split('\n').map(x=>'<li>'+x.replace(/^- /,'')+'</li>').join('')+'</ul>');
-  h = h.replace(/(^|\n)((?:\d+\. .+\n?)+)/g, (m,p,l)=>p+'<ol>'+l.trim().split('\n').map(x=>'<li>'+x.replace(/^\d+\. /,'')+'</li>').join('')+'</ol>');
-  h = h.split(/\n{2,}/).map(b => /^<(h\d|ul|ol|blockquote)/.test(b.trim()) ? b : '<p>'+b.replace(/\n/g,'<br>')+'</p>').join('\n');
-  return h;
 }
 
-/* ─── HIGHLIGHT ─── */
-function highlight(cls) {
-  const sel = window.getSelection();
-  if (!sel || !sel.rangeCount) return;
-  const r = sel.getRangeAt(0);
-  if (r.collapsed) return;
-  if (cls) {
-    const m = document.createElement('mark'); m.className = cls;
-    try { r.surroundContents(m); } catch(e) {}
-  } else {
-    const v = $('ed-verse');
-    if (v && v.contains(r.commonAncestorContainer)) {
-      v.querySelectorAll('mark').forEach(m => {
-        if (r.intersectsNode(m)) {
-          const p = m.parentNode;
-          while (m.firstChild) p.insertBefore(m.firstChild, m);
-          p.removeChild(m);
-        }
-      });
-    }
+/* FIX: renderMarkdown — procesa el texto crudo, escapa solo en partes textuales */
+function renderMarkdown(text) {
+  if(!text) return '<span style="color:var(--text3);font-style:italic">Sin notas aún.</span>';
+  /* Trabajar sobre el texto puro, escapar HTML en los fragmentos de texto */
+  const escText = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  /* Línea a línea para preservar estructura */
+  const lines = text.split('\n');
+  let html = '';
+  let inUL = false, inOL = false;
+
+  const closeList = () => {
+    if(inUL){html+='</ul>';inUL=false;}
+    if(inOL){html+='</ol>';inOL=false;}
+  };
+
+  const inlineFormat = s => {
+    let r = escText(s);
+    r = r.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    r = r.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+    r = r.replace(/`([^`]+)`/g,'<code>$1</code>');
+    return r;
+  };
+
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    if(/^### /.test(line)){closeList();html+=`<h3>${inlineFormat(line.slice(4))}</h3>`;continue;}
+    if(/^## /.test(line)){closeList();html+=`<h2>${inlineFormat(line.slice(3))}</h2>`;continue;}
+    if(/^# /.test(line)){closeList();html+=`<h1>${inlineFormat(line.slice(2))}</h1>`;continue;}
+    if(/^> /.test(line)){closeList();html+=`<blockquote>${inlineFormat(line.slice(2))}</blockquote>`;continue;}
+    if(/^- /.test(line)){if(!inUL){if(inOL){html+='</ol>';inOL=false;}html+='<ul>';inUL=true;}html+=`<li>${inlineFormat(line.slice(2))}</li>`;continue;}
+    if(/^\d+\. /.test(line)){if(!inOL){if(inUL){html+='</ul>';inUL=false;}html+='<ol>';inOL=true;}html+=`<li>${inlineFormat(line.replace(/^\d+\. /,''))}</li>`;continue;}
+    closeList();
+    if(line.trim()===''){html+='<br>';continue;}
+    html+=`<p>${inlineFormat(line)}</p>`;
   }
+  closeList();
+  return html;
+}
+
+/* ─── FIX: HIGHLIGHT — manejo seguro en iOS ─── */
+function highlight(cls) {
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed) return;
+  const r=sel.getRangeAt(0);
+  const v=$('ed-verse');
+  if(!v||!v.contains(r.commonAncestorContainer)) return;
+  try {
+    const m=document.createElement('mark'); m.className=cls;
+    r.surroundContents(m);
+    markDirty();
+  } catch(e) {
+    /* iOS: la selección cruza nodos — extraer contenido y re-insertar */
+    try {
+      const frag=r.extractContents();
+      const m=document.createElement('mark'); m.className=cls;
+      m.appendChild(frag); r.insertNode(m);
+      markDirty();
+    } catch(e2) { showToast('Seleccioná solo texto para resaltar'); }
+  }
+  sel.removeAllRanges();
+}
+/* FIX: clearHighlights separado para claridad */
+function clearHighlights() {
+  const v=$('ed-verse'); if(!v) return;
+  v.querySelectorAll('mark').forEach(m=>{
+    const p=m.parentNode;
+    while(m.firstChild) p.insertBefore(m.firstChild,m);
+    p.removeChild(m);
+  });
   markDirty();
 }
 
 /* ─── READ MODE ─── */
 function enterReadMode() {
-  saveCurrentStudy();
-  readMode = true;
-  const s = getCurrentStudy(); if (s) renderReadMode(s);
+  saveCurrentStudy(); readMode=true;
+  const s=getCurrentStudy(); if(s) renderReadMode(s);
 }
 function exitReadMode() {
-  readMode = false;
-  const s = getCurrentStudy(); if (s) renderEditor(s);
+  readMode=false; const s=getCurrentStudy(); if(s) renderEditor(s);
 }
 function renderReadMode(s) {
-  let body = '';
-  const fields = TEMPLATE_FIELDS[s.template];
-  if (fields) body = fields.map(([k,_,name]) => {
-    const v = (s.soap||{})[k]; if (!v) return '';
+  let body='';
+  const fields=TEMPLATE_FIELDS[s.template];
+  if(fields) body=fields.map(([k,,name])=>{
+    const v=(s.soap||{})[k]; if(!v) return '';
     return `<div style="margin-top:10px"><div class="section-label">${name}</div><div class="notes-read">${renderMarkdown(v)}</div></div>`;
   }).join('');
-  const xrefs = (s.xrefs||[]).map(x => `
+  const xrefs=(s.xrefs||[]).map(x=>`
     <div class="passage-card">
       <div class="passage-card-header"><span class="pc-ref">${esc(x.ref)}</span><span class="pc-translation">${esc(x.translation||'NVI')}</span></div>
       ${x.text?`<div class="passage-card-body">"${esc(x.text)}"</div>`:''}
     </div>`).join('');
 
-  $('content').innerHTML = `
+  $('content').innerHTML=`
     <div class="editor-header">
       <div style="flex:1;font-family:'Crimson Pro',serif;font-size:22px;font-weight:600;color:var(--text)">${esc(s.title)}</div>
       <span class="read-badge">MODO LECTURA</span>
@@ -1682,30 +1821,41 @@ function renderReadMode(s) {
       ${s.notes?`<div><div class="section-label">Notas</div><div class="notes-read">${renderMarkdown(s.notes)}</div></div>`:''}
     </div>
     <div class="read-toolbar">
+      <button class="btn-sm" onclick='shareWhatsappStudy()'>💬 WhatsApp</button>
       <button class="btn-sm" onclick="exitReadMode()">✎ Editar</button>
       <button class="btn-sm" onclick="window.print()">⎙ PDF</button>
     </div>`;
 }
+function shareWhatsappStudy() {
+  const s=getCurrentStudy(); if(!s) return;
+  const verse=(s.verse||'').replace(/<[^>]+>/g,'').trim();
+  const msg=encodeURIComponent(`*${s.title}*\n${s.reference}\n\n${verse?'"'+verse+'"':''}`.trim());
+  window.open('https://wa.me/?text='+msg,'_blank');
+}
 
 /* ─── MODALS ─── */
-function openModal(kind, arg) {
-  const m = $('modal'), c = $('modal-content');
-  c.innerHTML = MODALS[kind] ? MODALS[kind](arg) : '';
+function openModal(kind,arg) {
+  const m=$('modal'),c=$('modal-content');
+  c.innerHTML=MODALS[kind]?MODALS[kind](arg):'';
   m.classList.add('open');
+  /* Enfocar input si existe */
+  setTimeout(()=>{ const inp=c.querySelector('input[autofocus]'); if(inp) inp.focus(); },100);
 }
 function closeModal() {
-  if (fortalezaTimer) { clearInterval(fortalezaTimer); fortalezaTimer=null; }
+  if(fortalezaTimer){clearInterval(fortalezaTimer);fortalezaTimer=null;}
+  /* FIX: detener TTS al cerrar modal */
+  if(speechSynthesis.speaking) speechSynthesis.cancel();
   $('modal').classList.remove('open');
 }
 
 const MODALS = {
   plan: () => {
-    if (!plan) return modalHead('📖 Plan de lectura') + `
+    if(!plan) return modalHead('📖 Plan de lectura')+`
       <div class="modal-body">
         <p style="color:var(--text2);margin-bottom:14px">Elegí un plan para empezar:</p>
         <div class="plan-picker">
           ${Object.entries(PLANS).map(([k,p])=>{
-            const len = p.gen().length;
+            const len=p.gen().length;
             return `<div class="plan-option" onclick="startPlan('${k}')">
               <div><div class="plan-option-name">${p.name}</div><div class="plan-option-sub">${p.sub}</div></div>
               <div class="plan-option-len">${len}d</div>
@@ -1713,11 +1863,11 @@ const MODALS = {
           }).join('')}
         </div>
       </div>`;
-    const days = plan.days || [];
-    const done = days.filter(d => d.done).length;
-    const pct = days.length ? Math.round(done/days.length*100) : 0;
-    const todayIdx = Math.min(days.length-1, Math.floor((Date.now()-new Date(plan.startDate).getTime())/86400000));
-    return modalHead('📖 ' + esc(plan.name)) + `
+    const days=plan.days||[];
+    const done=days.filter(d=>d.done).length;
+    const pct=days.length?Math.round(done/days.length*100):0;
+    const todayIdx=Math.min(days.length-1,Math.floor((Date.now()-new Date(plan.startDate).getTime())/86400000));
+    return modalHead('📖 '+esc(plan.name))+`
       <div class="modal-body">
         <div class="plan-summary">
           <div class="plan-summary-row">
@@ -1741,53 +1891,53 @@ const MODALS = {
   },
 
   prayer: () => {
-    const ans = prayers.filter(p=>p.status==='answered'&&p.dateAnswered);
-    const avg = ans.length ? Math.round(ans.reduce((a,p)=>a+((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000),0)/ans.length) : 0;
-    const old = prayers.filter(p=>p.status==='active'&&((Date.now()-new Date(p.dateAdded).getTime())/86400000)>14);
-    return modalHead('🙏 Oraciones') + `
+    const ans=prayers.filter(p=>p.status==='answered'&&p.dateAnswered);
+    const avg=ans.length?Math.round(ans.reduce((a,p)=>a+((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000),0)/ans.length):0;
+    const old=prayers.filter(p=>p.status==='active'&&((Date.now()-new Date(p.dateAdded).getTime())/86400000)>14);
+    return modalHead('🙏 Oraciones')+`
     <div class="modal-body">
       ${ans.length?`<div class="week-summary"><div class="ws-title">Resumen</div><div class="ws-grid"><span>Activas: <b>${prayers.filter(p=>p.status==='active').length}</b></span><span>Respondidas: <b>${ans.length}</b></span><span>Tiempo prom: <b>${avg}d</b></span><span>Ratio: <b>${Math.round(ans.length/prayers.length*100)}%</b></span></div></div>`:''}
       ${old.length?`<div style="background:var(--gold-bg);border:.5px solid var(--gold);padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:12px;color:var(--gold-dark)">⏳ Tenés ${old.length} petición${old.length>1?'es':''} sin revisar hace más de 2 semanas.</div>`:''}
       <div class="prayer-add">
-        <input type="text" id="prayer-input" placeholder="Nueva petición..." onkeydown="if(event.key==='Enter')addPrayer()" />
+        <input type="text" id="prayer-input" placeholder="Nueva petición..." onkeydown="if(event.key==='Enter')addPrayer()" autofocus />
         <button class="btn-save" onclick="addPrayer()">+</button>
       </div>
       <div style="margin-top:12px">
-        ${prayers.length ? prayers.map(p=>{
-          const days = p.status==='answered'&&p.dateAnswered ? Math.round((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000) : Math.round((Date.now()-new Date(p.dateAdded).getTime())/86400000);
+        ${prayers.length?prayers.map(p=>{
+          const days=p.status==='answered'&&p.dateAnswered?Math.round((new Date(p.dateAnswered)-new Date(p.dateAdded))/86400000):Math.round((Date.now()-new Date(p.dateAdded).getTime())/86400000);
           return `
           <div class="prayer-item ${p.status==='answered'?'answered':''}">
             <div class="prayer-row1">
               <button class="prayer-status-btn" onclick="togglePrayer(${p.id})">${p.status==='answered'?'✓':''}</button>
-              <textarea class="prayer-text" oninput="updatePrayer(${p.id}, this.value)">${esc(p.text)}</textarea>
+              <textarea class="prayer-text" oninput="updatePrayer(${p.id},this.value)">${esc(p.text)}</textarea>
             </div>
             <div class="prayer-meta">
               <span class="prayer-cat" data-cat="${esc(p.cat)}" onclick="cyclePrayerCat(${p.id})">${esc(p.cat)}</span>
               <span><span style="margin-right:8px">${p.status==='answered'?`respondida en ${days}d`:`hace ${days}d`}</span><span class="prayer-del" onclick="deletePrayer(${p.id})">✕</span></span>
             </div>
-          </div>`;}).join('')
-        : '<div style="color:var(--text3);font-style:italic;padding:8px">Sin peticiones aún.</div>'}
+          </div>`;}
+        ).join(''):'<div style="color:var(--text3);font-style:italic;padding:8px">Sin peticiones aún.</div>'}
       </div>
     </div>`;
   },
 
   cal: () => {
-    const d = new Date(calYear, calMonth, 1);
-    const monthName = d.toLocaleDateString('es', { month:'long', year:'numeric' });
-    const firstDow = (d.getDay()+6)%7;
-    const days = new Date(calYear, calMonth+1, 0).getDate();
-    const td = today();
-    const cells = [];
-    for (let i=0;i<firstDow;i++) cells.push(`<div class="cal-cell empty"></div>`);
-    for (let i=1;i<=days;i++) {
-      const k = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-      const dayStudies = studies.filter(s => s.date===k);
+    const d=new Date(calYear,calMonth,1);
+    const monthName=d.toLocaleDateString('es',{month:'long',year:'numeric'});
+    const firstDow=(d.getDay()+6)%7;
+    const days=new Date(calYear,calMonth+1,0).getDate();
+    const td=today();
+    const cells=[];
+    for(let i=0;i<firstDow;i++) cells.push(`<div class="cal-cell empty"></div>`);
+    for(let i=1;i<=days;i++){
+      const k=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      const dayStudies=studies.filter(s=>s.date===k);
       cells.push(`<div class="cal-cell ${k===td?'today':''} ${dayStudies.length?'has-study':''}" onclick="${dayStudies.length?`openStudy(${dayStudies[0].id});closeModal()`:''}">
         <div class="cal-cell-num">${i}</div>
         <div class="cal-cell-list">${dayStudies.slice(0,3).map(s=>`<div class="cal-cell-item">${esc(s.title)}</div>`).join('')}</div>
       </div>`);
     }
-    return modalHead('🗓 Calendario') + `
+    return modalHead('🗓 Calendario')+`
       <div class="modal-body">
         <div class="cal-head">
           <div class="cal-title">${monthName}</div>
@@ -1798,16 +1948,16 @@ const MODALS = {
           </div>
         </div>
         <div class="cal-grid">
-          ${['L','M','M','J','V','S','D'].map(d=>`<div class="cal-dow">${d}</div>`).join('')}
+          ${['L','M','X','J','V','S','D'].map(d=>`<div class="cal-dow">${d}</div>`).join('')}
           ${cells.join('')}
         </div>
       </div>`;
   },
 
-  reminders: () => modalHead('🔔 Recordatorios') + `
+  reminders: () => modalHead('🔔 Recordatorios')+`
     <div class="modal-body">
       <p style="color:var(--text2);margin-bottom:12px;font-size:14px">Versículos que aparecerán como notificación.</p>
-      ${('Notification' in window && Notification.permission==='default') ? `<button class="btn-sm" onclick="requestNotificationPermission()" style="margin-bottom:12px">🔔 Activar notificaciones</button>` : ''}
+      ${'Notification' in window&&Notification.permission==='default'?`<button class="btn-sm" onclick="requestNotificationPermission()" style="margin-bottom:12px">🔔 Activar notificaciones</button>`:''}
       <div class="section-label">⏰ Horarios</div>
       <div class="time-inputs" style="margin-bottom:12px">
         <input type="time" id="rem-time1" value="${reminders.times[0]||'09:00'}" />
@@ -1819,23 +1969,21 @@ const MODALS = {
         <span>📖 Versículos (${reminders.items.length})</span>
         <button class="btn-sm" onclick="toggleAllReminders()" style="font-size:10px">${reminders.active?'🔕 Pausar':'🔔 Activar'}</button>
       </div>
-      ${reminders.items.length ? reminders.items.map(it=>`
+      ${reminders.items.length?reminders.items.map(it=>`
         <div class="reminder-card" style="opacity:${it.active?1:.5}">
           <span class="reminder-del" onclick="removeReminder(${it.id})">✕</span>
           <div class="reminder-verse">"${esc(it.verse).slice(0,120)}${it.verse.length>120?'...':''}"</div>
           <div class="reminder-ref">— ${esc(it.ref)}</div>
           <button class="reminder-toggle" onclick="toggleReminderActive(${it.id})">${it.active?'🔔 Activo':'🔕 Pausado'}</button>
-        </div>
-      `).join('') : '<div style="color:var(--text3);font-style:italic;padding:8px">Sin versículos. Agregá desde un estudio con "🔔 Recordar".</div>'}
+        </div>`).join(''):'<div style="color:var(--text3);font-style:italic;padding:8px">Sin versículos. Agregá desde un estudio con "🔔 Recordar".</div>'}
     </div>`,
 
   fortaleza: () => {
-    const v = FORTALEZA_VERSES[Math.floor(Math.random()*FORTALEZA_VERSES.length)];
-    // Build last 14 days victory chart
-    const days = []; const counts = [];
-    for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=d.toISOString().split('T')[0]; days.push(k.slice(5)); counts.push(fortaleza.log.filter(x=>x.date===k).length); }
-    const maxC = Math.max(1, ...counts);
-    return modalHead('🛡️ Modo Fortaleza') + `
+    const v=FORTALEZA_VERSES[Math.floor(Math.random()*FORTALEZA_VERSES.length)];
+    const days=[],counts=[];
+    for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0];days.push(k.slice(5));counts.push(fortaleza.log.filter(x=>x.date===k).length);}
+    const maxC=Math.max(1,...counts);
+    return modalHead('🛡️ Modo Fortaleza')+`
       <div class="modal-body">
         <div class="fortaleza-hero">
           <div class="ft-verse">"${esc(v.text)}"</div>
@@ -1845,16 +1993,16 @@ const MODALS = {
         <div class="fortaleza-actions">
           <button class="ft-btn primary" onclick="activateFortalezaTimer()">⏱️ Resistir 2 minutos</button>
           <div class="ft-timer" id="ft-timer" style="display:none">2:00</div>
-          <button class="ft-btn" onclick="document.getElementById('ft-textarea').style.display='block';this.style.display='none'">✍️ Escribir lo que siento</button>
+          <button class="ft-btn" id="ft-write-btn" onclick="document.getElementById('ft-textarea').style.display='block';this.style.display='none'">✍️ Escribir lo que siento</button>
           <textarea class="ft-textarea" id="ft-textarea" style="display:none" placeholder="Descargá lo que sentís..."></textarea>
-          <button class="ft-btn" onclick="document.getElementById('ft-prayer').style.display='block';this.style.display='none'">🙏 Oración de guerra espiritual</button>
+          <button class="ft-btn" id="ft-prayer-btn" onclick="document.getElementById('ft-prayer').style.display='block';this.style.display='none'">🙏 Oración de guerra espiritual</button>
           <div id="ft-prayer" style="display:none;margin-top:8px;padding:12px;background:var(--bg2);border-radius:8px;font-style:italic;color:var(--text2);line-height:1.7;border-left:3px solid var(--gold)">${FORTALEZA_ORACION}</div>
-          ${fortaleza.emergencyContact ? `<a class="ft-btn" href="tel:${esc(fortaleza.emergencyContact)}" style="text-decoration:none">📞 Llamar contacto de emergencia</a>` : `<button class="ft-btn" onclick="setEmergencyContact()">📞 Configurar contacto de emergencia</button>`}
+          ${fortaleza.emergencyContact?`<a class="ft-btn" href="tel:${esc(fortaleza.emergencyContact)}" style="text-decoration:none">📞 Llamar contacto de emergencia</a>`:`<button class="ft-btn" onclick="setEmergencyContact()">📞 Configurar contacto de emergencia</button>`}
           <div class="section-label" style="margin-top:12px">💡 Bloqueos rápidos</div>
           <div class="ft-block-suggestions">
             ${FORTALEZA_BLOQUEOS.map(b=>`<span class="ft-block-chip" onclick="showToast('${esc(b.action).replace(/'/g,"\\'")}')">${esc(b.text)}</span>`).join('')}
           </div>
-          ${fortaleza.count>0?`<div class="section-label" style="margin-top:14px">📊 Victorias úiltimos 14 días</div>
+          ${fortaleza.count>0?`<div class="section-label" style="margin-top:14px">📊 Victorias últimos 14 días</div>
           <div class="victory-chart">${counts.map((c,i)=>`<div class="vc-bar" style="height:${(c/maxC)*100}%" data-v="${days[i]}: ${c}"></div>`).join('')}</div>`:''}
         </div>
         <div class="ft-counter">🛡️ Has usado el escudo <strong>${fortaleza.count}</strong> ${fortaleza.count===1?'vez':'veces'}</div>
@@ -1865,7 +2013,7 @@ const MODALS = {
       </div>`;
   },
 
-  settings: () => modalHead('⚙ Ajustes') + `
+  settings: () => modalHead('⚙ Ajustes')+`
     <div class="modal-body">
       <div style="display:flex;flex-direction:column;gap:14px">
         <label style="display:flex;justify-content:space-between;align-items:center">
@@ -1909,17 +2057,17 @@ const MODALS = {
         <hr style="border:none;border-top:.5px solid var(--border)" />
         <button class="btn-sm" onclick="openModal('shortcuts')">⌨ Atajos de teclado</button>
         <button class="btn-sm" onclick="exportJSON();markBackup()">↓ Backup ahora</button>
-        <button class="btn-sm btn-danger" onclick="if(confirm('¿Borrar TODOS los datos? No se puede deshacer.')){localStorage.clear();location.reload()}">🗑 Borrar todo</button>
+        <button class="btn-sm btn-danger" onclick="borrarTodo()">🗑 Borrar todo</button>
       </div>
     </div>`,
 
   memoria: () => {
-    const due = memoCards.filter(c => !c.next || c.next <= today());
-    const total = memoCards.length;
-    return modalHead('🧠 Memorización') + `
+    const due=memoCards.filter(c=>!c.next||c.next<=today());
+    const total=memoCards.length;
+    return modalHead('🧠 Memorización')+`
     <div class="modal-body">
       <div class="week-summary"><div class="ws-title">Repetición espaciada</div><div class="ws-grid"><span>Total: <b>${total}</b></span><span>Para hoy: <b>${due.length}</b></span><span>Aprendidas: <b>${memoCards.filter(c=>(c.streak||0)>=4).length}</b></span><span>Nuevas: <b>${memoCards.filter(c=>!(c.streak)).length}</b></span></div></div>
-      ${due.length ? due.map((c,i)=>renderMemoCard(c,i)).join('') : (total?'<div style="text-align:center;padding:20px;color:var(--green)">✨ ¡Por hoy listo! Volvé mañana.</div>':'<div style="color:var(--text3);font-style:italic;padding:10px">Sin versiculos. Agregá desde el versiculo del día o desde un estudio.</div>')}
+      ${due.length?due.map((c,i)=>renderMemoCard(c,i)).join(''):(total?'<div style="text-align:center;padding:20px;color:var(--green)">✨ ¡Por hoy listo! Volvé mañana.</div>':'<div style="color:var(--text3);font-style:italic;padding:10px">Sin versículos. Agregá desde el versículo del día o desde un estudio.</div>')}
       <div style="margin-top:14px;padding:10px;background:var(--bg2);border-radius:8px">
         <div class="section-label">+ Agregar manualmente</div>
         <input id="memo-ref" class="meta-input" placeholder="Referencia (ej: Juan 3:16)" style="width:100%;margin-bottom:6px" />
@@ -1929,7 +2077,7 @@ const MODALS = {
     </div>`;
   },
 
-  shortcuts: () => modalHead('⌨ Atajos') + `
+  shortcuts: () => modalHead('⌨ Atajos')+`
     <div class="modal-body">
       <div class="kbd-list">
         ${[['Nuevo estudio','Ctrl+N'],['Buscar global','Ctrl+K'],['Modo Fortaleza','Ctrl+E'],['Recordatorios','Ctrl+R'],
@@ -1939,155 +2087,139 @@ const MODALS = {
       </div>
     </div>`,
 
-  search: () => modalHead('🔍 Búsqueda global') + `
+  search: () => modalHead('🔍 Búsqueda global')+`
     <div class="modal-body">
-      <input class="search-box" id="gs-input" type="text" placeholder="Buscar en estudios, pasajes, oraciones..." oninput="renderGlobalSearch()" autofocus />
-      <div class="gs-results" id="gs-results"></div>
+      <input class="search-box" id="gs-input" type="text" placeholder="Buscar en estudios, pasajes, oraciones..." oninput="gsDebounceSearch()" autofocus />
+      <div class="gs-results" id="gs-results"><div style="color:var(--text3);font-style:italic;padding:8px">Escribí para buscar...</div></div>
     </div>`
 };
 
+/* ─── FIX: borrar todo con confirm personalizado ─── */
+async function borrarTodo() {
+  const ok=await customConfirm('¿Borrar TODOS los datos? No se puede deshacer.');
+  if(ok){localStorage.clear();location.reload();}
+}
+
+/* ─── FIX: calNav — solo actualiza el contenido del modal sin re-abrir ─── */
+function calNav(dir) {
+  calMonth+=dir;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  /* Re-renderizar solo el contenido interno */
+  const c=$('modal-content');
+  if(c) c.innerHTML=MODALS.cal();
+}
+function calToday(){const d=new Date();calMonth=d.getMonth();calYear=d.getFullYear();const c=$('modal-content');if(c)c.innerHTML=MODALS.cal();}
+
 /* ─── PLAN ─── */
 function startPlan(key) {
-  const p = PLANS[key];
-  plan = { key, name:p.name, sub:p.sub, startDate:today(), days: p.gen() };
-  save(K.plan, plan); openModal('plan');
+  const p=PLANS[key];
+  plan={key,name:p.name,sub:p.sub,startDate:today(),days:p.gen()};
+  save(K.plan,plan); openModal('plan');
 }
-function abandonPlan() {
-  if (!confirm('¿Abandonar plan?')) return;
-  plan = null; save(K.plan, plan); openModal('plan');
+async function abandonPlan() {
+  const ok=await customConfirm('¿Abandonar plan?');
+  if(!ok) return;
+  plan=null; save(K.plan,plan); openModal('plan');
 }
 function togglePlanDay(i) {
-  if (!plan) return;
-  plan.days[i].done = !plan.days[i].done;
-  save(K.plan, plan); openModal('plan');
+  if(!plan) return;
+  plan.days[i].done=!plan.days[i].done; save(K.plan,plan);
+  const c=$('modal-content'); if(c) c.innerHTML=MODALS.plan();
 }
 function planDayClick(i) {
-  if (!plan) return;
-  const ref = plan.days[i].ref;
-  // Find or create study
-  const existing = studies.find(s => s.reference === ref);
-  if (existing) { closeModal(); openStudy(existing.id); return; }
-  const id = Date.now();
-  const book = ref.split(/\s\d/)[0];
-  studies.unshift({ id, fav:false, template:'soap', series:plan.name, title:'Día '+(i+1)+': '+ref,
-    reference:ref, book, date:today(), tags:[], xrefs:[], verse:'', notes:'', soap:{} });
-  save(K.studies, studies);
-  closeModal(); openStudy(id);
-  showToast('Estudio creado para Día ' + (i+1));
+  if(!plan) return;
+  const ref=plan.days[i].ref;
+  const existing=studies.find(s=>s.reference===ref);
+  if(existing){closeModal();openStudy(existing.id);return;}
+  const id=Date.now(); const book=ref.split(/\s\d/)[0];
+  studies.unshift({id,fav:false,template:'soap',series:plan.name,title:'Día '+(i+1)+': '+ref,
+    reference:ref,book,date:today(),tags:[],xrefs:[],verse:'',notes:'',soap:{}});
+  save(K.studies,studies); closeModal(); openStudy(id); showToast('Estudio creado para Día '+(i+1));
 }
 
 /* ─── PRAYER ─── */
 function addPrayer() {
-  const inp = $('prayer-input');
-  const v = inp?.value.trim(); if (!v) return;
-  prayers.unshift({ id:Date.now(), text:v, cat:'personal', status:'active', dateAdded:today() });
-  save(K.prayer, prayers);
-  inp.value = '';
-  openModal('prayer');
+  const inp=$('prayer-input');
+  const v=inp?.value.trim(); if(!v) return;
+  prayers.unshift({id:Date.now(),text:v,cat:'personal',status:'active',dateAdded:today()});
+  save(K.prayer,prayers); inp.value=''; openModal('prayer');
 }
 function togglePrayer(id) {
-  const p = prayers.find(x => x.id===id); if (!p) return;
-  p.status = p.status==='answered'?'active':'answered';
-  if (p.status==='answered') p.dateAnswered = today();
-  save(K.prayer, prayers); openModal('prayer');
-  if (p.status==='answered') showToast('🙏 ¡Oración respondida!');
+  const p=prayers.find(x=>x.id===id); if(!p) return;
+  p.status=p.status==='answered'?'active':'answered';
+  if(p.status==='answered') p.dateAnswered=today();
+  save(K.prayer,prayers); openModal('prayer');
+  if(p.status==='answered') showToast('🙏 ¡Oración respondida!');
 }
-function deletePrayer(id) {
-  prayers = prayers.filter(p => p.id!==id);
-  save(K.prayer, prayers); openModal('prayer');
-}
-function updatePrayer(id, text) {
-  const p = prayers.find(x => x.id===id); if (!p) return;
-  p.text = text; save(K.prayer, prayers);
-}
+function deletePrayer(id){prayers=prayers.filter(p=>p.id!==id);save(K.prayer,prayers);openModal('prayer');}
+function updatePrayer(id,text){const p=prayers.find(x=>x.id===id);if(!p)return;p.text=text;save(K.prayer,prayers);}
 function cyclePrayerCat(id) {
-  const cats = ['personal','familia','iglesia','salud','trabajo','otros'];
-  const p = prayers.find(x => x.id===id); if (!p) return;
-  p.cat = cats[(cats.indexOf(p.cat)+1) % cats.length];
-  save(K.prayer, prayers); openModal('prayer');
+  const cats=['personal','familia','iglesia','salud','trabajo','otros'];
+  const p=prayers.find(x=>x.id===id); if(!p) return;
+  p.cat=cats[(cats.indexOf(p.cat)+1)%cats.length]; save(K.prayer,prayers); openModal('prayer');
 }
-
-/* ─── CALENDAR NAV ─── */
-function calNav(dir) {
-  calMonth += dir;
-  if (calMonth<0) { calMonth=11; calYear--; }
-  if (calMonth>11) { calMonth=0; calYear++; }
-  openModal('cal');
-}
-function calToday() { const d=new Date(); calMonth=d.getMonth(); calYear=d.getFullYear(); openModal('cal'); }
 
 /* ─── REMINDERS ─── */
 function requestNotificationPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().then(p => {
-      showToast(p==='granted'?'🔔 Notificaciones activadas':'⚠ Bloqueadas');
-      openModal('reminders');
-    });
+  if('Notification'in window&&Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{showToast(p==='granted'?'🔔 Notificaciones activadas':'⚠ Bloqueadas');openModal('reminders');});
   }
 }
 function addCurrentVerseToReminders() {
-  const verse = ($('ed-verse')?.innerText||'').trim();
-  const ref = ($('ed-ref')?.value||'').trim();
-  if (!verse || !ref) { showToast('Falta versículo o referencia'); return; }
-  reminders.items.push({ id:Date.now(), verse, ref, active:true, added:today() });
-  save(K.reminders, reminders);
-  updateBellBadge(); scheduleAllReminders();
+  const verse=($('ed-verse')?.innerText||'').trim();
+  const ref=($('ed-ref')?.value||'').trim();
+  if(!verse||!ref){showToast('Falta versículo o referencia');return;}
+  reminders.items.push({id:Date.now(),verse,ref,active:true,added:today()});
+  save(K.reminders,reminders); updateBellBadge(); scheduleAllReminders();
   showToast('🔔 Agregado a recordatorios');
 }
 function toggleReminderActive(id) {
-  const it = reminders.items.find(i => i.id===id); if (!it) return;
-  it.active = !it.active;
-  save(K.reminders, reminders); updateBellBadge(); scheduleAllReminders();
-  openModal('reminders');
+  const it=reminders.items.find(i=>i.id===id); if(!it) return;
+  it.active=!it.active; save(K.reminders,reminders); updateBellBadge(); scheduleAllReminders(); openModal('reminders');
 }
 function removeReminder(id) {
-  reminders.items = reminders.items.filter(i => i.id!==id);
-  save(K.reminders, reminders); updateBellBadge(); scheduleAllReminders();
-  openModal('reminders');
+  reminders.items=reminders.items.filter(i=>i.id!==id);
+  save(K.reminders,reminders); updateBellBadge(); scheduleAllReminders(); openModal('reminders');
 }
 function updateReminderTimes() {
-  reminders.times = [$('rem-time1').value,$('rem-time2').value,$('rem-time3').value].filter(Boolean);
-  save(K.reminders, reminders); scheduleAllReminders();
-  showToast('⏰ Horarios actualizados');
+  reminders.times=[$('rem-time1').value,$('rem-time2').value,$('rem-time3').value].filter(Boolean);
+  save(K.reminders,reminders); scheduleAllReminders(); showToast('⏰ Horarios actualizados');
 }
 function toggleAllReminders() {
-  reminders.active = !reminders.active;
-  save(K.reminders, reminders); updateBellBadge(); scheduleAllReminders();
-  showToast(reminders.active?'🔔 Activados':'🔕 Pausados');
-  openModal('reminders');
+  reminders.active=!reminders.active; save(K.reminders,reminders); updateBellBadge(); scheduleAllReminders();
+  showToast(reminders.active?'🔔 Activados':'🔕 Pausados'); openModal('reminders');
 }
 function updateBellBadge() {
-  const b = $('btn-bell');
-  if (b) b.classList.toggle('has-reminders', reminders.active && reminders.items.some(i => i.active));
+  const b=$('btn-bell');
+  if(b) b.classList.toggle('has-reminders',reminders.active&&reminders.items.some(i=>i.active));
 }
+/* FIX: scheduleAllReminders usa un objeto de timers con claves únicas por horario */
 function scheduleAllReminders() {
-  // Clear ALL pending timers (fix the leak)
-  reminderTimers.forEach(t => clearTimeout(t));
-  reminderTimers = [];
-  if (!reminders.active) return;
-  const active = reminders.items.filter(i => i.active);
-  if (!active.length) return;
-  const now = new Date();
-  reminders.times.forEach(time => {
-    const [h,m] = time.split(':').map(Number);
-    const trig = new Date(now);
-    trig.setHours(h,m,0,0);
-    if (trig <= now) trig.setDate(trig.getDate()+1);
-    const id = setTimeout(() => {
-      if (reminders.active) {
-        const it = active[Math.floor(Math.random()*active.length)];
-        showNotification(it);
-        scheduleAllReminders();
+  Object.values(reminderTimers).forEach(t=>clearTimeout(t));
+  reminderTimers={};
+  if(!reminders.active) return;
+  const active=reminders.items.filter(i=>i.active);
+  if(!active.length) return;
+  const now=new Date();
+  reminders.times.forEach((time,idx)=>{
+    const [h,m]=time.split(':').map(Number);
+    const trig=new Date(now); trig.setHours(h,m,0,0);
+    if(trig<=now) trig.setDate(trig.getDate()+1);
+    const id=setTimeout(()=>{
+      if(reminders.active){
+        const it=active[Math.floor(Math.random()*active.length)];
+        showNotification(it); scheduleAllReminders();
       }
-    }, trig.getTime() - now.getTime());
-    reminderTimers.push(id);
+    },trig.getTime()-now.getTime());
+    reminderTimers[time+'_'+idx]=id;
   });
 }
 function showNotification(it) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('📖 Recordatorio de la Palabra', {
+  if('Notification'in window&&Notification.permission==='granted'){
+    new Notification('📖 Recordatorio de la Palabra',{
       body:`"${it.verse.slice(0,100)}${it.verse.length>100?'...':''}" — ${it.ref}`,
-      icon:'icon-192.png', tag:'verse-reminder'
+      icon:'icon-192.png',tag:'verse-reminder'
     });
   }
 }
@@ -2095,196 +2227,177 @@ function showNotification(it) {
 /* ─── FORTALEZA ─── */
 function recordFortaleza() {
   fortaleza.count++;
-  fortaleza.log.push({ date:today(), time:new Date().toISOString() });
-  save(K.fortaleza, fortaleza);
-  updateShieldBadge();
+  fortaleza.log.push({date:today(),time:new Date().toISOString()});
+  save(K.fortaleza,fortaleza); updateShieldBadge();
 }
 function updateShieldBadge() {
-  const b = $('shield-count');
-  if (b) {
-    if (fortaleza.count > 0) { b.style.display='flex'; b.textContent = fortaleza.count>99?'99+':fortaleza.count; }
-    else b.style.display = 'none';
-  }
+  const b=$('shield-count');
+  if(b){if(fortaleza.count>0){b.style.display='flex';b.textContent=fortaleza.count>99?'99+':fortaleza.count;}else b.style.display='none';}
 }
 function activateFortalezaTimer() {
-  const el = $('ft-timer'); if (!el) return;
-  el.style.display = 'block';
-  fortalezaSeconds = 120;
-  if (fortalezaTimer) clearInterval(fortalezaTimer);
-  fortalezaTimer = setInterval(() => {
+  const el=$('ft-timer'); if(!el) return;
+  el.style.display='block'; fortalezaSeconds=120;
+  if(fortalezaTimer) clearInterval(fortalezaTimer);
+  fortalezaTimer=setInterval(()=>{
     fortalezaSeconds--;
-    el.textContent = `${Math.floor(fortalezaSeconds/60)}:${String(fortalezaSeconds%60).padStart(2,'0')}`;
-    if (fortalezaSeconds<=0) {
-      clearInterval(fortalezaTimer); fortalezaTimer=null;
-      el.textContent = '¡Victoria! 🛡️';
-      recordFortaleza();
-      showToast('¡Resististe! Dios es fiel 🙌');
-    }
-  }, 1000);
+    el.textContent=`${Math.floor(fortalezaSeconds/60)}:${String(fortalezaSeconds%60).padStart(2,'0')}`;
+    if(fortalezaSeconds<=0){clearInterval(fortalezaTimer);fortalezaTimer=null;el.textContent='¡Victoria! 🛡️';recordFortaleza();showToast('¡Resististe! Dios es fiel 🙌');}
+  },1000);
 }
 function registrarVictoria() {
-  const ta = $('ft-textarea');
-  if (ta && ta.value.trim()) {
-    fortaleza.log.push({ date:today(), time:new Date().toISOString(), text:ta.value.trim() });
-  }
-  recordFortaleza();
-  showToast('¡Victoria registrada! 🛡️');
-  closeModal();
+  const ta=$('ft-textarea');
+  if(ta&&ta.value.trim()) fortaleza.log.push({date:today(),time:new Date().toISOString(),text:ta.value.trim()});
+  recordFortaleza(); showToast('¡Victoria registrada! 🛡️'); closeModal();
 }
 
 /* ─── EXPORT / IMPORT ─── */
 function exportJSON() {
-  const data = { studies, prayers, plan, habit, settings, fortaleza, reminders, exported: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `diario-biblico-${today()}.json`;
-  a.click();
+  const data={studies,prayers,plan,habit,settings,fortaleza,reminders,memoCards,exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`diario-biblico-${today()}.json`; a.click();
   showToast('Exportado ✓');
 }
 function exportMarkdown() {
-  let out = '# Diario Bíblico\n\n';
-  studies.forEach(s => {
-    out += `## ${s.title}\n\n`;
-    out += `**${s.reference}** · ${s.date}${s.series?' · _'+s.series+'_':''}\n\n`;
-    if (s.verse) out += `> ${s.verse.replace(/<[^>]+>/g,'')}\n\n`;
-    if (s.xrefs?.length) {
-      out += '### Pasajes\n\n';
-      s.xrefs.forEach(x => out += `- **${x.ref}** (${x.translation||'NVI'}): ${x.text||'(sin texto)'}\n`);
-      out += '\n';
-    }
-    const fields = TEMPLATE_FIELDS[s.template];
-    if (fields) fields.forEach(([k,_,name]) => { if ((s.soap||{})[k]) out += `### ${name}\n\n${s.soap[k]}\n\n`; });
-    if (s.notes) out += `### Notas\n\n${s.notes}\n\n`;
-    if (s.tags?.length) out += `_Temas: ${s.tags.join(', ')}_\n\n`;
-    out += '---\n\n';
+  let out='# Diario Bíblico\n\n';
+  studies.forEach(s=>{
+    out+=`## ${s.title}\n\n`;
+    out+=`**${s.reference}** · ${s.date}${s.series?' · _'+s.series+'_':''}\n\n`;
+    if(s.verse) out+=`> ${s.verse.replace(/<[^>]+>/g,'')}\n\n`;
+    if(s.xrefs?.length){out+='### Pasajes\n\n';s.xrefs.forEach(x=>out+=`- **${x.ref}** (${x.translation||'NVI'}): ${x.text||'(sin texto)'}\n`);out+='\n';}
+    const fields=TEMPLATE_FIELDS[s.template];
+    if(fields) fields.forEach(([k,,name])=>{if((s.soap||{})[k]) out+=`### ${name}\n\n${s.soap[k]}\n\n`;});
+    if(s.notes) out+=`### Notas\n\n${s.notes}\n\n`;
+    if(s.tags?.length) out+=`_Temas: ${s.tags.join(', ')}_\n\n`;
+    out+='---\n\n';
   });
-  const blob = new Blob([out], { type:'text/markdown' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `diario-biblico-${today()}.md`;
-  a.click();
+  const blob=new Blob([out],{type:'text/markdown'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`diario-biblico-${today()}.md`; a.click();
   showToast('Markdown exportado ✓');
 }
-function importJSON(e) {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try {
-      const d = JSON.parse(r.result);
-      if (!confirm('¿Reemplazar datos actuales?')) return;
-      if (d.studies) { studies = d.studies; save(K.studies, studies); }
-      if (d.prayers) { prayers = d.prayers; save(K.prayer, prayers); }
-      if (d.plan) { plan = d.plan; save(K.plan, plan); }
-      if (d.habit) { habit = d.habit; save(K.habit, habit); }
-      if (d.settings) { settings = {...settings, ...d.settings}; save(K.settings, settings); }
-      if (d.fortaleza) { fortaleza = {...fortaleza, ...d.fortaleza}; save(K.fortaleza, fortaleza); }
-      if (d.reminders) { reminders = {...reminders, ...d.reminders}; save(K.reminders, reminders); }
+async function importJSON(e) {
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=async()=>{
+    try{
+      const d=JSON.parse(r.result);
+      const ok=await customConfirm('¿Reemplazar datos actuales?');
+      if(!ok) return;
+      if(d.studies){studies=d.studies;save(K.studies,studies);}
+      if(d.prayers){prayers=d.prayers;save(K.prayer,prayers);}
+      if(d.plan){plan=d.plan;save(K.plan,plan);}
+      if(d.habit){habit=d.habit;save(K.habit,habit);}
+      if(d.settings){settings={...settings,...d.settings};save(K.settings,settings);}
+      if(d.fortaleza){fortaleza={...fortaleza,...d.fortaleza};save(K.fortaleza,fortaleza);}
+      if(d.reminders){reminders={...reminders,...d.reminders};save(K.reminders,reminders);}
+      if(d.memoCards){memoCards=d.memoCards;save(K.memo,memoCards);}
       location.reload();
-    } catch(err) { showToast('JSON inválido'); }
+    }catch(err){showToast('JSON inválido');}
   };
   r.readAsText(f);
 }
 
-/* ─── GLOBAL SEARCH ─── */
+/* ─── GLOBAL SEARCH con debounce ─── */
+function gsDebounceSearch() {
+  clearTimeout(gsDebounce);
+  gsDebounce=setTimeout(renderGlobalSearch,200);
+}
 function renderGlobalSearch() {
-  const q = $('gs-input')?.value.toLowerCase().trim() || '';
-  const out = $('gs-results');
-  if (!q) { out.innerHTML = '<div style="color:var(--text3);font-style:italic;padding:8px">Escribí para buscar...</div>'; return; }
-  const hits = [];
-  studies.forEach(s => {
-    const fields = [s.title, s.reference, s.verse, s.notes, ...Object.values(s.soap||{})].filter(Boolean).join(' ').toLowerCase();
-    if (fields.includes(q)) {
-      let snip = '';
-      const src = (s.notes || s.verse || Object.values(s.soap||{}).join(' ')).replace(/<[^>]+>/g,'');
-      const idx = src.toLowerCase().indexOf(q);
-      if (idx>=0) {
-        const a = Math.max(0, idx-30), b = Math.min(src.length, idx+q.length+50);
-        snip = (a>0?'...':'') + src.slice(a,b) + (b<src.length?'...':'');
-        snip = esc(snip).replace(new RegExp(esc(q),'i'), m => `<mark>${m}</mark>`);
-      }
-      hits.push({ kind:'estudio', id:s.id, title:s.title, meta:s.reference+' · '+s.date, snip });
+  const q=($('gs-input')?.value||'').toLowerCase().trim();
+  const out=$('gs-results');
+  if(!q){out.innerHTML='<div style="color:var(--text3);font-style:italic;padding:8px">Escribí para buscar...</div>';return;}
+  const hits=[];
+  studies.forEach(s=>{
+    const fields=[s.title,s.reference,s.verse,s.notes,...Object.values(s.soap||{})].filter(Boolean).join(' ').toLowerCase();
+    if(!fields.includes(q)) return;
+    let snip='';
+    const src=(s.notes||s.verse||Object.values(s.soap||{}).join(' ')).replace(/<[^>]+>/g,'');
+    const idx=src.toLowerCase().indexOf(q);
+    if(idx>=0){
+      const a=Math.max(0,idx-30),b=Math.min(src.length,idx+q.length+50);
+      snip=(a>0?'...':'')+src.slice(a,b)+(b<src.length?'...':'');
+      snip=esc(snip).replace(new RegExp(esc(q),'gi'),m=>`<mark>${m}</mark>`);
     }
+    hits.push({kind:'estudio',id:s.id,title:s.title,meta:s.reference+' · '+s.date,snip});
   });
-  prayers.forEach(p => {
-    if ((p.text||'').toLowerCase().includes(q)) {
-      hits.push({ kind:'oración', id:p.id, title:p.text, meta:p.cat+' · '+p.dateAdded, isPrayer:true });
-    }
+  prayers.forEach(p=>{
+    if((p.text||'').toLowerCase().includes(q))
+      hits.push({kind:'oración',id:p.id,title:p.text,meta:p.cat+' · '+p.dateAdded,isPrayer:true});
   });
-  out.innerHTML = hits.length ? hits.map(h => `
+  out.innerHTML=hits.length?hits.map(h=>`
     <div class="gs-result" onclick="${h.isPrayer?`closeModal();openModal('prayer')`:`closeModal();openStudy(${h.id})`}">
       <div class="gs-result-title">${esc(h.title)}</div>
       <div class="gs-result-meta">${h.kind} · ${esc(h.meta)}</div>
       ${h.snip?`<div class="gs-result-snippet">${h.snip}</div>`:''}
-    </div>`).join('') : '<div style="color:var(--text3);font-style:italic;padding:8px">Sin resultados.</div>';
+    </div>`).join(''):'<div style="color:var(--text3);font-style:italic;padding:8px">Sin resultados.</div>';
 }
 
 /* ─── SHORTCUTS ─── */
 function bindShortcuts() {
-  document.addEventListener('keydown', e => {
-    const isMod = e.ctrlKey || e.metaKey;
-    // Esc closes modal
-    if (e.key === 'Escape' && $('modal').classList.contains('open')) { e.preventDefault(); closeModal(); return; }
-    if (!isMod) return;
-    const k = e.key.toLowerCase();
-    if (k === 'n') { e.preventDefault(); newStudy(); }
-    else if (k === 'k') { e.preventDefault(); openModal('search'); setTimeout(()=>$('gs-input')?.focus(),50); }
-    else if (k === 'e') { e.preventDefault(); openModal('fortaleza'); }
-    else if (k === 'r') { e.preventDefault(); openModal('reminders'); }
-    else if (k === 's') { e.preventDefault(); saveCurrentStudy(true); }
-    else if (k === '/') { e.preventDefault(); if (currentId) readMode?exitReadMode():enterReadMode(); }
-    else if (e.shiftKey && k === 't') { e.preventDefault(); cycleTheme(); }
-    else if (k === 'm') { e.preventDefault(); openModal('memoria'); }
-    else if (k === '.') { e.preventDefault(); toggleFocusMode(); }
+  document.addEventListener('keydown',e=>{
+    const isMod=e.ctrlKey||e.metaKey;
+    if(e.key==='Escape'){
+      if($('modal').classList.contains('open')){e.preventDefault();closeModal();return;}
+      if(document.body.classList.contains('focus-mode')){e.preventDefault();toggleFocusMode();return;}
+    }
+    if(!isMod) return;
+    const k=e.key.toLowerCase();
+    if(k==='n'){e.preventDefault();newStudy();}
+    else if(k==='k'){e.preventDefault();openModal('search');setTimeout(()=>$('gs-input')?.focus(),50);}
+    else if(k==='e'){e.preventDefault();openModal('fortaleza');}
+    else if(k==='r'){e.preventDefault();openModal('reminders');}
+    else if(k==='s'){e.preventDefault();saveCurrentStudy(true);}
+    else if(k==='/'){e.preventDefault();if(currentId) readMode?exitReadMode():enterReadMode();}
+    else if(e.shiftKey&&k==='t'){e.preventDefault();cycleTheme();}
+    else if(k==='m'){e.preventDefault();openModal('memoria');}
+    else if(k==='.'){e.preventDefault();toggleFocusMode();}
   });
-  // Save before unload
-  window.addEventListener('beforeunload', () => { if (currentId && !readMode && dirty) saveCurrentStudy(); });
+  window.addEventListener('beforeunload',()=>{if(currentId&&!readMode&&dirty) saveCurrentStudy();});
 }
 
 /* ─── TTS ─── */
-let ttsUtter = null;
 function speakText(text) {
-  if (!('speechSynthesis' in window)) { showToast('TTS no disponible'); return; }
-  if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'es-ES'; u.rate = .95;
-  const voices = speechSynthesis.getVoices();
-  const sp = voices.find(v => v.lang.startsWith('es'));
-  if (sp) u.voice = sp;
-  ttsUtter = u;
+  if(!('speechSynthesis' in window)){showToast('TTS no disponible');return;}
+  if(speechSynthesis.speaking){speechSynthesis.cancel();return;}
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='es-ES';u.rate=.95;
+  const voices=speechSynthesis.getVoices();
+  const sp=voices.find(v=>v.lang.startsWith('es'));
+  if(sp) u.voice=sp;
   speechSynthesis.speak(u);
 }
 function speakVerseEditor() {
-  const v = $('ed-verse'); if (!v) return;
-  const txt = v.innerText.trim().replace(/\n+/g,' ');
-  if (!txt) { showToast('Sin versículo'); return; }
-  const btn = $('tts-btn');
-  if (speechSynthesis.speaking) { speechSynthesis.cancel(); btn?.classList.remove('playing'); return; }
+  const v=$('ed-verse'); if(!v) return;
+  const txt=v.innerText.trim().replace(/\n+/g,' ');
+  if(!txt){showToast('Sin versículo');return;}
+  const btn=$('tts-btn');
+  if(speechSynthesis.speaking){speechSynthesis.cancel();btn?.classList.remove('playing');return;}
   btn?.classList.add('playing');
-  const u = new SpeechSynthesisUtterance(txt);
-  u.lang = 'es-ES'; u.rate = .95;
-  u.onend = () => btn?.classList.remove('playing');
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='es-ES';u.rate=.95;
+  u.onend=()=>btn?.classList.remove('playing');
+  u.onerror=()=>btn?.classList.remove('playing');
   speechSynthesis.speak(u);
 }
 
 /* ─── FOCUS MODE ─── */
 function toggleFocusMode() {
-  if (!currentId) { showToast('Abrí un estudio primero'); return; }
-  focusMode = !focusMode;
-  document.body.classList.toggle('focus-mode', focusMode);
-  showToast(focusMode ? 'Modo enfoque • Esc o Ctrl+. para salir' : 'Modo normal');
+  if(!currentId){showToast('Abrí un estudio primero');return;}
+  focusMode=!focusMode;
+  document.body.classList.toggle('focus-mode',focusMode);
+  showToast(focusMode?'Modo enfoque • Esc o Ctrl+. para salir':'Modo normal');
 }
 
-/* ─── MEMORIZACIÓN (SM-2 simplificado) ─── */
-function renderMemoCard(c, i) {
-  const words = c.text.split(/\s+/);
-  // Cloze: hide ~30% of words at random positions (deterministic by id)
-  const seed = c.id % 1000;
-  const hideIdx = new Set();
-  const need = Math.max(1, Math.floor(words.length * .3));
-  for (let j = 0; j < need; j++) hideIdx.add((seed * (j+1) * 7) % words.length);
-  const html = words.map((w,j) => hideIdx.has(j) ? `<span class="mc-cloze" onclick="this.classList.toggle('shown')">${esc(w)}</span>` : esc(w)).join(' ');
-  const streak = c.streak||0;
+/* ─── MEMORIZACIÓN (SM-2) ─── */
+function renderMemoCard(c,i) {
+  const words=c.text.split(/\s+/);
+  const seed=c.id%1000;
+  const hideIdx=new Set();
+  const need=Math.max(1,Math.floor(words.length*.3));
+  for(let j=0;j<need;j++) hideIdx.add((seed*(j+1)*7)%words.length);
+  const html=words.map((w,j)=>hideIdx.has(j)?`<span class="mc-cloze" onclick="this.classList.toggle('shown')">${esc(w)}</span>`:esc(w)).join(' ');
+  const streak=c.streak||0;
   return `<div class="memo-card">
     <div class="mc-ref">${esc(c.ref)}</div>
     <div class="mc-text">${html}</div>
@@ -2299,127 +2412,111 @@ function renderMemoCard(c, i) {
       </div>
     </div></div>`;
 }
-function rateMemo(id, q) {
-  const c = memoCards.find(x => x.id===id); if (!c) return;
-  c.streak = q===0 ? 0 : (c.streak||0) + 1;
-  const intervals = [1,2,4,7,14,30,60,120];
-  const idx = q===0 ? 0 : Math.min(c.streak, intervals.length-1);
-  let days = intervals[idx];
-  if (q===2) days = Math.round(days * 1.5);
-  const next = new Date(); next.setDate(next.getDate()+days);
-  c.next = next.toISOString().split('T')[0];
-  c.lastReview = today();
-  save(K.memo, memoCards);
-  openModal('memoria');
+function rateMemo(id,q) {
+  const c=memoCards.find(x=>x.id===id); if(!c) return;
+  c.streak=q===0?0:(c.streak||0)+1;
+  const intervals=[1,2,4,7,14,30,60,120];
+  const idx=q===0?0:Math.min(c.streak,intervals.length-1);
+  let days=intervals[idx];
+  if(q===2) days=Math.round(days*1.5);
+  const next=new Date(); next.setDate(next.getDate()+days);
+  c.next=next.toISOString().split('T')[0]; c.lastReview=today();
+  save(K.memo,memoCards); openModal('memoria');
 }
-function deleteMemo(id) {
-  memoCards = memoCards.filter(c => c.id!==id);
-  save(K.memo, memoCards); openModal('memoria');
-}
-function addMemoFromVerse(ref, text) {
-  if (memoCards.some(c => c.ref===ref)) { showToast('Ya está en tu lista'); return; }
-  memoCards.unshift({ id:Date.now(), ref, text, streak:0, next:today(), added:today() });
-  save(K.memo, memoCards); showToast('🧠 Agregado a memorización');
+function deleteMemo(id){memoCards=memoCards.filter(c=>c.id!==id);save(K.memo,memoCards);openModal('memoria');}
+function addMemoFromVerse(ref,text) {
+  if(memoCards.some(c=>c.ref===ref)){showToast('Ya está en tu lista');return;}
+  memoCards.unshift({id:Date.now(),ref,text,streak:0,next:today(),added:today()});
+  save(K.memo,memoCards); showToast('🧠 Agregado a memorización');
 }
 function addCurrentToMemo() {
-  const v = $('ed-verse'); const refIn = $('ed-ref');
-  if (!v || !refIn) return;
-  const text = v.innerText.trim();
-  const ref = refIn.value.trim();
-  if (!text || !ref) { showToast('Falta versículo o referencia'); return; }
-  addMemoFromVerse(ref, text);
+  const v=$('ed-verse'),refIn=$('ed-ref');
+  if(!v||!refIn) return;
+  const text=v.innerText.trim(),ref=refIn.value.trim();
+  if(!text||!ref){showToast('Falta versículo o referencia');return;}
+  addMemoFromVerse(ref,text);
 }
 function addMemoManual() {
-  const ref = $('memo-ref')?.value.trim();
-  const text = $('memo-text')?.value.trim();
-  if (!ref || !text) { showToast('Faltan datos'); return; }
-  addMemoFromVerse(ref, text);
-  openModal('memoria');
+  const ref=$('memo-ref')?.value.trim(),text=$('memo-text')?.value.trim();
+  if(!ref||!text){showToast('Faltan datos');return;}
+  addMemoFromVerse(ref,text); openModal('memoria');
 }
 
-/* ─── SHARE AS IMAGE ─── */
+/* ─── SHARE AS IMAGE (FIX: font fallback) ─── */
 async function shareAsImage() {
-  const s = studies.find(x => x.id===currentId); if (!s) return;
-  const W=1080, H=1350;
-  const c = document.createElement('canvas'); c.width=W; c.height=H;
-  const ctx = c.getContext('2d');
-  // Bg
-  const grad = ctx.createLinearGradient(0,0,0,H);
-  const dark = settings.theme==='dark';
-  grad.addColorStop(0, dark?'#1C1930':'#FFFFFF');
-  grad.addColorStop(1, dark?'#12101E':'#EEEDFE');
-  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-  // Border accent
-  ctx.fillStyle = '#3C3489'; ctx.fillRect(80, 110, 6, 80);
-  // Reference
-  ctx.fillStyle = dark?'#AFA9EC':'#3C3489';
-  ctx.font = '600 32px "DM Mono", monospace';
-  ctx.fillText(s.reference || s.title, 110, 160);
-  // Verse
-  const verseText = (s.verse || '').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
-  if (verseText) {
-    ctx.fillStyle = dark?'#EAE9F8':'#1A1A2E';
-    ctx.font = 'italic 500 56px "Crimson Pro", serif';
-    wrapText(ctx, '“' + verseText + '”', 110, 270, W-220, 76);
+  const s=studies.find(x=>x.id===currentId); if(!s) return;
+  const W=1080,H=1350;
+  const c=document.createElement('canvas'); c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const dark=settings.theme==='dark';
+  ctx.fillStyle=dark?'#12101E':'#FFFFFF'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=dark?'#3C3489':'#EEEDFE'; ctx.fillRect(0,H-180,W,180);
+  ctx.fillStyle='#3C3489'; ctx.fillRect(80,110,6,80);
+  ctx.fillStyle=dark?'#AFA9EC':'#3C3489';
+  ctx.font='600 28px Georgia,serif';
+  ctx.fillText(s.reference||s.title,110,160);
+  const verseText=(s.verse||'').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
+  if(verseText){
+    ctx.fillStyle=dark?'#EAE9F8':'#1A1A2E';
+    ctx.font='italic 52px Georgia,serif';
+    wrapText(ctx,'\u201C'+verseText+'\u201D',110,270,W-220,70);
   }
-  // Reflection (P)
-  const p = s.soap?.p || s.soap?.s || s.notes || '';
-  if (p) {
-    const txt = p.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').slice(0,400);
-    ctx.fillStyle = dark?'#AFA9EC':'#555466';
-    ctx.font = '400 30px "Crimson Pro", serif';
-    wrapText(ctx, txt, 110, 720, W-220, 44);
+  const p=s.soap?.p||s.soap?.s||s.notes||'';
+  if(p){
+    const txt=p.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').slice(0,350);
+    ctx.fillStyle=dark?'#AFA9EC':'#555466';
+    ctx.font='28px Georgia,serif';
+    wrapText(ctx,txt,110,720,W-220,42);
   }
-  // Footer
-  ctx.fillStyle = dark?'#6B65A8':'#999899';
-  ctx.font = '500 18px "DM Mono", monospace';
-  ctx.fillText('DIARIO BÍBLICO • ' + s.date, 110, H-80);
-  // Share or download
-  c.toBlob(async (blob) => {
-    const file = new File([blob], `estudio-${s.date}.png`, { type:'image/png' });
-    if (navigator.canShare && navigator.canShare({files:[file]})) {
-      try { await navigator.share({files:[file], title:s.title}); return; } catch(e){}
+  ctx.fillStyle='#EEEDFE';
+  ctx.fillRect(80,H-140,W-160,1);
+  ctx.fillStyle=dark?'#AFA9EC':'#3C3489';
+  ctx.font='500 20px monospace';
+  ctx.fillText('DIARIO BÍBLICO · '+s.date,110,H-90);
+  c.toBlob(async blob=>{
+    const file=new File([blob],`estudio-${s.date}.png`,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:s.title});return;}catch(e){}
     }
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=file.name;a.click();
     showToast('Imagen descargada ✓');
-  }, 'image/png');
+  },'image/png');
 }
-function wrapText(ctx, text, x, y, maxW, lh) {
-  const words = text.split(' '); let line = '';
-  for (const w of words) {
-    const test = line + w + ' ';
-    if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, y); line = w+' '; y += lh; }
-    else line = test;
-    if (y > 1250) break;
+function wrapText(ctx,text,x,y,maxW,lh) {
+  const words=text.split(' ');let line='';
+  for(const w of words){
+    const test=line+w+' ';
+    if(ctx.measureText(test).width>maxW&&line){ctx.fillText(line,x,y);line=w+' ';y+=lh;}
+    else line=test;
+    if(y>H-220) break;
   }
-  if (line) ctx.fillText(line, x, y);
+  if(line) ctx.fillText(line,x,y);
 }
 
 /* ─── BACKUP AUTO ─── */
 function checkAutoBackup() {
-  if (!settings.autoBackupDays) return;
-  const last = parseInt(localStorage.getItem(K.backup)||'0');
-  const days = (Date.now() - last) / 86400000;
-  if (days >= settings.autoBackupDays) {
-    setTimeout(() => {
-      if (confirm(`Hace ${Math.floor(days)} días que no haces backup. ¿Hacer ahora?`)) { exportJSON(); markBackup(); }
-      else markBackup();
-    }, 2000);
+  if(!settings.autoBackupDays) return;
+  const last=parseInt(localStorage.getItem(K.backup)||'0');
+  const days=(Date.now()-last)/86400000;
+  if(days>=settings.autoBackupDays){
+    setTimeout(async()=>{
+      const ok=await customConfirm(`Hace ${Math.floor(days)} días que no hacés backup. ¿Hacer ahora?`);
+      if(ok){exportJSON();markBackup();}else markBackup();
+    },3000);
   }
 }
-function markBackup() { localStorage.setItem(K.backup, String(Date.now())); }
+function markBackup(){localStorage.setItem(K.backup,String(Date.now()));}
 
 /* ─── EMERGENCY CONTACT ─── */
 function setEmergencyContact() {
-  const v = prompt('Teléfono o número de emergencia (alguien de confianza):');
-  if (v && v.trim()) { fortaleza.emergencyContact = v.trim(); save(K.fortaleza, fortaleza); openModal('fortaleza'); }
+  const v=prompt('Teléfono o número de emergencia (alguien de confianza):');
+  if(v&&v.trim()){fortaleza.emergencyContact=v.trim();save(K.fortaleza,fortaleza);openModal('fortaleza');}
 }
 
 /* ─── BOOT ─── */
 init();
 </script>
 <button class="focus-exit" onclick="toggleFocusMode()">⛶ Salir de Enfoque • Esc</button>
-<script>document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('focus-mode')){e.preventDefault();toggleFocusMode()}});</script>
 </body>
 </html>
