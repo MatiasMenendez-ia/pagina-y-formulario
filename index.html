@@ -190,7 +190,7 @@
   .book-row.empty .bk-count{display:none}
 
   .content{flex:1;display:flex;flex-direction:column;background:var(--bg);
-    overflow-y:auto;min-width:0;transition:background .25s}
+    overflow-y:auto;min-width:0;transition:background .25s;width:100%}
   .empty-state{flex:1;display:flex;align-items:center;justify-content:center;
     flex-direction:column;gap:16px;padding:60px 40px;text-align:center}
   .empty-icon{width:56px;height:56px;background:var(--bg3);border-radius:14px;
@@ -665,6 +665,13 @@
   .confirm-box .confirm-btns{display:flex;gap:8px;justify-content:flex-end}
   .confirm-box .confirm-btns .btn-save{padding:8px 18px}
 
+  /* Bloques Libre - 3 secciones */
+  .libre-block{display:flex;flex-direction:column;gap:6px}
+  .libre-block-header{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+  .libre-icon{font-size:18px;line-height:1}
+  .libre-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple);font-weight:500}
+  .libre-area{min-height:100px !important}
+
   /* Whatsapp share */
   .btn-wa{background:#25D366;color:#fff;border:none;padding:8px 14px;border-radius:6px;
     font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:opacity .15s}
@@ -827,7 +834,7 @@ let habit = load(K.habit, {});
 let settings = { fontScale:1, theme:'light', autosave:true, dailyGoal:100, customTemplate:null, autoBackupDays:7, ...load(K.settings,{}) };
 let fortaleza = { count:0, log:[], emergencyContact:'', ...load(K.fortaleza,{}) };
 let memoCards = load(K.memo, []);
-let reminders = { active:true, items:[], times:['09:00','13:00','19:00'], ...load(K.reminders,{}) };
+let reminders = { active:true, items:[], hourly:false, hourlyStart:'07:00', hourlyEnd:'22:00', times:['09:00','13:00','19:00'], ...load(K.reminders,{}) };
 
 let currentId=null, activeTag=null, activeSeries=null, activeBook=null;
 let favFilter='all', readMode=false, dirty=false;
@@ -864,38 +871,46 @@ const TEMPLATE_PLACEHOLDERS = {
   s:'Escribí el pasaje...', o:'¿Qué observás?', a:'¿Cómo aplico?', p:'Tu oración...'
 };
 
-/* ─── FIX: LEXICÓN AMPLIADO con búsqueda robusta ─── */
+/* ─── FIX: LEXICÓN AMPLIADO con sinónimos para búsqueda amplia ─── */
 const LEXICON = [
-  {l:'h',strong:'H216',word:'אוֹר',translit:'or',def:'luz, brillo, iluminación; metafóricamente verdad, vida, presencia de Dios.',refs:'Gén 1:3; Sal 119:105; Is 9:2'},
-  {l:'h',strong:'H430',word:'אֱלֹהִים',translit:'elohim',def:'Dios, dioses; plural mayestático, designa al Dios verdadero.',refs:'Gén 1:1; Deut 6:4'},
-  {l:'h',strong:'H3068',word:'יהוה',translit:'YHWH',def:'Nombre propio de Dios, "Yo Soy", Señor. Tetragrámaton.',refs:'Éx 3:14; Sal 23:1'},
-  {l:'h',strong:'H2416',word:'חַי',translit:'chay',def:'vivo, viviente; vida en sentido pleno.',refs:'Gén 2:7; Deut 30:19'},
-  {l:'h',strong:'H3820',word:'לֵב',translit:'lev',def:'corazón, mente, interioridad; centro de la voluntad y el pensamiento.',refs:'Prov 4:23; Jer 17:9'},
-  {l:'h',strong:'H7307',word:'רוּחַ',translit:'ruaj',def:'espíritu, viento, aliento; Espíritu de Dios.',refs:'Gén 1:2; Sal 51:11'},
-  {l:'h',strong:'H2617',word:'חֶסֶד',translit:'jesed',def:'misericordia, amor leal, pacto; fidelidad de Dios.',refs:'Sal 136:1; Os 6:6'},
-  {l:'h',strong:'H571',word:'אֱמֶת',translit:'emet',def:'verdad, fidelidad, firmeza; lo que es confiable.',refs:'Sal 25:5; Prov 3:3'},
-  {l:'h',strong:'H8451',word:'תּוֹרָה',translit:'torah',def:'ley, instrucción, enseñanza; especialmente la Ley de Moisés.',refs:'Sal 1:2; Jos 1:8'},
-  {l:'h',strong:'H5927',word:'עָלָה',translit:'alah',def:'subir, ascender; ofrecer sacrificio.',refs:'Gén 22:2; Lev 1:3'},
-  {l:'h',strong:'H7965',word:'שָׁלוֹם',translit:'shalom',def:'paz, plenitud, bienestar, armonía total.',refs:'Núm 6:26; Is 26:3'},
-  {l:'h',strong:'H6680',word:'מִצְוָה',translit:'mitzvah',def:'mandamiento, orden divina.',refs:'Deut 6:25; Sal 19:8'},
-  {l:'h',strong:'H539',word:'אָמַן',translit:'aman',def:'ser fiel, creer, confiar; raíz de "amén".',refs:'Gén 15:6; Hab 2:4'},
-  {l:'h',strong:'H3444',word:'יְשׁוּעָה',translit:'yeshuah',def:'salvación, liberación, victoria; nombre Jesús en hebreo.',refs:'Sal 91:16; Is 12:2'},
-  {l:'h',strong:'H1697',word:'דָּבָר',translit:'dabar',def:'palabra, cosa, asunto; la Palabra de Dios.',refs:'Sal 119:11; Is 55:11'},
-  {l:'g',strong:'G5457',word:'φῶς',translit:'phos',def:'luz, brillo; metafóricamente verdad, pureza, revelación divina.',refs:'Mat 6:22; Juan 1:7'},
-  {l:'g',strong:'G2316',word:'θεός',translit:'theos',def:'Dios, divinidad; el único Dios verdadero.',refs:'Mat 1:23; Juan 1:1'},
-  {l:'g',strong:'G2962',word:'κύριος',translit:'kyrios',def:'Señor, dueño, amo; título de Jesús.',refs:'Rom 10:9; Fil 2:11'},
-  {l:'g',strong:'G2424',word:'Ἰησοῦς',translit:'Iesous',def:'Jesús, "YHWH es salvación".',refs:'Mat 1:21; Hech 4:12'},
-  {l:'g',strong:'G5547',word:'Χριστός',translit:'Christos',def:'Ungido, Mesías; título de Jesús.',refs:'Mat 16:16; Juan 20:31'},
-  {l:'g',strong:'G26',word:'ἀγάπη',translit:'agape',def:'amor (ágape), amor sacrificial y comprometido.',refs:'1 Cor 13; 1 Jn 4:8'},
-  {l:'g',strong:'G4102',word:'πίστις',translit:'pistis',def:'fe, confianza, fidelidad; creer en Dios.',refs:'Heb 11:1; Rom 1:17'},
-  {l:'g',strong:'G5485',word:'χάρις',translit:'charis',def:'gracia, favor inmerecido; don de Dios.',refs:'Ef 2:8; 2 Cor 12:9'},
-  {l:'g',strong:'G2222',word:'ζωή',translit:'zoe',def:'vida, especialmente vida eterna y plena.',refs:'Juan 3:16; Rom 6:23'},
-  {l:'g',strong:'G3056',word:'λόγος',translit:'logos',def:'palabra, verbo, razón; Jesucristo como Palabra.',refs:'Juan 1:1; Heb 4:12'},
-  {l:'g',strong:'G1515',word:'εἰρήνη',translit:'eirene',def:'paz, tranquilidad, armonía; equivalente al shalom hebreo.',refs:'Juan 14:27; Fil 4:7'},
-  {l:'g',strong:'G1343',word:'δικαιοσύνη',translit:'dikaiosyne',def:'justicia, rectitud; ser declarado justo por Dios.',refs:'Rom 1:17; Mat 5:6'},
-  {l:'g',strong:'G3340',word:'μετάνοια',translit:'metanoia',def:'arrepentimiento, cambio de mente y dirección.',refs:'Mat 3:2; Hech 2:38'},
-  {l:'g',strong:'G40',word:'ἅγιος',translit:'hagios',def:'santo, separado, consagrado; el Espíritu Santo.',refs:'1 Ped 1:16; Rom 1:7'},
-  {l:'g',strong:'G4991',word:'σωτηρία',translit:'soteria',def:'salvación, liberación, preservación.',refs:'Ef 2:8; Heb 2:3'}
+  {l:'h',strong:'H216',word:'אוֹר',translit:'or',def:'luz, brillo, iluminación; metafóricamente verdad, vida, presencia de Dios.',refs:'Gén 1:3; Sal 119:105; Is 9:2',syn:'luz claridad iluminar alumbrar resplandor'},
+  {l:'h',strong:'H430',word:'אֱלֹהִים',translit:'elohim',def:'Dios, dioses; plural mayestático, designa al Dios verdadero.',refs:'Gén 1:1; Deut 6:4',syn:'dios creador todopoderoso'},
+  {l:'h',strong:'H3068',word:'יהוה',translit:'YHWH',def:'Nombre propio de Dios, "Yo Soy", Señor. Tetragrámaton.',refs:'Éx 3:14; Sal 23:1',syn:'señor eterno nombre divino yo soy'},
+  {l:'h',strong:'H2416',word:'חַי',translit:'chay',def:'vivo, viviente; vida en sentido pleno. Vida que perdura, que permanece.',refs:'Gén 2:7; Deut 30:19',syn:'vida vivo vivir existir perdurar permanecer subsistir'},
+  {l:'h',strong:'H3820',word:'לֵב',translit:'lev',def:'corazón, mente, interioridad; centro de la voluntad y el pensamiento.',refs:'Prov 4:23; Jer 17:9',syn:'corazon mente voluntad interior alma'},
+  {l:'h',strong:'H7307',word:'רוּחַ',translit:'ruaj',def:'espíritu, viento, aliento; Espíritu de Dios.',refs:'Gén 1:2; Sal 51:11',syn:'espiritu viento aliento soplo'},
+  {l:'h',strong:'H2617',word:'חֶסֶד',translit:'jesed',def:'misericordia, amor leal, fidelidad de pacto; amor que perdura eternamente.',refs:'Sal 136:1; Os 6:6',syn:'misericordia amor fiel fidelidad pacto perdurar eterno permanente'},
+  {l:'h',strong:'H571',word:'אֱמֶת',translit:'emet',def:'verdad, fidelidad, firmeza; lo que es confiable y permanece.',refs:'Sal 25:5; Prov 3:3',syn:'verdad fidelidad firmeza confianza permanecer durar'},
+  {l:'h',strong:'H8451',word:'תּוֹרָה',translit:'torah',def:'ley, instrucción, enseñanza; especialmente la Ley de Moisés.',refs:'Sal 1:2; Jos 1:8',syn:'ley instruccion ensenanza mandamiento'},
+  {l:'h',strong:'H5927',word:'עָלָה',translit:'alah',def:'subir, ascender; ofrecer sacrificio.',refs:'Gén 22:2; Lev 1:3',syn:'subir ascender ofrecer sacrificio'},
+  {l:'h',strong:'H7965',word:'שָׁלוֹם',translit:'shalom',def:'paz, plenitud, bienestar, armonía total.',refs:'Núm 6:26; Is 26:3',syn:'paz plenitud bienestar armonia tranquilidad'},
+  {l:'h',strong:'H6680',word:'מִצְוָה',translit:'mitzvah',def:'mandamiento, orden divina.',refs:'Deut 6:25; Sal 19:8',syn:'mandamiento orden precepto ley'},
+  {l:'h',strong:'H539',word:'אָמַן',translit:'aman',def:'ser fiel, creer, confiar; raíz de "amén". Permanecer firme.',refs:'Gén 15:6; Hab 2:4',syn:'fiel creer confiar amen firme permanecer durar'},
+  {l:'h',strong:'H3444',word:'יְשׁוּעָה',translit:'yeshuah',def:'salvación, liberación, victoria; nombre Jesús en hebreo.',refs:'Sal 91:16; Is 12:2',syn:'salvacion liberacion victoria jesus rescate'},
+  {l:'h',strong:'H1697',word:'דָּבָר',translit:'dabar',def:'palabra, cosa, asunto; la Palabra de Dios que permanece y perdura para siempre.',refs:'Sal 119:11; Is 55:11',syn:'palabra cosa asunto perdurar permanecer eterno'},
+  {l:'h',strong:'H5769',word:'עוֹלָם',translit:'olam',def:'eternidad, para siempre, tiempo indefinido; lo que perdura sin fin.',refs:'Sal 90:2; Is 9:6',syn:'eternidad siempre eterno perdurar para siempre durar infinito permanente'},
+  {l:'h',strong:'H982',word:'בָּטַח',translit:'bataj',def:'confiar, esperar con seguridad; permanecer seguro.',refs:'Sal 37:3; Prov 3:5',syn:'confiar esperar seguridad descansar permanecer'},
+  {l:'h',strong:'H5797',word:'עֹז',translit:'oz',def:'fuerza, poder, fortaleza; la que perdura y no cede.',refs:'Sal 46:1; Is 40:29',syn:'fuerza poder fortaleza resistir perdurar'},
+  {l:'g',strong:'G5457',word:'φῶς',translit:'phos',def:'luz, brillo; metafóricamente verdad, pureza, revelación divina.',refs:'Mat 6:22; Juan 1:7',syn:'luz claridad iluminar verdad'},
+  {l:'g',strong:'G2316',word:'θεός',translit:'theos',def:'Dios, divinidad; el único Dios verdadero.',refs:'Mat 1:23; Juan 1:1',syn:'dios creador todopoderoso divino'},
+  {l:'g',strong:'G2962',word:'κύριος',translit:'kyrios',def:'Señor, dueño, amo; título de Jesús.',refs:'Rom 10:9; Fil 2:11',syn:'señor dueño amo jesucristo'},
+  {l:'g',strong:'G2424',word:'Ἰησοῦς',translit:'Iesous',def:'Jesús, "YHWH es salvación".',refs:'Mat 1:21; Hech 4:12',syn:'jesus salvador cristo mesías'},
+  {l:'g',strong:'G5547',word:'Χριστός',translit:'Christos',def:'Ungido, Mesías; título de Jesús.',refs:'Mat 16:16; Juan 20:31',syn:'cristo ungido mesias jesus'},
+  {l:'g',strong:'G26',word:'ἀγάπη',translit:'agape',def:'amor (ágape), amor sacrificial, incondicional y comprometido que perdura.',refs:'1 Cor 13; 1 Jn 4:8',syn:'amor amar sacrificio incondicional perdurar eterno'},
+  {l:'g',strong:'G4102',word:'πίστις',translit:'pistis',def:'fe, confianza, fidelidad; creer en Dios.',refs:'Heb 11:1; Rom 1:17',syn:'fe confianza fidelidad creer'},
+  {l:'g',strong:'G5485',word:'χάρις',translit:'charis',def:'gracia, favor inmerecido; don de Dios.',refs:'Ef 2:8; 2 Cor 12:9',syn:'gracia favor don regalo inmerecido'},
+  {l:'g',strong:'G2222',word:'ζωή',translit:'zoe',def:'vida, especialmente vida eterna y plena que no perece ni termina.',refs:'Juan 3:16; Rom 6:23',syn:'vida eterna existir vivir perdurar permanecer inmortal'},
+  {l:'g',strong:'G3056',word:'λόγος',translit:'logos',def:'palabra, verbo, razón; Jesucristo como Palabra que permanece.',refs:'Juan 1:1; Heb 4:12',syn:'palabra verbo razon jesucristo permanecer'},
+  {l:'g',strong:'G1515',word:'εἰρήνη',translit:'eirene',def:'paz, tranquilidad, armonía; equivalente al shalom hebreo.',refs:'Juan 14:27; Fil 4:7',syn:'paz tranquilidad armonia quietud'},
+  {l:'g',strong:'G1343',word:'δικαιοσύνη',translit:'dikaiosyne',def:'justicia, rectitud; ser declarado justo por Dios.',refs:'Rom 1:17; Mat 5:6',syn:'justicia rectitud justo recto'},
+  {l:'g',strong:'G3340',word:'μετάνοια',translit:'metanoia',def:'arrepentimiento, cambio de mente y dirección.',refs:'Mat 3:2; Hech 2:38',syn:'arrepentimiento cambio conversion vuelta'},
+  {l:'g',strong:'G40',word:'ἅγιος',translit:'hagios',def:'santo, separado, consagrado; el Espíritu Santo.',refs:'1 Ped 1:16; Rom 1:7',syn:'santo sagrado consagrado espiritu puro'},
+  {l:'g',strong:'G4991',word:'σωτηρία',translit:'soteria',def:'salvación, liberación, preservación.',refs:'Ef 2:8; Heb 2:3',syn:'salvacion liberacion preservar rescate'},
+  {l:'g',strong:'G3306',word:'μένω',translit:'meno',def:'permanecer, quedar, durar, perdurar; morar en Cristo.',refs:'Juan 15:4; 1 Jn 2:17',syn:'permanecer quedar durar perdurar morar habitar continuar quedar eterno'},
+  {l:'g',strong:'G165',word:'αἰών',translit:'aion',def:'eternidad, era, siglo; tiempo que perdura sin fin.',refs:'Mat 6:13; Jn 6:51',syn:'eternidad eterno siglo para siempre perdurar sin fin durar'},
+  {l:'g',strong:'G1411',word:'δύναμις',translit:'dynamis',def:'poder, fuerza, capacidad; virtud sobrenatural.',refs:'Hech 1:8; Rom 1:16',syn:'poder fuerza capacidad virtud milagro'},
+  {l:'g',strong:'G2041',word:'ἔργον',translit:'ergon',def:'obra, trabajo, acción; las obras que el creyente realiza.',refs:'Juan 6:29; Sant 2:17',syn:'obra trabajo accion hacer obrar'},
+  {l:'g',strong:'G1680',word:'ἐλπίς',translit:'elpis',def:'esperanza, expectativa confiada; la que no decepciona.',refs:'Rom 5:5; Heb 11:1',syn:'esperanza expectativa confiar aguardar'}
 ];
 
 const CONTEXT = [
@@ -988,7 +1003,7 @@ const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 const wordCount = t => (t||'').trim().split(/\s+/).filter(Boolean).length;
 const progColor = p => p<30?'var(--purple4)':p<65?'var(--purple2)':'var(--purple)';
 const bookIndex = b => { const i = BIBLE_ALL.indexOf((b||'').trim()); return i===-1?999:i; };
-const totalLength = s => wordCount(s.notes) + Object.values(s.soap||{}).reduce((a,v)=>a+wordCount(v),0);
+const totalLength = s => wordCount(s.notes) + Object.values(s.soap||{}).reduce((a,v)=>a+wordCount(v),0) + Object.values(s.libre||{}).reduce((a,v)=>a+wordCount(v),0);
 const getCurrentStudy = () => studies.find(x => x.id === currentId);
 const allTags = () => [...new Set(studies.flatMap(s => s.tags||[]))].sort();
 const allSeries = () => [...new Set(studies.map(s => s.series).filter(Boolean))].sort();
@@ -1026,7 +1041,7 @@ function customConfirm(msg) {
 /* ─── INIT ─── */
 function init() {
   studies = studies.map(s => ({
-    fav:false, template:'libre', series:'', xrefs:[], soap:{}, tags:[], ...s,
+    fav:false, template:'libre', series:'', xrefs:[], soap:{}, tags:[], libre:{}, ...s,
     xrefs: (s.xrefs||[]).map(x => typeof x==='string' ? {ref:x,translation:'NVI',text:''} : x)
   }));
 
@@ -1041,17 +1056,8 @@ function init() {
         ],
         verse:'"Si tuviereis fe como un grano de mostaza, diréis a este monte: Pásate de aquí allá, y se pasará."',
         notes:'## Reflexión\n\nLa fe no se mide en cantidad sino en **calidad**. Jesús no habla de tener mucha fe, sino de una fe genuina y confiada.\n\n## Aplicación\n\n¿En qué áreas necesito ejercitar más esta fe?\n\n- Trabajo\n- Relaciones\n- Decisiones difíciles',
-        soap:{} },
-      { id:2, fav:true, template:'soap', series:'Evangelio de Juan',
-        title:'El amor de Dios en Juan 3', reference:'Juan 3:16', book:'Juan', date:'2026-05-01',
-        tags:['amor','salvación'],
-        xrefs:[{ref:'1 Juan 4:9',translation:'NVI',text:'Así manifestó Dios su amor entre nosotros: en que envió a su Hijo unigénito al mundo.'}],
-        verse:'"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito..."',
-        notes:'',
-        soap:{ s:'Juan 3:16 — "Porque de tal manera amó Dios al mundo..."',
-          o:'"De tal manera" (houtos) en griego indica la *forma* del amor, no solo el grado.',
-          a:'Mi entendimiento del amor de Dios debe transformar cómo amo a otros.',
-          p:'Padre, gracias por tu amor que se hizo carne. Enseñame a amar como vos amás.' } }
+        soap:{},
+        libre:{ oracion:'', reflexion:'', cambios:'' } }
     ];
     save(K.studies, studies);
   }
@@ -1416,21 +1422,7 @@ function renderEditor(s) {
       </div>
       ${renderTools()}
       ${renderTemplateBody(s)}
-      <div class="notes-row">
-        <div class="notes-header">
-          <div class="section-label" style="margin-bottom:0"><span>${s.template==='libre'?'Notas &amp; reflexiones':'Notas adicionales'}</span></div>
-          <div class="md-toolbar">
-            <button class="md-btn bold" onclick="mdWrap('**')">B</button>
-            <button class="md-btn italic" onclick="mdWrap('*')">I</button>
-            <button class="md-btn" onclick="mdLine('## ')">H</button>
-            <button class="md-btn" onclick="mdLine('- ')">•</button>
-            <button class="md-btn" onclick="mdLine('> ')">"</button>
-          </div>
-          <span class="wc-label" id="wc-label">${wc} ${wc===1?'palabra':'palabras'}</span>
-        </div>
-        <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:${pct}%;background:${progColor(pct)}"></div></div>
-        <textarea class="notes-area" id="ed-notes" placeholder="Markdown soportado..." oninput="markDirty();updateWC()">${esc(s.notes)}</textarea>
-      </div>
+      ${s.template==='libre' ? renderLibreBody(s) : renderNotesArea(s)}
     </div>
     <div class="toolbar">
       <div class="tags-wrap" id="tags-wrap">
@@ -1449,7 +1441,57 @@ function renderEditor(s) {
     </div>`;
 }
 
-function renderTemplateBody(s) {
+function renderLibreBody(s) {
+  const lb=s.libre||{};
+  const wc=wordCount(lb.oracion||'')+wordCount(lb.reflexion||'')+wordCount(lb.cambios||'');
+  const pct=Math.min(100,wc/3);
+  return `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:${pct}%;background:${progColor(pct)}"></div></div>
+      <div style="display:flex;justify-content:flex-end"><span class="wc-label" id="wc-label">${wc} ${wc===1?'palabra':'palabras'}</span></div>
+      <div class="libre-block">
+        <div class="libre-block-header">
+          <span class="libre-icon">🙏</span>
+          <span class="libre-title">Oración</span>
+        </div>
+        <textarea class="notes-area libre-area" id="libre-oracion" placeholder="Escribí tu oración de hoy..." oninput="markDirty();updateWC()">${esc(lb.oracion||'')}</textarea>
+      </div>
+      <div class="libre-block">
+        <div class="libre-block-header">
+          <span class="libre-icon">💭</span>
+          <span class="libre-title">Reflexión</span>
+        </div>
+        <textarea class="notes-area libre-area" id="libre-reflexion" placeholder="¿Qué te habló Dios en este pasaje hoy?" oninput="markDirty();updateWC()">${esc(lb.reflexion||'')}</textarea>
+      </div>
+      <div class="libre-block">
+        <div class="libre-block-header">
+          <span class="libre-icon">✨</span>
+          <span class="libre-title">¿Qué cambiaría hoy?</span>
+        </div>
+        <textarea class="notes-area libre-area" id="libre-cambios" placeholder="¿Qué acción concreta vas a tomar hoy a partir de esto?" oninput="markDirty();updateWC()">${esc(lb.cambios||'')}</textarea>
+      </div>
+    </div>`;
+}
+
+function renderNotesArea(s) {
+  const wc=totalLength(s);
+  const pct=Math.min(100,wc/3);
+  return `<div class="notes-row">
+    <div class="notes-header">
+      <div class="section-label" style="margin-bottom:0"><span>Notas adicionales</span></div>
+      <div class="md-toolbar">
+        <button class="md-btn bold" onclick="mdWrap('**')">B</button>
+        <button class="md-btn italic" onclick="mdWrap('*')">I</button>
+        <button class="md-btn" onclick="mdLine('## ')">H</button>
+        <button class="md-btn" onclick="mdLine('- ')">•</button>
+        <button class="md-btn" onclick="mdLine('> ')">"</button>
+      </div>
+      <span class="wc-label" id="wc-label">${wc} ${wc===1?'palabra':'palabras'}</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:${pct}%;background:${progColor(pct)}"></div></div>
+    <textarea class="notes-area" id="ed-notes" placeholder="Markdown soportado..." oninput="markDirty();updateWC()">${esc(s.notes)}</textarea>
+  </div>`;
+}
   const fields=TEMPLATE_FIELDS[s.template]; if(!fields) return '';
   /* FIX: siempre 1fr 1fr, el CSS ya maneja el breakpoint correcto */
   const so=s.soap||{};
@@ -1597,12 +1639,13 @@ function renderToolsBody() {
   const lang=toolsTab==='hebrew'?'h':'g';
   const f=LEXICON.filter(x=>{
     if(x.l!==lang) return false;
-    /* Buscar en: palabra original, transliteración, definición, strong, refs */
+    /* Buscar en: palabra original, transliteración, definición, strong, refs y sinónimos */
     return x.word.includes(raw)||
       normalize(x.translit).includes(q)||
       normalize(x.def).includes(q)||
       normalize(x.strong).includes(q)||
-      normalize(x.refs).includes(q);
+      normalize(x.refs).includes(q)||
+      normalize(x.syn||'').includes(q);
   });
 
   out.innerHTML=f.length?f.map(x=>`
@@ -1633,6 +1676,8 @@ function updateWC() {
   const notes=$('ed-notes')?.value||'';
   let total=wordCount(notes);
   ['s','o','a','p'].forEach(k=>{const el=$('soap-'+k);if(el) total+=wordCount(el.value);});
+  /* Campos Libre */
+  ['libre-oracion','libre-reflexion','libre-cambios'].forEach(k=>{const el=$(k);if(el) total+=wordCount(el.value);});
   const lbl=$('wc-label'); if(lbl) lbl.textContent=total+(total===1?' palabra':' palabras');
   const pct=Math.min(100,total/3);
   const p=$('prog'); if(p){p.style.width=pct+'%';p.style.background=progColor(pct);}
@@ -1651,6 +1696,13 @@ function saveCurrentStudy(showMsg=false,fromAuto=false) {
   if(get('ed-notes')!==undefined) s.notes=$('ed-notes').value;
   const v=$('ed-verse'); if(v) s.verse=v.innerHTML;
   ['s','o','a','p'].forEach(k=>{const el=$('soap-'+k);if(el){s.soap=s.soap||{};s.soap[k]=el.value;}});
+  /* FIX: guardar campos Libre */
+  if(s.template==='libre'){
+    s.libre=s.libre||{};
+    ['oracion','reflexion','cambios'].forEach(k=>{
+      const el=$('libre-'+k); if(el) s.libre[k]=el.value;
+    });
+  }
   save(K.studies,studies);
   if(dirty) recordHabit();
   dirty=false;
@@ -1803,6 +1855,18 @@ function renderReadMode(s) {
       ${x.text?`<div class="passage-card-body">"${esc(x.text)}"</div>`:''}
     </div>`).join('');
 
+  /* Campos Libre */
+  const libreBlocks = s.template==='libre' && s.libre ? [
+    ['🙏','Oración',s.libre.oracion],
+    ['💭','Reflexión',s.libre.reflexion],
+    ['✨','¿Qué cambiaría hoy?',s.libre.cambios]
+  ].filter(([,,v])=>v).map(([icon,name,v])=>
+    `<div style="margin-top:10px">
+      <div class="section-label"><span>${icon} ${name}</span></div>
+      <div class="notes-read">${renderMarkdown(v)}</div>
+    </div>`
+  ).join('') : '';
+
   $('content').innerHTML=`
     <div class="editor-header">
       <div style="flex:1;font-family:'Crimson Pro',serif;font-size:22px;font-weight:600;color:var(--text)">${esc(s.title)}</div>
@@ -1818,6 +1882,7 @@ function renderReadMode(s) {
       ${s.verse?`<div><div class="section-label">Versículo</div><div class="verse-read">${s.verse}</div></div>`:''}
       ${xrefs?`<div><div class="section-label">Pasajes</div>${xrefs}</div>`:''}
       ${body}
+      ${libreBlocks}
       ${s.notes?`<div><div class="section-label">Notas</div><div class="notes-read">${renderMarkdown(s.notes)}</div></div>`:''}
     </div>
     <div class="read-toolbar">
@@ -1956,18 +2021,50 @@ const MODALS = {
 
   reminders: () => modalHead('🔔 Recordatorios')+`
     <div class="modal-body">
-      <p style="color:var(--text2);margin-bottom:12px;font-size:14px">Versículos que aparecerán como notificación.</p>
-      ${'Notification' in window&&Notification.permission==='default'?`<button class="btn-sm" onclick="requestNotificationPermission()" style="margin-bottom:12px">🔔 Activar notificaciones</button>`:''}
-      <div class="section-label">⏰ Horarios</div>
-      <div class="time-inputs" style="margin-bottom:12px">
-        <input type="time" id="rem-time1" value="${reminders.times[0]||'09:00'}" />
-        <input type="time" id="rem-time2" value="${reminders.times[1]||'13:00'}" />
-        <input type="time" id="rem-time3" value="${reminders.times[2]||'19:00'}" />
-        <button class="btn-sm" onclick="updateReminderTimes()">💾</button>
+      <p style="color:var(--text2);margin-bottom:12px;font-size:14px">Versículos que aparecerán como notificación durante el día.</p>
+      ${'Notification' in window&&Notification.permission==='default'?`<button class="btn-sm" onclick="requestNotificationPermission()" style="margin-bottom:12px;width:100%">🔔 Activar notificaciones del sistema</button>`:''}
+      <div class="section-label" style="margin-bottom:10px">⏰ Modo de recordatorio</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:.5px solid var(--border);border-radius:8px;cursor:pointer;background:${!reminders.hourly?'var(--bg3)':'var(--input-bg)'};border-color:${!reminders.hourly?'var(--purple4)':'var(--border)'}">
+          <input type="radio" name="rem-mode" value="fixed" ${!reminders.hourly?'checked':''} onchange="setReminderMode('fixed')" style="accent-color:var(--purple);width:18px;height:18px" />
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">Horarios fijos</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px">3 notificaciones al día a la hora que elijas</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:.5px solid var(--border);border-radius:8px;cursor:pointer;background:${reminders.hourly?'var(--bg3)':'var(--input-bg)'};border-color:${reminders.hourly?'var(--purple4)':'var(--border)'}">
+          <input type="radio" name="rem-mode" value="hourly" ${reminders.hourly?'checked':''} onchange="setReminderMode('hourly')" style="accent-color:var(--purple);width:18px;height:18px" />
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">Cada 1 hora durante el día</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px">Un versículo distinto cada hora, solo hoy</div>
+          </div>
+        </label>
       </div>
-      <div class="section-label" style="display:flex;justify-content:space-between">
-        <span>📖 Versículos (${reminders.items.length})</span>
-        <button class="btn-sm" onclick="toggleAllReminders()" style="font-size:10px">${reminders.active?'🔕 Pausar':'🔔 Activar'}</button>
+      <div id="rem-fixed-opts" style="display:${!reminders.hourly?'block':'none'}">
+        <div class="section-label" style="margin-bottom:6px">Horarios</div>
+        <div class="time-inputs" style="margin-bottom:12px">
+          <input type="time" id="rem-time1" value="${reminders.times[0]||'09:00'}" />
+          <input type="time" id="rem-time2" value="${reminders.times[1]||'13:00'}" />
+          <input type="time" id="rem-time3" value="${reminders.times[2]||'19:00'}" />
+          <button class="btn-sm" onclick="updateReminderTimes()">💾 Guardar</button>
+        </div>
+      </div>
+      <div id="rem-hourly-opts" style="display:${reminders.hourly?'block':'none'}">
+        <div class="section-label" style="margin-bottom:6px">Rango del día</div>
+        <div class="time-inputs" style="margin-bottom:6px">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);align-self:center">De</span>
+          <input type="time" id="rem-hourly-start" value="${reminders.hourlyStart||'07:00'}" />
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);align-self:center">a</span>
+          <input type="time" id="rem-hourly-end" value="${reminders.hourlyEnd||'22:00'}" />
+          <button class="btn-sm" onclick="updateHourlyRange()">💾 Guardar</button>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:12px">
+          ${reminders.hourly ? `Activo: ${reminders.hourlyStart} → ${reminders.hourlyEnd} · aprox. ${Math.max(1,Math.floor((parseInt((reminders.hourlyEnd||'22:00').split(':')[0])-parseInt((reminders.hourlyStart||'07:00').split(':')[0])))+1)} recordatorios hoy` : ''}
+        </div>
+      </div>
+      <div class="section-label" style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span>📖 Versículos guardados (${reminders.items.length})</span>
+        <button class="btn-sm" onclick="toggleAllReminders()" style="font-size:10px">${reminders.active?'🔕 Pausar todo':'🔔 Activar'}</button>
       </div>
       ${reminders.items.length?reminders.items.map(it=>`
         <div class="reminder-card" style="opacity:${it.active?1:.5}">
@@ -2166,6 +2263,24 @@ function requestNotificationPermission() {
     Notification.requestPermission().then(p=>{showToast(p==='granted'?'🔔 Notificaciones activadas':'⚠ Bloqueadas');openModal('reminders');});
   }
 }
+function setReminderMode(mode) {
+  reminders.hourly = (mode==='hourly');
+  save(K.reminders,reminders); scheduleAllReminders();
+  /* Mostrar/ocultar opciones sin re-abrir modal */
+  const fixed=$('rem-fixed-opts'), hourly=$('rem-hourly-opts');
+  if(fixed) fixed.style.display=reminders.hourly?'none':'block';
+  if(hourly) hourly.style.display=reminders.hourly?'block':'none';
+  /* Actualizar estilos de los radio labels */
+  const c=$('modal-content'); if(c) c.innerHTML=MODALS.reminders();
+}
+function updateHourlyRange() {
+  const s=$('rem-hourly-start')?.value||'07:00';
+  const e=$('rem-hourly-end')?.value||'22:00';
+  reminders.hourlyStart=s; reminders.hourlyEnd=e;
+  save(K.reminders,reminders); scheduleAllReminders();
+  showToast('⏰ Rango actualizado');
+  const c=$('modal-content'); if(c) c.innerHTML=MODALS.reminders();
+}
 function addCurrentVerseToReminders() {
   const verse=($('ed-verse')?.innerText||'').trim();
   const ref=($('ed-ref')?.value||'').trim();
@@ -2194,7 +2309,7 @@ function updateBellBadge() {
   const b=$('btn-bell');
   if(b) b.classList.toggle('has-reminders',reminders.active&&reminders.items.some(i=>i.active));
 }
-/* FIX: scheduleAllReminders usa un objeto de timers con claves únicas por horario */
+/* FIX: scheduleAllReminders con soporte de modo cada 1 hora */
 function scheduleAllReminders() {
   Object.values(reminderTimers).forEach(t=>clearTimeout(t));
   reminderTimers={};
@@ -2202,24 +2317,43 @@ function scheduleAllReminders() {
   const active=reminders.items.filter(i=>i.active);
   if(!active.length) return;
   const now=new Date();
-  reminders.times.forEach((time,idx)=>{
-    const [h,m]=time.split(':').map(Number);
-    const trig=new Date(now); trig.setHours(h,m,0,0);
-    if(trig<=now) trig.setDate(trig.getDate()+1);
-    const id=setTimeout(()=>{
-      if(reminders.active){
-        const it=active[Math.floor(Math.random()*active.length)];
-        showNotification(it); scheduleAllReminders();
-      }
-    },trig.getTime()-now.getTime());
-    reminderTimers[time+'_'+idx]=id;
-  });
+
+  if(reminders.hourly) {
+    /* Modo cada 1 hora: generar disparadores para cada hora del día */
+    const startH=parseInt((reminders.hourlyStart||'07:00').split(':')[0]);
+    const endH=parseInt((reminders.hourlyEnd||'22:00').split(':')[0]);
+    for(let h=startH;h<=endH;h++){
+      const trig=new Date(now); trig.setHours(h,0,0,0);
+      if(trig<=now) continue; /* ya pasó esa hora */
+      const diff=trig.getTime()-now.getTime();
+      const key='h_'+h;
+      reminderTimers[key]=setTimeout(()=>{
+        if(reminders.active){
+          const it=active[Math.floor(Math.random()*active.length)];
+          showNotification(it);
+        }
+      },diff);
+    }
+  } else {
+    /* Modo horarios fijos */
+    reminders.times.forEach((time,idx)=>{
+      const [h,m]=time.split(':').map(Number);
+      const trig=new Date(now); trig.setHours(h,m,0,0);
+      if(trig<=now) trig.setDate(trig.getDate()+1);
+      reminderTimers[time+'_'+idx]=setTimeout(()=>{
+        if(reminders.active){
+          const it=active[Math.floor(Math.random()*active.length)];
+          showNotification(it); scheduleAllReminders();
+        }
+      },trig.getTime()-now.getTime());
+    });
+  }
 }
 function showNotification(it) {
   if('Notification'in window&&Notification.permission==='granted'){
     new Notification('📖 Recordatorio de la Palabra',{
       body:`"${it.verse.slice(0,100)}${it.verse.length>100?'...':''}" — ${it.ref}`,
-      icon:'icon-192.png',tag:'verse-reminder'
+      icon:'icon-192.png',tag:'verse-reminder-'+Date.now()
     });
   }
 }
