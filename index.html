@@ -193,9 +193,10 @@
   .book-row.empty .bk-count{display:none}
 
   .content{flex:1;display:flex;flex-direction:column;background:var(--bg);
-    overflow-y:auto;min-width:0;transition:background .25s;width:100%}
-  .empty-state{flex:1;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:16px;padding:60px 40px;text-align:center}
+    overflow-y:auto;min-width:0;transition:background .25s;width:100%;
+    align-items:stretch}
+  .empty-state{display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:14px;padding:40px 20px 32px;text-align:center}
   .empty-icon{width:56px;height:56px;background:var(--bg3);border-radius:14px;
     display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--purple2)}
   .empty-text{font-size:18px;font-style:italic;color:var(--text2);max-width:480px}
@@ -823,7 +824,6 @@
       <div class="empty-icon">✦</div>
       <div class="empty-text" id="welcome-greeting">Bienvenido. Seleccioná un estudio o creá uno nuevo.</div>
       <div class="votd-card" id="votd"></div>
-      <div class="empty-sub">Atajos: <span class="kbd">Ctrl+N</span> nuevo · <span class="kbd">Ctrl+K</span> buscar · <span class="kbd">Ctrl+E</span> fortaleza · <span class="kbd">Ctrl+R</span> recordatorios · <span class="kbd">Esc</span> cerrar</div>
     </div>
   </div>
 </div>
@@ -1399,7 +1399,7 @@ function renderWelcome() {
           <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>🧠 Memorizar</button>
         </div>
       </div>
-      <div class="empty-sub">Atajos: <span class="kbd">Ctrl+N</span> nuevo · <span class="kbd">Ctrl+K</span> buscar · <span class="kbd">Ctrl+E</span> fortaleza · <span class="kbd">Ctrl+R</span> recordatorios · <span class="kbd">Esc</span> cerrar</div>
+      <div class="empty-sub" style="display:none"></div>
     </div>`;
 }
 function studyVerse(ref,text) {
