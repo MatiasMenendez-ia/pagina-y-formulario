@@ -454,6 +454,7 @@
   /* FIX: heatmap en pantallas muy chicas - celdas con tamaño mínimo touch */
   @media (max-width:420px){
     .btn-hide-sm{display:none !important}
+    .btn-show-sm{display:flex !important}
     .btn-primary{padding:8px 12px;font-size:12px}
     .logo-text{font-size:16px}
     .editor-meta{flex-direction:column;align-items:stretch}
@@ -464,6 +465,24 @@
     .heatmap{grid-template-columns:repeat(10,1fr)}
     .heat-cell{min-height:22px}
   }
+
+  /* Botón solo visible en mobile pequeño */
+  .btn-show-sm{display:none}
+
+  /* Menú desplegable de topbar para mobile */
+  .topbar-menu{position:fixed;top:calc(58px + env(safe-area-inset-top));right:10px;
+    background:var(--bg);border:.5px solid var(--border);border-radius:10px;
+    min-width:200px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.18);
+    display:none;flex-direction:column;overflow:hidden}
+  .topbar-menu.open{display:flex}
+  .topbar-menu-item{display:flex;align-items:center;gap:10px;padding:13px 16px;
+    font-family:'DM Mono',monospace;font-size:12px;color:var(--text);cursor:pointer;
+    border-bottom:.5px solid var(--border2);transition:background .12s}
+  .topbar-menu-item:last-child{border-bottom:none}
+  .topbar-menu-item:hover{background:var(--bg2)}
+  .topbar-menu-item .tm-icon{font-size:18px;width:24px;text-align:center}
+  .topbar-menu-overlay{display:none;position:fixed;inset:0;z-index:49}
+  .topbar-menu-overlay.open{display:block}
 
   .install-banner{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));
     left:16px;right:16px;background:var(--purple);color:#EEEDFE;border-radius:12px;padding:14px 16px;
@@ -794,6 +813,18 @@
   </div>
 </div>
 
+<div class="topbar-menu-overlay" id="topbar-menu-overlay" onclick="closeTopbarMenu()"></div>
+<div class="topbar-menu" id="topbar-menu">
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('plan')"><span class="tm-icon">📖</span>Plan de lectura</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('prayer')"><span class="tm-icon">🙏</span>Oraciones</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('cal')"><span class="tm-icon">🗓</span>Calendario</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('memoria')"><span class="tm-icon">🧠</span>Memorización</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('reminders')"><span class="tm-icon">🔔</span>Recordatorios</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('fortaleza')"><span class="tm-icon">🛡️</span>Modo Fortaleza</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();openModal('settings')"><span class="tm-icon">⚙️</span>Ajustes</div>
+  <div class="topbar-menu-item" onclick="closeTopbarMenu();cycleTheme()"><span class="tm-icon" id="topbar-menu-theme">🌙</span>Cambiar tema</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div class="install-banner" id="install-banner">
@@ -1073,17 +1104,16 @@ function init() {
   $('bible-books-dl').innerHTML = BIBLE_ALL.map(b => `<option value="${esc(b)}">`).join('');
   refreshSeriesDatalist();
 
-  $('topbar-right').innerHTML = [
-    ['plan','📖','Plan de lectura'],
-    ['prayer','🙏','Oraciones'],
-    ['cal','🗓','Calendario']
-  ].map(([m,i,t]) =>
-    `<button class="btn-dark" onclick="openModal('${m}')" title="${t}">${i}</button>`).join('') +
-    `<button class="btn-dark btn-hide-sm" onclick="openModal('memoria')" title="Memorizar (Ctrl+M)">🧠</button>
-     <button class="btn-icon-accent btn-bell" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">🔔</button>
-     <button class="btn-icon-accent btn-shield" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">🛡️<span class="badge-count" id="shield-count" style="display:none">0</span></button>
+  $('topbar-right').innerHTML =
+    `<button class="btn-dark" onclick="openModal('plan')" title="Plan de lectura">📖</button>
+     <button class="btn-dark" onclick="openModal('prayer')" title="Oraciones">🙏</button>
+     <button class="btn-dark btn-hide-sm" onclick="openModal('cal')" title="Calendario">🗓</button>
+     <button class="btn-dark btn-hide-sm" onclick="openModal('memoria')" title="Memorizar (Ctrl+M)">🧠</button>
+     <button class="btn-icon-accent btn-bell btn-hide-sm" id="btn-bell" onclick="openModal('reminders')" title="Recordatorios (Ctrl+R)">🔔</button>
+     <button class="btn-icon-accent btn-shield btn-hide-sm" id="btn-shield" onclick="openModal('fortaleza')" title="Modo Fortaleza (Ctrl+E)">🛡️<span class="badge-count" id="shield-count" style="display:none">0</span></button>
      <button class="btn-dark btn-hide-sm" onclick="openModal('settings')" title="Ajustes">⚙</button>
-     <button class="btn-dark" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
+     <button class="btn-dark btn-hide-sm" id="dark-btn" onclick="cycleTheme()" title="Tema">🌙</button>
+     <button class="btn-dark btn-show-sm" id="btn-overflow" onclick="toggleTopbarMenu()" title="Más opciones" style="font-size:20px;font-weight:700;letter-spacing:1px;position:relative">⋯<span class="badge-count" id="overflow-badge" style="display:none">!</span></button>
      <button class="btn-primary" onclick="newStudy()">+ Nuevo</button>`;
 
   if (!localStorage.getItem(K.settings) && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
@@ -1107,6 +1137,17 @@ function init() {
 
 function refreshSeriesDatalist() {
   $('series-dl').innerHTML = allSeries().map(s => `<option value="${esc(s)}">`).join('');
+}
+
+function toggleTopbarMenu() {
+  const m=$('topbar-menu'), o=$('topbar-menu-overlay');
+  const isOpen=m.classList.contains('open');
+  if(isOpen){ m.classList.remove('open'); o.classList.remove('open'); }
+  else { m.classList.add('open'); o.classList.add('open'); }
+}
+function closeTopbarMenu() {
+  $('topbar-menu')?.classList.remove('open');
+  $('topbar-menu-overlay')?.classList.remove('open');
 }
 
 /* ─── SW + INSTALL ─── */
@@ -1133,8 +1174,11 @@ function applyTheme() {
   document.body.classList.remove('dark','sepia');
   if (settings.theme==='dark') document.body.classList.add('dark');
   else if (settings.theme==='sepia') document.body.classList.add('sepia');
+  const icon = settings.theme==='dark'?'☀️':settings.theme==='sepia'?'📜':'🌙';
   const btn = $('dark-btn');
-  if (btn) { btn.textContent = settings.theme==='dark'?'☀️':settings.theme==='sepia'?'📜':'🌙'; btn.title='Tema: '+settings.theme; }
+  if (btn) { btn.textContent=icon; btn.title='Tema: '+settings.theme; }
+  const mIcon=$('topbar-menu-theme');
+  if(mIcon) mIcon.textContent=icon;
 }
 function cycleTheme() {
   const order=['light','dark','sepia'];
@@ -1321,17 +1365,26 @@ function renderWelcome() {
   const v=VOTD[seed%VOTD.length];
   const hour=now.getHours();
   const greet=hour<12?'Buen día':hour<19?'Buenas tardes':'Buenas noches';
-  $('welcome-greeting').textContent=`${greet}. Seleccioná un estudio o creá uno nuevo.`;
-  $('votd').innerHTML=`
-    <div class="votd-label">Versículo del día</div>
-    <div class="votd-text">"${esc(v.text)}"</div>
-    <div class="votd-ref">— ${esc(v.ref)}</div>
-    <div class="votd-actions">
-      <button onclick='studyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>✦ Estudiar</button>
-      <button onclick='copyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>⧉ Copiar</button>
-      <button onclick='shareWhatsapp(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>💬 WhatsApp</button>
-      <button onclick='speakText(${JSON.stringify(v.text)})'>🔊 Escuchar</button>
-      <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>🧠 Memorizar</button>
+
+  /* Siempre reconstruir el HTML completo del welcome */
+  const content=$('content');
+  content.innerHTML=`
+    <div class="empty-state" id="welcome">
+      <div class="empty-icon">✦</div>
+      <div class="empty-text">${greet}. Seleccioná un estudio o creá uno nuevo.</div>
+      <div class="votd-card">
+        <div class="votd-label">Versículo del día</div>
+        <div class="votd-text">"${esc(v.text)}"</div>
+        <div class="votd-ref">— ${esc(v.ref)}</div>
+        <div class="votd-actions">
+          <button onclick='studyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>✦ Estudiar</button>
+          <button onclick='copyVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>⧉ Copiar</button>
+          <button onclick='shareWhatsapp(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>💬 WhatsApp</button>
+          <button onclick='speakText(${JSON.stringify(v.text)})'>🔊 Escuchar</button>
+          <button onclick='addMemoFromVerse(${JSON.stringify(v.ref)},${JSON.stringify(v.text)})'>🧠 Memorizar</button>
+        </div>
+      </div>
+      <div class="empty-sub">Atajos: <span class="kbd">Ctrl+N</span> nuevo · <span class="kbd">Ctrl+K</span> buscar · <span class="kbd">Ctrl+E</span> fortaleza · <span class="kbd">Ctrl+R</span> recordatorios · <span class="kbd">Esc</span> cerrar</div>
     </div>`;
 }
 function studyVerse(ref,text) {
@@ -1492,8 +1545,9 @@ function renderNotesArea(s) {
     <textarea class="notes-area" id="ed-notes" placeholder="Markdown soportado..." oninput="markDirty();updateWC()">${esc(s.notes)}</textarea>
   </div>`;
 }
+
+function renderTemplateBody(s) {
   const fields=TEMPLATE_FIELDS[s.template]; if(!fields) return '';
-  /* FIX: siempre 1fr 1fr, el CSS ya maneja el breakpoint correcto */
   const so=s.soap||{};
   return `<div class="soap-grid">${fields.map(([k,letter,name])=>`
     <div class="soap-block">
@@ -1718,7 +1772,7 @@ async function deleteStudy(id) {
   const ok=await customConfirm(`¿Eliminar "${s.title}"? No se puede deshacer.`);
   if(!ok) return;
   studies=studies.filter(x=>x.id!==id); save(K.studies,studies);
-  if(currentId===id){currentId=null;$('content').innerHTML='<div class="empty-state" id="welcome"><div class="empty-icon">✦</div></div>';renderWelcome();}
+  if(currentId===id){ currentId=null; renderWelcome(); }
   renderSidebar(); showToast('Eliminado');
 }
 function duplicateStudy(id) {
@@ -2306,8 +2360,12 @@ function toggleAllReminders() {
   showToast(reminders.active?'🔔 Activados':'🔕 Pausados'); openModal('reminders');
 }
 function updateBellBadge() {
+  const hasActive = reminders.active && reminders.items.some(i=>i.active);
   const b=$('btn-bell');
-  if(b) b.classList.toggle('has-reminders',reminders.active&&reminders.items.some(i=>i.active));
+  if(b) b.classList.toggle('has-reminders', hasActive);
+  /* En mobile el badge va al botón ⋯ */
+  const ob=$('overflow-badge');
+  if(ob) ob.style.display = hasActive ? 'flex' : 'none';
 }
 /* FIX: scheduleAllReminders con soporte de modo cada 1 hora */
 function scheduleAllReminders() {
